@@ -18,7 +18,7 @@
 2. 특정 클라우드를 사용한다
 
 ### Datasource
-DB와 통신할 때 사용
+1. DB와 통신할 때 사용
 
 ### Infrastructure
 외부 서비스와 통신할 때 사용
