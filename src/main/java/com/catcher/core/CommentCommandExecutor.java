@@ -28,6 +28,7 @@ public class CommentCommandExecutor implements CommandExecutor<Comment> {
         final PostCommentCommand postCommentCommand = (PostCommentCommand)command;
         return commentRepository.save(Comment
                 .builder()
+                .userId(postCommentCommand.getUserId())
                 .contents(postCommentCommand.getContents())
                 .build());
     }

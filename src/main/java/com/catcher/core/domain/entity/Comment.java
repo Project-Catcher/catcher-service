@@ -24,7 +24,10 @@ public class Comment {
     private Comment parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Comment> replies = new ArrayList<>();
+
+    private Long userId;
 
     private String contents;
 }

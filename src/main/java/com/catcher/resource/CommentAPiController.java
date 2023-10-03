@@ -18,6 +18,9 @@ public class CommentAPiController {
 
     @PostMapping
     public void postComment(@RequestBody PostCommentRequest postCommentRequest) {
-        commentCommandExecutor.run(new PostCommentCommand(postCommentRequest.getContents()));
+        commentCommandExecutor.run(new PostCommentCommand(
+                postCommentRequest.getUserId(),
+                postCommentRequest.getContents())
+        );
     }
 }
