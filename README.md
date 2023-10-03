@@ -1,5 +1,6 @@
-# Core-service for catcher
-### Swit 연결
+# Catcher-service
+서비스의 전반적인 부분을 담당하는 서비스
+
 
 ## Layer 설명
 ### Resource
