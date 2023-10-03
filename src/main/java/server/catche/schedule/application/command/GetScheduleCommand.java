@@ -1,6 +1,5 @@
 package server.catche.schedule.application.command;
 
-
 import lombok.RequiredArgsConstructor;
 import server.catche.schedule.application.service.ScheduleService;
 import server.catche.schedule.presentation.dto.ScheduleResp;
