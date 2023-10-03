@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class CommentCommandExecutor implements CommandExecutor<Comment> {
+public class PostCommentCommandExecutor implements CommandExecutor<Comment> {
 
     private final CommentRepository commentRepository;
 
