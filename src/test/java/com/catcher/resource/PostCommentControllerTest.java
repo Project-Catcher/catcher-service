@@ -1,6 +1,7 @@
 package com.catcher.resource;
 
 import com.catcher.app.AppApplication;
+import com.catcher.core.domain.request.PostCommentReplyRequest;
 import com.catcher.datasource.TestCommentRepository;
 import com.catcher.core.domain.entity.Comment;
 import com.catcher.core.domain.request.PostCommentRequest;
@@ -44,7 +45,7 @@ public class PostCommentControllerTest {
 
     @Test
     @Transactional
-    public void testPostCommand() throws Exception {
+    public void testPostComment() throws Exception {
 
         // given
         Long userId = 1L;
@@ -69,5 +70,41 @@ public class PostCommentControllerTest {
         Comment savedComment = commentRepository.findFirstByUserIdAndContentsOrderByIdDesc(userId, contents);
         assertNotNull(savedComment);
         assertEquals(contents, savedComment.getContents());
+    }
+
+    @Test
+    @Transactional
+    public void testPostCommentReply() throws Exception {
+
+        // given
+        Long userId = 2L;
+        String contents = "대댓글 작성 테스트";
+        Comment parentComment = commentRepository.save(Comment
+                .builder()
+                .userId(1L)
+                .contents("댓글 작성 테스트")
+                .build());
+        PostCommentReplyRequest postCommentReplyRequest = PostCommentReplyRequest
+                .builder()
+                .userId(userId)
+                .parentId(parentComment.getId())
+                .contents(contents)
+                .build();
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/comment/reply")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postCommentReplyRequest))
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        // then
+        Comment reply = commentRepository.findFirstByUserIdAndContentsOrderByIdDesc(userId, contents);
+        assertNotNull(reply);
+        assertEquals(contents, reply.getContents());
+        assertEquals(parentComment.getId(), reply.getParent().getId());
     }
 }
