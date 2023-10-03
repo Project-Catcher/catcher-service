@@ -2,6 +2,8 @@ package com.catcher.resource;
 
 import com.catcher.core.CommentCommandExecutor;
 import com.catcher.core.domain.command.PostCommentCommand;
+import com.catcher.core.domain.command.PostCommentReplyCommand;
+import com.catcher.core.domain.request.PostCommentReplyRequest;
 import com.catcher.core.domain.request.PostCommentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,5 +24,14 @@ public class CommentAPiController {
                 postCommentRequest.getUserId(),
                 postCommentRequest.getContents())
         );
+    }
+
+    @PostMapping("/reply")
+    public void replyComment(@RequestBody PostCommentReplyRequest postCommentReplyRequest) {
+        commentCommandExecutor.run(new PostCommentReplyCommand(
+                postCommentReplyRequest.getUserId(),
+                postCommentReplyRequest.getParentId(),
+                postCommentReplyRequest.getContents()
+        ));
     }
 }
