@@ -47,9 +47,11 @@ public class PostCommentControllerTest {
     public void testPostCommand() throws Exception {
 
         // given
+        Long userId = 1L;
         String contents = "댓글 작성 테스트";
         PostCommentRequest postCommentRequest = PostCommentRequest
                 .builder()
+                .userId(userId)
                 .contents(contents)
                 .build();
 
@@ -64,7 +66,7 @@ public class PostCommentControllerTest {
                 .andDo(print());
 
         // then
-        Comment savedComment = commentRepository.findFirstByContentsOrderByIdDesc(contents);
+        Comment savedComment = commentRepository.findFirstByUserIdAndContentsOrderByIdDesc(userId, contents);
         assertNotNull(savedComment);
         assertEquals(contents, savedComment.getContents());
     }
