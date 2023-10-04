@@ -5,11 +5,14 @@ import com.catcher.core.domain.command.PostCommentCommand;
 import com.catcher.core.domain.command.PostCommentReplyCommand;
 import com.catcher.core.domain.request.PostCommentReplyRequest;
 import com.catcher.core.domain.request.PostCommentRequest;
+import com.catcher.core.domain.response.GetCommentsByPageResponse;
+import com.catcher.core.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentAPiController {
 
     private final PostCommentCommandExecutor postCommentCommandExecutor;
+
+    private final CommentService commentService;
 
     @PostMapping
     public void postComment(@RequestBody PostCommentRequest postCommentRequest) {
@@ -33,5 +38,12 @@ public class CommentAPiController {
                 postCommentReplyRequest.getParentId(),
                 postCommentReplyRequest.getContents()
         ));
+    }
+
+    @GetMapping
+    public List<GetCommentsByPageResponse> getComments(@PageableDefault(size = 20, sort = {"id"}) Pageable pageable) {
+        final var commentPage = commentService.getCommentsWithSize(pageable);
+
+        return GetCommentsByPageResponse.createGetCommentsByPageResponseList(commentPage);
     }
 }
