@@ -1,10 +1,10 @@
-package server.catche;
+package server.catcher;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CatcheApplicationTests {
+class CatcherApplicationTests {
 
     @Test
     void contextLoads() {

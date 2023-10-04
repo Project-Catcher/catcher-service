@@ -1,4 +1,4 @@
-package server.catche.schedule.presentation;
+package server.catcher.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -11,10 +11,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import server.catche.schedule.application.service.ScheduleService;
-import server.catche.schedule.domain.model.Schedule;
-import server.catche.schedule.presentation.dto.ScheduleReq;
-import server.catche.schedule.presentation.dto.ScheduleResp;
+import server.catcher.core.command.ScheduleCommandExecutor;
+import server.catcher.core.dto.ScheduleReq;
+import server.catcher.core.dto.ScheduleResp;
+import server.catcher.core.service.ScheduleService;
+import server.catcher.domain.model.Schedule;
 
 import java.time.LocalDate;
 
@@ -34,10 +35,13 @@ class ScheduleApiControllerTest {
     @MockBean
     private ScheduleService scheduleService;
 
+    @MockBean
+    private ScheduleCommandExecutor commandExecutor;
+
     private Schedule createSchedule(
-            String title, String content, String thumbnail, LocalDate startDate, LocalDate endDate
+            String title, String content, String thumbnailUrl, LocalDate startDate, LocalDate endDate
     ) {
-        return new Schedule(title, content, thumbnail, startDate, endDate);
+        return new Schedule(title, content, thumbnailUrl, startDate, endDate);
     }
 
     @Nested
@@ -55,7 +59,7 @@ class ScheduleApiControllerTest {
             ScheduleReq.ScheduleRegisterDTO mockRequest = ScheduleReq.ScheduleRegisterDTO.builder()
                     .title(expectedSchedule.getTitle())
                     .content(expectedSchedule.getContent())
-                    .thumbnail(expectedSchedule.getThumbnail())
+                    .thumbnailUrl(expectedSchedule.getThumbnailUrl())
                     .startDate(expectedSchedule.getStartDate())
                     .endDate(expectedSchedule.getEndDate())
                     .build();
@@ -79,11 +83,11 @@ class ScheduleApiControllerTest {
             Long scheduleId = 1L;
             String title = "제목";
             String content = "내용";
-            String thumbnail = "이미지.jpg";
+            String thumbnailUrl = "이미지.jpg";
             LocalDate startDate = LocalDate.of(2023, 10, 3);
             LocalDate endDate = LocalDate.of(2023, 10, 3);
 
-            Schedule schedule = createSchedule(title, content, thumbnail, startDate, endDate);
+            Schedule schedule = createSchedule(title, content, thumbnailUrl, startDate, endDate);
             when(scheduleService.getSchedule(scheduleId)).thenReturn(ScheduleResp.ScheduleDTO.from(schedule));
 
             // When
@@ -95,7 +99,7 @@ class ScheduleApiControllerTest {
             resultActions.andExpect(status().isOk())
                     .andExpect(jsonPath("$.title").value(title))
                     .andExpect(jsonPath("$.content").value(content))
-                    .andExpect(jsonPath("$.thumbnail").value(thumbnail))
+                    .andExpect(jsonPath("$.thumbnailUrl").value(thumbnailUrl))
                     .andExpect(jsonPath("$.startDate").value(startDate.toString()))
                     .andExpect(jsonPath("$.endDate").value(endDate.toString()));
         }

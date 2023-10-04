@@ -1,8 +1,8 @@
-package server.catche.schedule.application.command;
+package server.catcher.core.command;
 
 import lombok.RequiredArgsConstructor;
-import server.catche.schedule.application.service.ScheduleService;
-import server.catche.schedule.presentation.dto.ScheduleResp;
+import server.catcher.core.service.ScheduleService;
+import server.catcher.core.dto.ScheduleResp;
 
 @RequiredArgsConstructor
 public class GetScheduleCommand implements Command<ScheduleResp.ScheduleDTO> {

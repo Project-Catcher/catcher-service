@@ -1,11 +1,12 @@
-package server.catche.schedule.application.service;
+package server.catcher.datasource.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import server.catche.schedule.domain.model.Schedule;
-import server.catche.schedule.datasource.ScheduleRepository;
-import server.catche.schedule.presentation.dto.ScheduleResp;
+import server.catcher.core.service.ScheduleService;
+import server.catcher.domain.model.Schedule;
+import server.catcher.datasource.ScheduleRepository;
+import server.catcher.core.dto.ScheduleResp;
 
 @Service
 @RequiredArgsConstructor

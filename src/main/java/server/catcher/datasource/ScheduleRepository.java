@@ -1,8 +1,8 @@
-package server.catche.schedule.datasource;
+package server.catcher.datasource;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import server.catche.schedule.domain.model.Schedule;
+import server.catcher.domain.model.Schedule;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 }

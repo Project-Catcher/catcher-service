@@ -1,13 +1,13 @@
-package server.catche;
+package server.catcher;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CatcheApplication {
+public class CatcherApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CatcheApplication.class, args);
+        SpringApplication.run(CatcherApplication.class, args);
     }
 
 }

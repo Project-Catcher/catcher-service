@@ -1,4 +1,4 @@
-package server.catche.schedule.domain.model;
+package server.catcher.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,14 +20,14 @@ public class Schedule {
 
     private String title;
     private String content;
-    private String thumbnail;
+    private String thumbnailUrl;
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Schedule(String title, String content, String thumbnail, LocalDate startDate, LocalDate endDate) {
+    public Schedule(String title, String content, String thumbnailUrl, LocalDate startDate, LocalDate endDate) {
         this.title = title;
         this.content = content;
-        this.thumbnail = thumbnail;
+        this.thumbnailUrl = thumbnailUrl;
         this.startDate = startDate;
         this.endDate = endDate;
     }

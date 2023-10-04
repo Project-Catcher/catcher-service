@@ -1,10 +1,10 @@
-package server.catche.schedule.presentation.dto;
+package server.catcher.core.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import server.catche.schedule.domain.model.Schedule;
+import server.catcher.domain.model.Schedule;
 
 import java.time.LocalDate;
 
@@ -17,7 +17,7 @@ public class ScheduleResp {
         private final Long id;
         private final String title;
         private final String content;
-        private final String thumbnail;
+        private final String thumbnailUrl;
         private final LocalDate startDate;
         private final LocalDate endDate;
 
@@ -26,7 +26,7 @@ public class ScheduleResp {
                     .id(schedule.getId())
                     .title(schedule.getTitle())
                     .content(schedule.getContent())
-                    .thumbnail(schedule.getThumbnail())
+                    .thumbnailUrl(schedule.getThumbnailUrl())
                     .startDate(schedule.getStartDate())
                     .endDate(schedule.getEndDate())
                     .build();

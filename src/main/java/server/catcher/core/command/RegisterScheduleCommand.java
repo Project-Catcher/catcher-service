@@ -1,9 +1,9 @@
-package server.catche.schedule.application.command;
+package server.catcher.core.command;
 
 import lombok.RequiredArgsConstructor;
-import server.catche.schedule.application.service.ScheduleService;
-import server.catche.schedule.domain.model.Schedule;
-import server.catche.schedule.presentation.dto.ScheduleReq;
+import server.catcher.core.service.ScheduleService;
+import server.catcher.domain.model.Schedule;
+import server.catcher.core.dto.ScheduleReq;
 
 @RequiredArgsConstructor
 public class RegisterScheduleCommand implements Command<Void> {
@@ -15,7 +15,7 @@ public class RegisterScheduleCommand implements Command<Void> {
         Schedule schedule = new Schedule(
                 request.getTitle(),
                 request.getContent(),
-                request.getThumbnail(),
+                request.getThumbnailUrl(),
                 request.getStartDate(),
                 request.getEndDate()
         );

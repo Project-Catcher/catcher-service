@@ -1,4 +1,4 @@
-package server.catche.schedule.presentation.dto;
+package server.catcher.core.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -19,7 +19,7 @@ public class ScheduleReq {
 
         @NotBlank
         private String content;
-        private String thumbnail;
+        private String thumbnailUrl;
 
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         private LocalDate startDate;
