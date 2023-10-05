@@ -1,6 +1,7 @@
-package com.catcher.core;
+package com.catcher.core.domain.command;
 
 import com.catcher.core.domain.command.Command;
+import com.catcher.core.domain.command.CommandExecutor;
 import com.catcher.core.domain.command.PostCommentCommand;
 import com.catcher.core.domain.command.PostCommentReplyCommand;
 import com.catcher.core.domain.entity.Comment;

@@ -1,6 +1,6 @@
 package com.catcher.core.service;
 
-import com.catcher.core.GetCommentCommandExecutor;
+import com.catcher.core.domain.command.GetCommentCommandExecutor;
 import com.catcher.core.domain.command.GetParentCommentsByPageCommand;
 import com.catcher.core.domain.entity.Comment;
 import lombok.RequiredArgsConstructor;
