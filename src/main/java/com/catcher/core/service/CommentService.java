@@ -20,8 +20,8 @@ public class CommentService {
     }
 
     @Transactional
-    public void saveSingleComment(final Long userId, final String contents) {
-        commentRepository.save(Comment
+    public Comment saveSingleComment(final Long userId, final String contents) {
+        return commentRepository.save(Comment
                 .builder()
                 .userId(userId)
                 .contents(contents)
@@ -29,7 +29,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void saveSingleReply(Long parentId, Long userId, String contents) {
+    public Comment saveSingleReply(Long parentId, Long userId, String contents) {
         final Comment parentComment = commentRepository
                 .findById(parentId)
                 .orElseThrow(); //TODO: fill custom exception
@@ -42,5 +42,7 @@ public class CommentService {
                 .build();
 
         parentComment.getReplies().add(reply);
+
+        return reply;
     }
 }
