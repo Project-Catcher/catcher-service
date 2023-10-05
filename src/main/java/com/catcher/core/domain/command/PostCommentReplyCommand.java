@@ -1,15 +1,25 @@
 package com.catcher.core.domain.command;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.catcher.core.domain.request.PostCommentReplyRequest;
+import com.catcher.core.service.CommentService;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@AllArgsConstructor
-public class PostCommentReplyCommand implements Command {
+@RequiredArgsConstructor
+public class PostCommentReplyCommand implements Command<Void> {
 
-    Long userId;
+    private final CommentService commentService;
 
-    Long parentId;
+    private final PostCommentReplyRequest postCommentReplyRequest;
 
-    String contents;
+    @Override
+    public Void execute() {
+        commentService.saveSingleReply(
+                postCommentReplyRequest.getParentId(),
+                postCommentReplyRequest.getUserId(),
+                postCommentReplyRequest.getContents()
+        );
+
+        return null;
+    }
+
 }
