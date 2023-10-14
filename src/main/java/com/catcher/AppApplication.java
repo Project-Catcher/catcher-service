@@ -1,11 +1,11 @@
-package com.catcher.app;
+package com.catcher;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.catcher.core", "com.catcher.resource"})
+@ComponentScan
 public class AppApplication {
 
 	public static void main(String[] args) {
