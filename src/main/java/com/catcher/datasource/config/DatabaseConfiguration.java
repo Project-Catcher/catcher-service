@@ -3,6 +3,7 @@ package com.catcher.datasource.config;
 import com.catcher.infrastructure.utils.KmsUtils;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +12,10 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
+@RequiredArgsConstructor
 public class DatabaseConfiguration {
+
+    private final KmsUtils kmsUtils;
 
     /**
      * DB
@@ -54,23 +58,23 @@ public class DatabaseConfiguration {
 
         JSch jsch = new JSch();
         Session session = jsch.getSession(
-                KmsUtils.decrypt(sshUsername),
-                KmsUtils.decrypt(sshHost),
+                kmsUtils.decrypt(sshUsername),
+                kmsUtils.decrypt(sshHost),
                 sshPort
         );
-        session.setPassword(KmsUtils.decrypt(sshPassword));
+        session.setPassword(kmsUtils.decrypt(sshPassword));
         session.setConfig("StrictHostKeyChecking", "no");
         session.connect();
 
         int assignedPort = session.setPortForwardingL(0,
-                KmsUtils.decrypt(originUrl),
+                kmsUtils.decrypt(originUrl),
                 localPort
         ); // TODO: lport 값(현재 0)은 추후 서버 올릴때는 지정해줘야함
 
         return DataSourceBuilder.create()
-                .url(KmsUtils.decrypt(databaseUrl).replace(Integer.toString(localPort), Integer.toString(assignedPort)))
-                .username(KmsUtils.decrypt(databaseUsername))
-                .password(KmsUtils.decrypt(databasePassword))
+                .url(kmsUtils.decrypt(databaseUrl).replace(Integer.toString(localPort), Integer.toString(assignedPort)))
+                .username(kmsUtils.decrypt(databaseUsername))
+                .password(kmsUtils.decrypt(databasePassword))
                 .build();
     }
 }

@@ -25,7 +25,7 @@ public class KmsUtils {
     @Value("${spring.profiles.active}")
     private static String PROFILE;
 
-    public static String encrypt(String text) {
+    public String encrypt(String text) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider(PROFILE))
                 .withRegion(Regions.AP_NORTHEAST_2)
@@ -40,7 +40,7 @@ public class KmsUtils {
         return Base64.encodeBase64String(cipherBytes);
     }
 
-    public static String decrypt(String cipherBase64) {
+    public String decrypt(String cipherBase64) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
                 .withCredentials(new ProfileCredentialsProvider(PROFILE))
                 .withRegion(Regions.AP_NORTHEAST_2)
