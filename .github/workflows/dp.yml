@@ -75,4 +75,4 @@ jobs:
         else
           MESSAGE="❌ 배포 실패: Catcher-service - by ${{ github.actor }}"
         fi
-        curl -X POST -H "Content-Type: application/json" -d "{\"MESSAGE\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+        curl -X POST -H "Content-Type: application/json" -d "{\"text\":\"${MESSAGE}\"}" ${{ secrets.WEBHOOK_URL }}
