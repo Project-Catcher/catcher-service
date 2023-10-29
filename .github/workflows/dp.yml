@@ -62,7 +62,7 @@ jobs:
           KUSTOMIZE_PATH="k8s/overlays/development"
         fi
         kustomize edit set image catcher-service=$ECR_REPO_URL:catcher-service
-        kustomize build ./kustomize-configs/$KUSTOMIZE_PATH | kubectl apply -f -
+        kustomize build ./$KUSTOMIZE_PATH | kubectl apply -f -
 
     - name: Sync ArgoCD Application
       run: argocd app sync catcher-service
