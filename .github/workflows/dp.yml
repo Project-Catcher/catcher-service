@@ -67,8 +67,12 @@ jobs:
       env:
         ARGOCD_AUTH_TOKEN: ${{ env.ARGOCD_AUTH_TOKEN }}
      
-    - name: Notification to SWIT
-      uses: roharon/action-swit@v1
-      with:
-        webhooks_url: ${{ env.WEBHOOK_URL }}
-        MESSAGE: "🏷 ${{ job.status }} 백엔드 EKS 배포 : Catcher-service - by ${{ github.actor }}"
+    - name: Send Notification
+      run: |
+        if [[ ${{ job.status }} == "success" ]]; then
+          MESSAGE="🏷 배포 성공: Catcher-service - by ${{ github.actor }}"
+        else
+          MESSAGE="❌ 배포 실패: Catcher-service - by ${{ github.actor }}"
+        fi
+        curl -X POST -H "Content-Type: application/json" -d "{\"text\":\"${MESSAGE}\"}" ${{ secrets.WEBHOOK_URL }}
+
