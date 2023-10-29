@@ -62,9 +62,8 @@ jobs:
         fi
 
         # Docker 이미지 URL 설정
-        IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         cd $KUSTOMIZE_PATH
-        kustomize edit set image IMAGE_URL
+        kustomize edit set image ${{ steps.login-ecr.outputs.registry }}:catcher-service
         cat kustomization.yaml
         
     # 수정된 파일 commit & push
@@ -77,7 +76,7 @@ jobs:
         git config --global user.email "dls102s@gmail.com"
         git config --global user.name "Taein2"
         git config --global github.token ${{ env.GITHUB_TOKEN }}
-        git commit -am "Update image tag"
+        git commit -am "Update image tag ${{ steps.tag_version.outputs.new_tag }}"
         git push -u origin main
      
     - name: Send Notification
