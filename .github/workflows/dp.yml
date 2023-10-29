@@ -28,19 +28,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Checkout Kustomize Configs
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ env.KUSTOMIZE_REPO }}
-        path: 'kustomize-configs'
-        ref: 'main'
-
-    - name: Set up Kubectl and Kustomize
-      run: |
-        sudo snap install kubectl --classic
-        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-        sudo mv kustomize /usr/local/bin/
-
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -50,6 +37,14 @@ jobs:
 
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Checkout for Kustomize repository
+      uses: actions/checkout@v2
+      with:
+        # kubernetes yaml 파일 저장
+        repository: ${{ env.KUSTOMIZE_REPO }}
+        ref: main
+        path: catcher-service-kusto
 
     - name: Set up Kubernetes context
       run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
@@ -66,10 +61,10 @@ jobs:
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         
         # deployment.yaml 파일 내 이미지 동적으로 설정
-        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' ./$KUSTOMIZE_PATH/patch-deployment.yaml
+        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' $KUSTOMIZE_PATH/deployment.yaml
         
         # Kustomize를 사용하여 배포
-        kustomize build ./$KUSTOMIZE_PATH | kubectl apply -f -
+        kustomize build $KUSTOMIZE_PATH | kubectl apply -f -
 
     - name: Sync ArgoCD Application
       run: argocd app sync catcher-service
