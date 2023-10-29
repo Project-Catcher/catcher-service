@@ -65,11 +65,8 @@ jobs:
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         
-        # kustomization.yaml 파일 업데이트
-        kustomize edit set image catcher-service=$IMAGE_URL
-        
         # deployment.yaml 파일 내 이미지 동적으로 설정
-        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' ./$KUSTOMIZE_PATH/deployment.yaml
+        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' ./$KUSTOMIZE_PATH/patch-deployment.yaml
         
         # Kustomize를 사용하여 배포
         kustomize build ./$KUSTOMIZE_PATH | kubectl apply -f -
