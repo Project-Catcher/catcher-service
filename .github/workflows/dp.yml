@@ -73,7 +73,7 @@ jobs:
         sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' "$FILE_NAME"
         
         # Kustomize를 사용하여 배포
-        kustomize build $KUSTOMIZE_PATH | kubectl apply -f -
+        kustomize build . | kubectl apply -f -
 
     - name: Sync ArgoCD Application
       run: argocd app sync catcher-service
