@@ -68,11 +68,11 @@ jobs:
         ARGOCD_AUTH_TOKEN: ${{ env.ARGOCD_AUTH_TOKEN }}
      
     - name: Send Notification
+      if: always()
       run: |
         if [[ ${{ job.status }} == "success" ]]; then
           MESSAGE="🏷 배포 성공: Catcher-service - by ${{ github.actor }}"
         else
           MESSAGE="❌ 배포 실패: Catcher-service - by ${{ github.actor }}"
         fi
-        curl -X POST -H "Content-Type: application/json" -d "{\"text\":\"${MESSAGE}\"}" ${{ secrets.WEBHOOK_URL }}
-
+        curl -X POST -H "Content-Type: application/json" -d "{\"MESSAGE\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
