@@ -76,8 +76,8 @@ jobs:
       run: |
         cd catcher-service-kusto
         pwd
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "github-actions"
+        git config --global user.email "dls102s@gmail.com"
+        git config --global user.name "Taein2"
         git config --global github.token ${{ env.GITHUB_TOKEN }}
         git commit -am "Update image tag"
         git push -u origin main
