@@ -83,6 +83,8 @@ jobs:
         git config --global user.name "github-actions"
         git commit -am "Update image tag"
         git push -u origin main
+      env:
+        TOKEN: ${{ env.GITHUB_TOKEN }}
      
     - name: Send Notification
       if: ${{ always() }}
