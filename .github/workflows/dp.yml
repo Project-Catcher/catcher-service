@@ -14,8 +14,6 @@ env:
   ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
   KUSTOMIZE_REPO: "Project-Catcher/catcher-service-kusto"
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
-  KUSTOMIZE_PATH_DEV: "k8s/overlays/development"
-  KUSTOMIZE_PATH_PROD: "k8s/overlays/production"
 
 permissions:
   id-token: write
@@ -56,7 +54,11 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        KUSTOMIZE_PATH=${{ env['KUSTOMIZE_PATH_' + env.DEPLOY_ENV] }}
+        if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
+          KUSTOMIZE_PATH="k8s/overlays/production"
+        else
+          KUSTOMIZE_PATH="k8s/overlays/development"
+        fi
         kustomize edit set image catcher-service=$ECR_REPO_URL:catcher-service
         kustomize build ./kustomize-configs/$KUSTOMIZE_PATH | kubectl apply -f -
 
