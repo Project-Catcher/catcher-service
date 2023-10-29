@@ -79,10 +79,10 @@ jobs:
         fi
 
         cd $KUSTOMIZE_PATH
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "github-actions"
+        git config --global user.name "Taein2"
         git commit -am "Update image tag"
         git push -u origin main
+        
       env:
         TOKEN: ${{ env.GITHUB_TOKEN }}
      
