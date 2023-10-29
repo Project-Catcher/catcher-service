@@ -52,9 +52,9 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-          KUSTOMIZE_PATH="k8s/overlays/production/production-patch.yaml"
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production/production-patch.yaml"
         else
-          KUSTOMIZE_PATH="k8s/overlays/development/deployment-patch.yaml"
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development/deployment-patch.yaml"
         fi        
         
         # Docker 이미지 URL 설정
