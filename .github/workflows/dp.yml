@@ -31,7 +31,7 @@ jobs:
       with:
         repository: ${{ env.KUSTOMIZE_REPO }}
         path: 'kustomize-configs'
-        ref: ${{ github.ref }}
+        ref: 'main'
 
     - name: Set up Kubectl and Kustomize
       run: |
@@ -71,8 +71,8 @@ jobs:
       if: ${{ always() }}
       run: |
         if [[ ${{ job.status }} == "success" ]]; then
-          MESSAGE="🏷 배포 성공: Catcher-service - by ${{ github.actor }}"
+          MESSAGE="🏷 ${{ job.status }} 배포 성공: Catcher-service - by ${{ github.actor }}"
         else
-          MESSAGE="❌ 배포 실패: Catcher-service - by ${{ github.actor }}"
+          MESSAGE="❌ ${{ job.status }} 배포 실패: Catcher-service - by ${{ github.actor }}"
         fi
         curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
