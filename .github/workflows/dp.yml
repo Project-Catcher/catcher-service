@@ -43,7 +43,6 @@ jobs:
     - name: Checkout for Kustomize repository
       uses: actions/checkout@v2
       with:
-        # kubernetes yaml 파일 저장
         repository: ${{ env.KUSTOMIZE_REPO }}
         ref: main
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -58,7 +57,7 @@ jobs:
           KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development"
           FILE_NAME="deployment-patch.yaml"
         fi
-        
+
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         cd $KUSTOMIZE_PATH
@@ -68,17 +67,9 @@ jobs:
     # 수정된 파일 commit & push
     - name: Commit files
       run: |
-        if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
-          FILE_NAME="production-patch.yaml"
-        else
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development"
-          FILE_NAME="deployment-patch.yaml"
-        fi
-
-        cd $KUSTOMIZE_PATH
-        git config --global user.email "dls102s@gmail.com"
-        git config --global user.name "Taein2"
+        cd catcher-service-kusto
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
         git commit -am "Update image tag"
         git push -u origin main
       env:
