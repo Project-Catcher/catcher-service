@@ -14,6 +14,7 @@ env:
   ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
   KUSTOMIZE_REPO: "Project-Catcher/catcher-service-kusto"
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
   id-token: write
@@ -47,14 +48,10 @@ jobs:
         # kubernetes yaml 파일 저장
         repository: ${{ env.KUSTOMIZE_REPO }}
         ref: main
+        token: ${{ secrets.GITHUB_TOKEN }}
         path: catcher-service-kusto
 
-    - name: Set up Kubernetes context
-      run: |
-        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
-        echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
-
-    - name: Deploy to Kubernetes
+    - name: Update Kubernetes resources
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
           KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
@@ -67,17 +64,25 @@ jobs:
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         cd $KUSTOMIZE_PATH
+        kustomize edit set image "'"$IMAGE_URL"'":${{ steps.image.outputs.version }}
+        cat kustomization.yaml
         
-        # deployment.yaml 파일 내 이미지 동적으로 설정
-        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' "$FILE_NAME"
-        
-        # Kustomize를 사용하여 배포
-        kustomize build . | kubectl apply -f -
+    # 수정된 파일 commit & push
+    - name: Commit files
+      run: |
+        if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
+          FILE_NAME="production-patch.yaml"
+        else
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development"
+          FILE_NAME="deployment-patch.yaml"
+        fi
 
-    - name: Sync ArgoCD Application
-      run: argocd app sync catcher-service
-      env:
-        ARGOCD_AUTH_TOKEN: ${{ env.ARGOCD_AUTH_TOKEN }}
+        cd $KUSTOMIZE_PATH
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
+        git commit -am "Update image tag"
+        git push -u origin dev
      
     - name: Send Notification
       if: ${{ always() }}
