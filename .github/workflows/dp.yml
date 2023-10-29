@@ -54,16 +54,18 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production/production-patch.yaml"
+          KUSTOMIZE_PATH="./catcher-service-kusto/k8s/overlays/production"
+          FILE_NAME="production-patch.yaml"
         else
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development/deployment-patch.yaml"
+          KUSTOMIZE_PATH="./catcher-service-kusto/k8s/overlays/development"
+          FILE_NAME="deployment-patch.yaml"
         fi
         
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         
         # deployment.yaml 파일 내 이미지 동적으로 설정
-        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' $KUSTOMIZE_PATH
+        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' $KUSTOMIZE_PATH $FILE_NAME
         
         # Kustomize를 사용하여 배포
         kustomize build $KUSTOMIZE_PATH | kubectl apply -f -
