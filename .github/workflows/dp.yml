@@ -1,0 +1,75 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: 
+      - main
+      - kustomize
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+  OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE }}
+  WEBHOOK_URL: ${{ secrets.WEBHOOK }}
+  ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+  KUSTOMIZE_REPO: "Project-Catcher/catcher-service-kusto"
+  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+  ECR_REPO_URL_DEV: ${{ secrets.ECR_REPO_DEV }}
+  ECR_REPO_URL_PROD: ${{ secrets.ECR_REPO_PROD }}
+  KUSTOMIZE_PATH_DEV: "k8s/overlays/development"
+  KUSTOMIZE_PATH_PROD: "k8s/overlays/production"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Checkout Kustomize Configs
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.KUSTOMIZE_REPO }}
+        path: 'kustomize-configs'
+        ref: ${{ github.ref }}
+
+    - name: Set up Kubectl and Kustomize
+      run: |
+        sudo snap install kubectl --classic
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        sudo mv kustomize /usr/local/bin/
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-session-name: GitHubActions
+        role-to-assume: ${{ env.OIDC_ROLE_ARN }}
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Set up Kubernetes context
+      run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+    - name: Deploy to Kubernetes
+      run: |
+        ECR_REPO_URL=${{ env['ECR_REPO_URL_' + env.DEPLOY_ENV] }}
+        KUSTOMIZE_PATH=${{ env['KUSTOMIZE_PATH_' + env.DEPLOY_ENV] }}
+        kustomize edit set image catcher-service=$ECR_REPO_URL:catcher-service
+        kustomize build ./kustomize-configs/$KUSTOMIZE_PATH | kubectl apply -f -
+
+    - name: Sync ArgoCD Application
+      run: argocd app sync catcher-service
+      env:
+        ARGOCD_AUTH_TOKEN: ${{ env.ARGOCD_AUTH_TOKEN }}
+     
+    - name: Notification to SWIT
+      uses: roharon/action-swit@v1
+      with:
+        webhooks_url: ${{ env.WEBHOOK_URL }}
+        MESSAGE: "🏷 ${{ job.status }} 백엔드 EKS 배포 : Catcher-service - by ${{ github.actor }}"
