@@ -21,13 +21,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           LANGUAGE: Korean
-      
+
       - name: Send Notification
         if: ${{ always() }}
         run: |
           if [[ ${{ job.status }} == "success" ]]; then
-            MESSAGE="🏷 ${{ job.status }} 배포 성공: Catcher-service - by ${{ github.actor }}"
+            MESSAGE="🏷 ${{ job.status }} 백엔드 OpenAI 코드 리뷰 : Catcher-service - by ${{ github.actor }}"
           else
-            MESSAGE="❌ ${{ job.status }} 배포 실패: Catcher-service - by ${{ github.actor }}"
+            MESSAGE="❌ ${{ job.status }} 백엔드 OpenAI 코드 리뷰 : Catcher-service - by ${{ github.actor }}"
           fi
-          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.webhook_url }}
