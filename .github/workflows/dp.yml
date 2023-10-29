@@ -16,9 +16,7 @@ env:
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-permissions:
-  id-token: write
-  contents: write
+permissions: write-all
 
 jobs:
   deploy:
