@@ -20,7 +20,7 @@ permissions:
   contents: write 
   pages: write
   id-token: write
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
         cd $KUSTOMIZE_PATH
-        kustomize edit set image "'"$IMAGE_URL"'":${{ steps.image.outputs.version }}
+        kustomize edit set image $IMAGE_URL:${{ steps.image.outputs.version }}
         cat kustomization.yaml
         
     # 수정된 파일 commit & push
@@ -74,8 +74,8 @@ jobs:
       run: |
         cd catcher-service-kusto
         pwd
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "github-actions"
+        git config --global user.email "dls102s@gmail.com"
+        git config --global user.name "Taein2"
         git commit -am "Update image tag"
         git push -u origin main
      
