@@ -47,7 +47,9 @@ jobs:
         path: catcher-service-kusto
 
     - name: Set up Kubernetes context
-      run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+        echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
 
     - name: Deploy to Kubernetes
       run: |
@@ -55,7 +57,7 @@ jobs:
           KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production/production-patch.yaml"
         else
           KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development/deployment-patch.yaml"
-        fi        
+        fi
         
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
