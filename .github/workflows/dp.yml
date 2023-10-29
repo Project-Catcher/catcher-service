@@ -23,7 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -48,7 +50,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         path: catcher-service-kusto
 
-    - name: Update Kubernetes resources
+    - name: Update Kustomize image
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
           KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
@@ -72,8 +74,6 @@ jobs:
         git config --global user.name "github-actions"
         git commit -am "Update image tag"
         git push -u origin main
-      env:
-        TOKEN: ${{ env.GITHUB_TOKEN }}
      
     - name: Send Notification
       if: ${{ always() }}
