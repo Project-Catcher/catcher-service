@@ -38,6 +38,10 @@ jobs:
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
 
+      # kustomize 명령을 가져온다.
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
+
     - name: Checkout for Kustomize repository
       uses: actions/checkout@v2
       with:
@@ -54,18 +58,19 @@ jobs:
     - name: Deploy to Kubernetes
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-          KUSTOMIZE_PATH="./catcher-service-kusto/k8s/overlays/production"
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
           FILE_NAME="production-patch.yaml"
         else
-          KUSTOMIZE_PATH="./catcher-service-kusto/k8s/overlays/development"
+          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development"
           FILE_NAME="deployment-patch.yaml"
         fi
         
         # Docker 이미지 URL 설정
         IMAGE_URL="${{ env.ECR_REPO_URL }}:catcher-service"
+        cd $KUSTOMIZE_PATH
         
         # deployment.yaml 파일 내 이미지 동적으로 설정
-        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' $KUSTOMIZE_PATH $FILE_NAME
+        sed -i 's|image: "catcher-service:latest"|image: "'"$IMAGE_URL"'"|' "$FILE_NAME"
         
         # Kustomize를 사용하여 배포
         kustomize build $KUSTOMIZE_PATH | kubectl apply -f -
