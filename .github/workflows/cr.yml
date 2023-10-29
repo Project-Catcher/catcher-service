@@ -22,8 +22,12 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           LANGUAGE: Korean
       
-      - name: notification to swit
-        uses: roharon/action-swit@v1
-        with:
-          webhooks_url: ${{ env.webhook_url }}
-          MESSAGE: "🏷 ${{ job.status }} 백엔드 OpenAI 코드 리뷰 : Catcher-service - by ${{ github.actor }}"
+      - name: Send Notification
+        if: ${{ always() }}
+        run: |
+          if [[ ${{ job.status }} == "success" ]]; then
+            MESSAGE="🏷 ${{ job.status }} 배포 성공: Catcher-service - by ${{ github.actor }}"
+          else
+            MESSAGE="❌ ${{ job.status }} 배포 실패: Catcher-service - by ${{ github.actor }}"
+          fi
+          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
