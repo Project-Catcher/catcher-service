@@ -12,18 +12,15 @@ env:
   OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
   ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-  KUSTOMIZE_REPO: "Project-Catcher/catcher-service-kusto"
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
 permissions:
   contents: write 
-  pages: write
   id-token: write
 
 jobs:
   deploy:
-    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -47,7 +44,7 @@ jobs:
     - name: Checkout for Kustomize repository
       uses: actions/checkout@v2
       with:
-        repository: ${{ env.KUSTOMIZE_REPO }}
+        repository: Project-Catcher/catcher-service-kusto
         ref: main
         token: ${{ env.GITHUB_TOKEN }}
         path: catcher-service-kusto
@@ -68,18 +65,14 @@ jobs:
         cat kustomization.yaml
         
     # 수정된 파일 commit & push
-    - name: Commit files 
-      env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+    - name: Commit minifest files
       run: |
-        cd catcher-service-kusto
-        pwd
-        git config --global user.email "dls102s@gmail.com"
-        git config --global user.name "Taein2"
-        git remote set-url origin https://${{ github.actor }}:${{ env.GITHUB_TOKEN }}@github.com/Project-Catcher/catcher-service-kusto.git
-        git commit -am "Update image tag ${{ steps.tag_version.outputs.new_tag }}"
+        cd emp-gitops
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
+        git commit -am "Update image tag"
         git push -u origin main
-     
+        
     - name: Send Notification
       if: ${{ always() }}
       run: |
