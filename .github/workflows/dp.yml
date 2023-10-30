@@ -48,7 +48,7 @@ jobs:
       with:
         repository: ${{ env.KUSTOMIZE_REPO }}
         ref: main
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ env.GITHUB_TOKEN }}
         path: catcher-service-kusto
 
     - name: Update Kustomize image
@@ -75,7 +75,7 @@ jobs:
         pwd
         git config --global user.email "dls102s@gmail.com"
         git config --global user.name "Taein2"
-        git config --global github.token ${{ env.GITHUB_TOKEN }}        
+        git remote set-url origin https://${{ github.actor }}:${{ env.GITHUB_TOKEN }}@github.com/Project-Catcher/catcher-service-kusto.git
         git commit -am "Update image tag ${{ steps.tag_version.outputs.new_tag }}"
         git push -u origin main
      
