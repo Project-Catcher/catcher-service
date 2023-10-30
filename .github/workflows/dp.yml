@@ -23,17 +23,7 @@ permissions:
 
 jobs:
   deploy:
-    permissions:
-        actions: write
-        checks: write
-        contents: write
-        deployments: write
-        issues: write
-        packages: write
-        pull-requests: write
-        repository-projects: write
-        security-events: write
-        statuses: write   
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
