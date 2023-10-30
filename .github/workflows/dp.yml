@@ -23,6 +23,17 @@ permissions:
 
 jobs:
   deploy:
+    permissions:
+        actions: write
+        checks: write
+        contents: write
+        deployments: write
+        issues: write
+        packages: write
+        pull-requests: write
+        repository-projects: write
+        security-events: write
+        statuses: write   
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -67,7 +78,7 @@ jobs:
         cat kustomization.yaml
         
     # 수정된 파일 commit & push
-    - name: Commit files
+    - name: Commit files 
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
       run: |
