@@ -75,9 +75,9 @@ jobs:
         pwd
         git config --global user.email "dls102s@gmail.com"
         git config --global user.name "Taein2"
-        git config --global github.token ${{ env.GITHUB_TOKEN }}
+        git config --global github.token ${{ env.GITHUB_TOKEN }}        
         git commit -am "Update image tag ${{ steps.tag_version.outputs.new_tag }}"
-        git push -u origin main
+        git push -u https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/Project-Catcher/catcher-service-kusto.git main
      
     - name: Send Notification
       if: ${{ always() }}
