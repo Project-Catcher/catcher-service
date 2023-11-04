@@ -77,8 +77,8 @@ jobs:
       if: ${{ always() }}
       run: |
         if [[ ${{ job.status }} == "success" ]]; then
-          MESSAGE="🏷 ${{ job.status }} Kustomize Update 성공: Catcher-service - by ${{ github.actor }}"
+          MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
         else
-          MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: Catcher-service - by ${{ github.actor }}"
+          MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
         fi
         curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
