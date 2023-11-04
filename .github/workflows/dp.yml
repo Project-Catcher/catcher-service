@@ -16,7 +16,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
 permissions:
-  contents: write 
+  contents: write
   id-token: write
 
 jobs:
@@ -63,9 +63,17 @@ jobs:
         cd $KUSTOMIZE_PATH
         kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}:catcher-service"
         cat kustomization.yaml
-        
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        cd catcher-service-kusto
+        git status
+        git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
+
     # 수정된 파일 commit & push
-    - name: Commit minifest files
+    - name: Commit manifest files
+      if: steps.git-check.outputs.changes_exist == 'true'
       run: |
         cd catcher-service-kusto
         git config --global user.email "github-actions@github.com"
@@ -76,8 +84,10 @@ jobs:
     - name: Send Notification
       if: ${{ always() }}
       run: |
-        if [[ ${{ job.status }} == "success" ]]; then
+        if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
           MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
+        elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
+          MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
         else
           MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
         fi
