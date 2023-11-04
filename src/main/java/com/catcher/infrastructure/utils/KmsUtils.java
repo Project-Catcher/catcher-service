@@ -1,5 +1,6 @@
 package com.catcher.infrastructure.utils;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.kms.AWSKMS;
@@ -22,13 +23,12 @@ public class KmsUtils {
     @Value("${aws.kms.keyId}")
     private static String KEY_ID;
 
-    @Value("${spring.profiles.active}")
-    private static String PROFILE;
+//    @Value("${spring.profiles.active}") TODO: defaultCredential 변경으로 적용되면 추후 삭제 예정
+//    private static String PROFILE;
 
     public String encrypt(String text) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider(PROFILE))
-                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                 .build();
 
         EncryptRequest request = new EncryptRequest();
@@ -42,8 +42,7 @@ public class KmsUtils {
 
     public String decrypt(String cipherBase64) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
-                .withCredentials(new ProfileCredentialsProvider(PROFILE))
-                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                 .build();
 
         DecryptRequest request = new DecryptRequest();
