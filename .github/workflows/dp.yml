@@ -16,7 +16,6 @@ env:
   EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
   OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
-  ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
   GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
