@@ -1,9 +1,14 @@
 name: Deploy to Kubernetes
 
 on:
+  workflow_run:
+    workflows: ["Java CI with Gradle"]
+    branches: [main]
+    types:
+      - completed
+
   push:
     branches:
-      - main
       - kustomize
 
 env:
