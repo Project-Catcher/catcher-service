@@ -65,7 +65,7 @@ jobs:
 
         # Docker 이미지 URL 설정
         cd $KUSTOMIZE_PATH
-        kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}:catcher-service"
+        kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
         cat kustomization.yaml
 
     - name: Check for changes
