@@ -58,8 +58,8 @@ jobs:
 
       - name: Publish Image to ECR(CATCHER-SERVICE)
         run: |
-          docker tag catcher-service:latest ${{ env.ECR_URL }}:catcher-service
-          docker push ${{ env.ECR_URL }}:catcher-service
+          docker tag catcher-service:latest ${{ env.ECR_URL }}:${{ github.sha }}
+          docker push ${{ env.ECR_URL }}:${{ github.sha }}
 
       - name: Send Notification
         if: ${{ always() }}
