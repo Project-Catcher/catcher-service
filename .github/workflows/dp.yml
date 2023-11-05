@@ -56,10 +56,10 @@ jobs:
     - name: Update Kustomize image
       run: |
         if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/production"
+          KUSTOMIZE_PATH="catcher-service-kusto/overlays/production"
           FILE_NAME="production-patch.yaml"
         else
-          KUSTOMIZE_PATH="catcher-service-kusto/k8s/overlays/development"
+          KUSTOMIZE_PATH="catcher-service-kusto/overlays/development"
           FILE_NAME="deployment-patch.yaml"
         fi
 
