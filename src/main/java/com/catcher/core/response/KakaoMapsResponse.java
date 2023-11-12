@@ -9,7 +9,6 @@ import java.util.List;
 public class KakaoMapsResponse {
     private List<KakaoMapsDocument> documents;
 
-
     @Getter
     public static class KakaoMapsDocument {
         private KakaoMapsAddress address;
