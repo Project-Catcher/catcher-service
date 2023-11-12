@@ -1,39 +1,29 @@
 package com.catcher.core.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@AllArgsConstructor
 public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String areaCode;
+    @Embedded
+    private Address address;
 
-    private String latitude;
-
-    private String longitude;
-
-    private String description;
+    private Location(String areaCode, String description) {
+        this.address = Address.initAddress(areaCode, description);
+    }
 
     public static Location initLocation(String areaCode, String description) {
-        return Location.builder()
-                .areaCode(areaCode)
-                .description(description)
-                .build();
+        return new Location(areaCode, description);
     }
 
     public void editCoordinates(String latitude, String longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.getAddress().editCoordinates(latitude, longitude);
     }
 }

@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class KakaoMapsRequest {
+public class MapsRequest {
 
     private Integer size;
 
     private String query;
 
-    public static KakaoMapsRequest createDefaultRequest(String query) {
-        return new KakaoMapsRequest(1, query);
+    public static MapsRequest createDefaultRequest(String query) {
+        return new MapsRequest(1, query);
     }
 }

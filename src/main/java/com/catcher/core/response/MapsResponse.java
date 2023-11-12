@@ -6,15 +6,15 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class KakaoMapsResponse {
-    private List<KakaoMapsDocument> documents;
+public class MapsResponse {
+    private List<MapsBaseDocument> documents;
 
     @Getter
-    public static class KakaoMapsDocument {
-        private KakaoMapsAddress address;
+    public static class MapsBaseDocument {
+        private MapsAddress address;
     }
     @Getter
-    public static class KakaoMapsAddress {
+    public static class MapsAddress {
 
         @JsonProperty("address_name")
         private String addressName;
