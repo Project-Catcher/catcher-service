@@ -21,7 +21,7 @@ public class AddressAdapter implements AddressPort {
 
     @Override
     public Optional<Address> getAddressByQuery(final String query) {
-        final var apiResponse = kakaoApiFeignClient.searchAddress(MapsRequest.createDefaultRequest(query), kakaoApiKey); // TODO: 키 교체 필요
+        final var apiResponse = kakaoApiFeignClient.searchAddress(MapsRequest.createDefaultRequest(query), kakaoApiKey);
         return Address.createByMapsApiResponse(apiResponse);
     }
 
