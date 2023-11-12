@@ -14,7 +14,6 @@ public class LocationAdapter implements LocationPort {
 
     private final LocationJpaRepository locationJpaRepository;
 
-
     @Override
     public Optional<Location> findByAreaCode(final String areaCode) {
         return locationJpaRepository.findByAreaCode(areaCode);
