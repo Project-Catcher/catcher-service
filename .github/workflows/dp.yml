@@ -77,6 +77,12 @@ jobs:
         git config --global user.name "github-actions"
         git commit -am "Update image tag"
         git push -u origin main
+
+    - name: Sync ArgoCD Application
+      run: |
+        argocd app sync dev-app-catcher \
+        --server argocd.dev-alltimecatcher.com \
+        --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
         
     - name: Send Notification
       if: ${{ always() }}
