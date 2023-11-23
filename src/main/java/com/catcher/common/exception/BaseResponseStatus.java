@@ -22,13 +22,18 @@ public enum BaseResponseStatus {
     // Common
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
 
-
     /**
      * 4000 : Database, Server 오류
      */
     DATABASE_ERROR(false, 4000, "데이터베이스 연결에 실패하였습니다."),
     REDIS_ERROR(false, 4002, "redis 연결에 실패하였습니다."),
 
+    /**
+     * 5000: AWS Error
+     */
+    S3UPLOAD_ERROR(false, 5000, "파일 업로드를 실패하였습니다."),
+    KMS_ERROR(false, 5001, "암호화 및 복호화 과정에서 실패하였습니다."),
+    AWS_IO_ERROR(false, 5002, "파일의 정보를 가져오는 데 실패했습니다.")
     ;
 
     private final boolean isSuccess;

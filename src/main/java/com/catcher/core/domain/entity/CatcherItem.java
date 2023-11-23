@@ -11,7 +11,6 @@ import java.time.ZonedDateTime;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "deleted_at IS NULL")
 @Table(name = "catcher_item")
 public class CatcherItem extends BaseTimeEntity {
     @Id
