@@ -23,12 +23,13 @@ public class KmsUtils {
     @Value("${aws.kms.keyId}")
     private static String KEY_ID;
 
-//    @Value("${spring.profiles.active}") TODO: defaultCredential 변경으로 적용되면 추후 삭제 예정
-//    private static String PROFILE;
+    @Value("${spring.profiles.active}")
+    private static String PROFILE;
 
     public String encrypt(String text) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
-                .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
+                .withCredentials(new ProfileCredentialsProvider(PROFILE))
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .build();
 
         EncryptRequest request = new EncryptRequest();
@@ -42,7 +43,8 @@ public class KmsUtils {
 
     public String decrypt(String cipherBase64) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
-                .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
+                .withCredentials(new ProfileCredentialsProvider(PROFILE))
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .build();
 
         DecryptRequest request = new DecryptRequest();
