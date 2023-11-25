@@ -1,7 +1,7 @@
 package com.catcher.infrastructure.external.repository;
 
-import com.catcher.core.request.MapsRequest;
-import com.catcher.core.response.MapsResponse;
+import com.catcher.core.dto.request.MapsRequest;
+import com.catcher.core.dto.response.MapsResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;

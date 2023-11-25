@@ -1,6 +1,6 @@
 package com.catcher.core.domain.entity;
 
-import com.catcher.core.response.MapsResponse;
+import com.catcher.core.dto.response.MapsResponse;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
