@@ -9,6 +9,8 @@ env:
   ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
+  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Temp
+  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }} # Temp
 
 permissions:
   id-token: write
@@ -64,5 +66,65 @@ jobs:
             MESSAGE="✅ ${{ job.status }} 백엔드 ECR 도커파일 업로드 성공: catcher-service - by ${{ github.actor }}"
           else
             MESSAGE="❌ ${{ job.status }} 백엔드 ECR 도커파일 업로드 실패: catcher-service - by ${{ github.actor }}"
+          fi
+          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+
+# Temp  
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Checkout for Kustomize repository
+        uses: actions/checkout@v2
+        with:
+          repository: Project-Catcher/catcher-service-kusto
+          ref: main
+          token: ${{ env.GITHUB_TOKEN }}
+          path: catcher-service-kusto
+  
+      - name: Update Kustomize image
+        run: |
+          if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/production"
+          else
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/development"
+          fi
+  
+          # Docker 이미지 URL 설정
+          cd $KUSTOMIZE_PATH
+          kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
+          cat kustomization.yaml
+  
+      - name: Check for changes
+        id: git-check
+        run: |
+          cd catcher-service-kusto
+          git status
+          git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
+  
+      # 수정된 파일 commit & push
+      - name: Commit manifest files
+        if: steps.git-check.outputs.changes_exist == 'true'
+        run: |
+          cd catcher-service-kusto
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git commit -am "Update image tag"
+          git push -u origin main
+  
+      - name: Sync ArgoCD Application
+        run: |
+          argocd app sync dev-app-catcher \
+          --server argocd.dev-alltimecatcher.com \
+          --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          
+      - name: Send Notification
+        if: ${{ always() }}
+        run: |
+          if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
+            MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
+          elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
+            MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
+          else
+            MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
           fi
           curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
