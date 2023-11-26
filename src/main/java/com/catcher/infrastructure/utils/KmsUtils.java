@@ -1,7 +1,6 @@
 package com.catcher.infrastructure.utils;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.kms.AWSKMS;
 import com.amazonaws.services.kms.AWSKMSClientBuilder;
@@ -28,6 +27,7 @@ public class KmsUtils {
 
     public String encrypt(String text) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                 .build();
 
@@ -42,6 +42,7 @@ public class KmsUtils {
 
     public String decrypt(String cipherBase64) {
         AWSKMS kmsClient = AWSKMSClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                 .build();
 

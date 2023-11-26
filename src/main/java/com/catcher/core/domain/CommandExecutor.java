@@ -1,4 +1,4 @@
-package com.catcher.core;
+package com.catcher.core.domain;
 
 import com.catcher.core.domain.command.Command;
 

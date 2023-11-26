@@ -1,4 +1,4 @@
-package com.catcher.infrastructure.jpa.adapter;
+package com.catcher.infrastructure.adapter;
 
 import com.catcher.core.domain.entity.Location;
 import com.catcher.core.port.LocationPort;
@@ -16,7 +16,7 @@ public class LocationAdapter implements LocationPort {
 
     @Override
     public Optional<Location> findByAreaCode(final String areaCode) {
-        return locationJpaRepository.findByAreaCode(areaCode);
+        return locationJpaRepository.findByAddressAreaCode(areaCode);
     }
 
 }
