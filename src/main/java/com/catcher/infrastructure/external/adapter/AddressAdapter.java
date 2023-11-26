@@ -2,7 +2,7 @@ package com.catcher.infrastructure.external.adapter;
 
 import com.catcher.core.domain.entity.Address;
 import com.catcher.core.port.AddressPort;
-import com.catcher.core.request.MapsRequest;
+import com.catcher.core.dto.request.MapsRequest;
 import com.catcher.infrastructure.external.repository.KakaoApiFeignClient;
 import com.catcher.infrastructure.utils.KmsUtils;
 import lombok.RequiredArgsConstructor;

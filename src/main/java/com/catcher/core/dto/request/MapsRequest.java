@@ -1,4 +1,4 @@
-package com.catcher.core.request;
+package com.catcher.core.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
