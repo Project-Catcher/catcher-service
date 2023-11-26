@@ -28,6 +28,4 @@ public class UserItem {
     private String title;
 
     private String description;
-
-    private String color;
 }

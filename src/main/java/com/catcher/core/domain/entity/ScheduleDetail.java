@@ -30,6 +30,8 @@ public class ScheduleDetail extends BaseTimeEntity {
 
     private String description;
 
+    private String color;
+
     @Column(name = "start_at", nullable = false)
     private ZonedDateTime startAt;
 
