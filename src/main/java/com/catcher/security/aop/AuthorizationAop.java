@@ -27,17 +27,20 @@ public class AuthorizationAop {
             UserRole currentUserRole = getCurrentUserRole();
             UserRole[] userRoles = annotation.value();
 
-            checkUserRoles(userRoles, currentUserRole);
+            if (!checkUserRoles(userRoles, currentUserRole)) {
+                throw new RuntimeException();
+            }
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORIZATION);
         }
     }
 
-    private void checkUserRoles(UserRole[] userRoles, UserRole role) {
-        Arrays.stream(userRoles)
-                .filter(userRole -> userRole.equals(role))
-                .findAny()
-                .orElseThrow();
+    private boolean checkUserRoles(UserRole[] userRoles, UserRole role) {
+        for (UserRole userRole : userRoles) {
+            if ((userRole.getBitMask() & role.getBitMask()) > 0)
+                return true;
+        }
+        return false;
     }
 
     private AuthorizationRequired getAnnotation(JoinPoint joinPoint) {
