@@ -1,5 +1,6 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.entity.enums.ItemType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,17 +21,12 @@ public class ScheduleDetail extends BaseTimeEntity {
     @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "catcher_item_id")
-    private CatcherItem catcherItem;
+    @Column(nullable = false)
+    private Long itemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private ItemType itemType;
 
     private String description;
 
