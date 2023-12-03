@@ -28,6 +28,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath email = createString("email");
 
+    public final DateTimePath<java.time.ZonedDateTime> emailMarketingTerm = createDateTime("emailMarketingTerm", java.time.ZonedDateTime.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath introduceContent = createString("introduceContent");
@@ -38,6 +40,10 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath phone = createString("phone");
 
+    public final DateTimePath<java.time.ZonedDateTime> phoneAuthentication = createDateTime("phoneAuthentication", java.time.ZonedDateTime.class);
+
+    public final DateTimePath<java.time.ZonedDateTime> phoneMarketingTerm = createDateTime("phoneMarketingTerm", java.time.ZonedDateTime.class);
+
     public final StringPath profileImageUrl = createString("profileImageUrl");
 
     //inherited
@@ -45,9 +51,7 @@ public class QUser extends EntityPathBase<User> {
 
     public final DateTimePath<java.time.ZonedDateTime> userAgeTerm = createDateTime("userAgeTerm", java.time.ZonedDateTime.class);
 
-    public final DateTimePath<java.time.ZonedDateTime> userLocationTerm = createDateTime("userLocationTerm", java.time.ZonedDateTime.class);
-
-    public final DateTimePath<java.time.ZonedDateTime> userMarketingTerm = createDateTime("userMarketingTerm", java.time.ZonedDateTime.class);
+    public final EnumPath<com.catcher.core.domain.entity.enums.UserGender> userGender = createEnum("userGender", com.catcher.core.domain.entity.enums.UserGender.class);
 
     public final StringPath username = createString("username");
 

@@ -1,11 +1,10 @@
-package com.catcher.datasource.custom;
+package com.catcher.core.db;
 
 import com.catcher.core.domain.entity.Schedule;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
-public interface ScheduleRepositoryCustom {
+public interface ScheduleRepository {
 
     /**
      * 키워드로 스케줄 검색
