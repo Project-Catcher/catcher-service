@@ -1,5 +1,6 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.entity.enums.UserGender;
 import com.catcher.core.domain.entity.enums.UserProvider;
 import com.catcher.core.domain.entity.enums.UserRole;
 import jakarta.persistence.*;
@@ -38,10 +39,15 @@ public class User extends BaseTimeEntity {
     private String nickname;
 
     @Enumerated(value = EnumType.STRING)
+    private UserGender userGender;
+
+    @Enumerated(value = EnumType.STRING)
     private UserProvider userProvider;
 
     @Enumerated(value = EnumType.STRING)
     private UserRole userRole;
+
+    private ZonedDateTime phoneAuthentication;
 
     @Column(nullable = false)
     private ZonedDateTime userAgeTerm; // 필수 약관
