@@ -5,10 +5,13 @@ import com.catcher.core.domain.entity.QSchedule;
 import com.catcher.core.domain.entity.Schedule;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public class ScheduleRepositoryImpl extends QuerydslRepositorySupport implements ScheduleRepository {
 
     private final JPAQueryFactory jpaQueryFactory;

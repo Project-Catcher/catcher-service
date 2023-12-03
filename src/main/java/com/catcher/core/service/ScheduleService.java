@@ -1,7 +1,7 @@
 package com.catcher.core.service;
 
+import com.catcher.core.db.ScheduleRepository;
 import com.catcher.core.domain.entity.Schedule;
-import com.catcher.datasource.schedule.ScheduleJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
-    private final ScheduleJpaRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
 
     public List<Schedule> getScheduleByKeywordAndFilter(
             final String keyword
