@@ -9,15 +9,12 @@ import com.catcher.core.domain.entity.*;
 import com.catcher.core.domain.entity.enums.ItemType;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.UserItemRequest;
 import com.catcher.core.dto.response.TempScheduleResponse;
 import com.catcher.core.port.CatcherItemPort;
 import lombok.RequiredArgsConstructor;
-import org.bouncycastle.oer.Switch;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

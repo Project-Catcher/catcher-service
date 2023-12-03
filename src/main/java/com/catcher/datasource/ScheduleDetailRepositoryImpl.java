@@ -4,7 +4,6 @@ import com.catcher.core.database.ScheduleDetailRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleDetail;
 import com.catcher.infrastructure.jpa.repository.ScheduleDetailJpaRepository;
-import com.catcher.infrastructure.jpa.repository.ScheduleJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
