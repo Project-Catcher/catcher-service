@@ -2,15 +2,15 @@ package com.catcher.core.domain.entity;
 
 import com.catcher.core.domain.entity.enums.ItemType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "schedule_detail")
 public class ScheduleDetail extends BaseTimeEntity {
     @Id

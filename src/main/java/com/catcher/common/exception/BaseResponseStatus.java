@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum BaseResponseStatus {
 
     SUCCESS(200, "요청에 성공하였습니다."),
+    DATA_NOT_FOUND(1001, "해당 데이터를 찾을 수 없습니다."),
 
     /**
      * 2000 : Request 오류
@@ -15,7 +16,7 @@ public enum BaseResponseStatus {
     NO_LOCATION_RESULT(2001, "해당하는 요청에 대응되는 법정동 코드가 없습니다"),
     INVALID_JWT(2002, "토큰 정보가 유효하지 않습니다."),
     NO_ACCESS_AUTHORIZATION(2003, "접근 권한이 없습니다."),
-
+    NO_ITEM_TYPE_RESULT(2001,"해당 아이템 타입에 대한 결과가 없습니다"),
 
     /**
      * 3000 : Response 오류
