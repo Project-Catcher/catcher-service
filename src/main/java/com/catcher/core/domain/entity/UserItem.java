@@ -1,13 +1,13 @@
 package com.catcher.core.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "user_detail")
 public class UserItem {
     @Id
@@ -22,7 +22,9 @@ public class UserItem {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    private String location;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     @Column(nullable = false)
     private String title;
