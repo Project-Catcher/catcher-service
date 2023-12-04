@@ -13,6 +13,9 @@ public enum BaseResponseStatus {
     // Common
     NO_ADDRESS_RESULT_FOR_QUERY(2000, "해당하는 요청에 대응되는 주소 검색 결과가 없습니다."),
     NO_LOCATION_RESULT(2001, "해당하는 요청에 대응되는 법정동 코드가 없습니다"),
+    INVALID_JWT(2002, "토큰 정보가 유효하지 않습니다."),
+    NO_ACCESS_AUTHORIZATION(2003, "접근 권한이 없습니다."),
+
 
     /**
      * 3000 : Response 오류
