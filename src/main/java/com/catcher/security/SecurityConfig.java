@@ -1,6 +1,7 @@
 package com.catcher.security;
 
 import com.catcher.common.GlobalExceptionHandlerFilter;
+import com.catcher.core.db.DBManager;
 import com.catcher.infrastructure.jwt.JwtTokenProvider;
 import com.catcher.infrastructure.jwt.filter.JwtFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final DBManager dbManager;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -29,7 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtTokenProvider, dbManager), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new GlobalExceptionHandlerFilter(objectMapper), JwtFilter.class)
                 .build();
     }
