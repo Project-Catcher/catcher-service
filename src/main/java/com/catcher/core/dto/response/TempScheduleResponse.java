@@ -1,6 +1,5 @@
 package com.catcher.core.dto.response;
 
-import com.catcher.core.domain.entity.Category;
 import com.catcher.core.domain.entity.Schedule;
 import lombok.Getter;
 
