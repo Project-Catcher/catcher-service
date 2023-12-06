@@ -30,11 +30,7 @@ public class ScheduleService {
         List<Schedule> scheduleList = scheduleRepository.findByUserAndStatus(user, ScheduleStatus.TEMPORARY);
 
         List<TempScheduleResponse.ScheduleDTO> scheduleDTOList = scheduleList.stream()
-                .map(schedule -> {
-                    ScheduleDetail scheduleDetail = getFirstScheduleDetail(schedule);
-                    Category category = getCategory(scheduleDetail);
-                    return new TempScheduleResponse.ScheduleDTO(schedule, category);
-                })
+                .map(TempScheduleResponse.ScheduleDTO::new)
                 .collect(Collectors.toList());
 
         return new TempScheduleResponse(scheduleDTOList);
@@ -47,27 +43,6 @@ public class ScheduleService {
 
         ScheduleDetail scheduleDetail = createScheduleDetail(request, schedule);
         scheduleDetailRepository.save(scheduleDetail);
-    }
-
-    private ScheduleDetail getFirstScheduleDetail(Schedule schedule) {
-        return scheduleDetailRepository.findFirstBySchedule(schedule)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-    }
-
-    private Category getCategory(ScheduleDetail scheduleDetail) {
-        switch (scheduleDetail.getItemType()) {
-            case USERITEM -> {
-                UserItem userItem = userItemRepository.findById(scheduleDetail.getItemId())
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-                return userItem.getCategory();
-            }
-            case CATCHERITEM -> {
-                CatcherItem catcherItem = catcherItemPort.findById(scheduleDetail.getItemId())
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-                return catcherItem.getCategory();
-            }
-            default -> throw new BaseException(BaseResponseStatus.NO_ITEM_TYPE_RESULT);
-        }
     }
 
     private void isValidItem(ItemType itemType, Long itemId) {

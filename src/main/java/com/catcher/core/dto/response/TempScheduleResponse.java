@@ -21,14 +21,12 @@ public class TempScheduleResponse {
         private final String title;
         private final String thumbnailUrl;
         private final ZonedDateTime createdAt;
-        private final String category;
 
-        public ScheduleDTO(Schedule schedule, Category category) {
+        public ScheduleDTO(Schedule schedule) {
             this.id = schedule.getId();
             this.title = schedule.getTitle();
             this.thumbnailUrl = schedule.getUploadFile().getFileUrl();
             this.createdAt = schedule.getCreatedAt();
-            this.category = category.getName();
         }
     }
 }
