@@ -1,16 +1,18 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.entity.enums.PublicStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.ZonedDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "schedule")
 public class Schedule extends BaseTimeEntity {
     @Id
@@ -44,7 +46,11 @@ public class Schedule extends BaseTimeEntity {
     private Long budget;
 
     @Enumerated(value = EnumType.STRING)
-    private ScheduleStatus status;
+    @ColumnDefault("'NORMAL'")
+    private ScheduleStatus scheduleStatus;
+
+    @Enumerated(value = EnumType.STRING)
+    private PublicStatus publicStatus;
 
     @Column(name = "start_at", nullable = false)
     private ZonedDateTime startAt; // 일정 시작
