@@ -52,9 +52,9 @@ public class Schedule extends BaseTimeEntity {
     @Column(name = "end_at", nullable = false)
     private ZonedDateTime endAt; // 일정 종료
 
-    @Column(name = "participate_start_at", nullable = false)
+    @Column(name = "participate_start_at")
     private ZonedDateTime participateStartAt; // 모집 시작
 
-    @Column(name = "participate_end_at", nullable = false)
+    @Column(name = "participate_end_at")
     private ZonedDateTime participateEndAt; // 모집 종료
 }

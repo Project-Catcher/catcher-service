@@ -16,4 +16,5 @@ public interface CatcherItemPort {
 
     List<CatcherItem> findByCategory(Category category);
 
+    Optional<CatcherItem> findById(Long itemId);
 }

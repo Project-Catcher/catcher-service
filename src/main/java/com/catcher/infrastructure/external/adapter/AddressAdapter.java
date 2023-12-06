@@ -27,6 +27,9 @@ public class AddressAdapter implements AddressPort {
         String apiKey = kmsUtils.decrypt(kakaoApiKey);
 
         final var apiResponse = kakaoApiFeignClient.searchAddress(MapsRequest.createDefaultRequest(query), String.format("%s %s", "KakaoAK", apiKey));
+        if (apiResponse == null || apiResponse.getDocuments().isEmpty() || apiResponse.getDocuments().get(0).getAddress() == null) {
+            return Optional.empty();
+        }
         return Address.createByMapsApiResponse(apiResponse);
     }
 

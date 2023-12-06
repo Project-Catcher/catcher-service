@@ -35,4 +35,9 @@ public class CatcherItemAdapter implements CatcherItemPort {
         return catcherItemJpaRepository.findByCategory(category);
     }
 
+    @Override
+    public Optional<CatcherItem> findById(Long itemId) {
+        return catcherItemJpaRepository.findById(itemId);
+    }
+
 }
