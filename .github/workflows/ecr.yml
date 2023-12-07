@@ -58,10 +58,10 @@ jobs:
       - name: Publish Image to ECR(CATCHER-SERVICE)
         run: |
           if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-            docker tag core-service:latest ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
+            docker tag catcher-service:latest ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
             docker push ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
           else
-            docker tag core-service:latest ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
+            docker tag catcher-service:latest ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
             docker push ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
           fi
 
@@ -91,10 +91,10 @@ jobs:
         run: |
           if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
             KUSTOMIZE_PATH="catcher-service-kusto/overlays/production" && cd $KUSTOMIZE_PATH
-            kustomize edit set image app-core-img="${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}"
+            kustomize edit set image app-catcher-img="${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}"
           else
             KUSTOMIZE_PATH="catcher-service-kusto/overlays/development" && cd $KUSTOMIZE_PATH
-            kustomize edit set image app-core-img="${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}"
+            kustomize edit set image app-catcher-img="${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}"
           fi
 
           kustomize build .
