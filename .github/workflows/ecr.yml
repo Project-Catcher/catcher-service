@@ -2,15 +2,17 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main", "dev", "refactor-jdb-gitaction-workflow" ]
 
 env:
-  ECR_URL: ${{ secrets.ECR_REPO_DEV }}
+  # ECR_URL: ${{ secrets.ECR_REPO_DEV }}
+  AWS_DEV_CATCHER_ECR: ${{ secrets.AWS_DEV_CATCHER_ECR }}
+  AWS_PRD_CATCHER_ECR: ${{ secrets.AWS_PRD_CATCHER_ECR }}
   ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
-  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Temp
-  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }} # Temp
+  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
 
 permissions:
   id-token: write
@@ -56,8 +58,13 @@ jobs:
 
       - name: Publish Image to ECR(CATCHER-SERVICE)
         run: |
-          docker tag catcher-service:latest ${{ env.ECR_URL }}:${{ github.sha }}
-          docker push ${{ env.ECR_URL }}:${{ github.sha }}
+          if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
+            docker tag core-service:latest ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
+            docker push ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
+          else
+            docker tag core-service:latest ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
+            docker push ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
+          fi
 
       - name: Send Notification
         if: ${{ always() }}
@@ -84,15 +91,17 @@ jobs:
       - name: Update Kustomize image
         run: |
           if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-            KUSTOMIZE_PATH="catcher-service-kusto/overlays/production"
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/production" && cd $KUSTOMIZE_PATH
+            kustomize edit set image app-core-img="${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}"
           else
-            KUSTOMIZE_PATH="catcher-service-kusto/overlays/development"
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/development" && cd $KUSTOMIZE_PATH
+            kustomize edit set image app-core-img="${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}"
           fi
-  
-          # Docker 이미지 URL 설정
-          cd $KUSTOMIZE_PATH
-          kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
-          cat kustomization.yaml
+
+          kustomize build .
+
+          # kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
+          # cat kustomization.yaml
   
       - name: Check for changes
         id: git-check
@@ -117,14 +126,14 @@ jobs:
           --server argocd.dev-alltimecatcher.com \
           --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
           
-      - name: Send Notification
-        if: ${{ always() }}
-        run: |
-          if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
-            MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
-          elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
-            MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
-          else
-            MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
-          fi
-          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+      # - name: Send Notification
+      #   if: ${{ always() }}
+      #   run: |
+      #     if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
+      #       MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
+      #     elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
+      #       MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
+      #     else
+      #       MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
+      #     fi
+      #     curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
