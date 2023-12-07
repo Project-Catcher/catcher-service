@@ -23,12 +23,12 @@ jobs:
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           LANGUAGE: Korean
 
-      # - name: Send Notification
-      #   if: ${{ always() }}
-      #   run: |
-      #     if [[ ${{ job.status }} == "success" ]]; then
-      #       MESSAGE="✅ ${{ job.status }} 백엔드 OpenAI 코드 리뷰 성공: catcher-service - by ${{ github.actor }}"
-      #     else
-      #       MESSAGE="❌ ${{ job.status }} 백엔드 OpenAI 코드 리뷰 실패: catcher-service - by ${{ github.actor }}"
-      #     fi
-      #     curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+      - name: Send Notification
+        if: ${{ always() }}
+        run: |
+          if [[ ${{ job.status }} == "success" ]]; then
+            MESSAGE="✅ ${{ job.status }} 백엔드 OpenAI 코드 리뷰 성공: catcher-service - by ${{ github.actor }}"
+          else
+            MESSAGE="❌ ${{ job.status }} 백엔드 OpenAI 코드 리뷰 실패: catcher-service - by ${{ github.actor }}"
+          fi
+          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}

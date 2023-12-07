@@ -9,7 +9,6 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  # EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
   OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
@@ -68,7 +67,6 @@ jobs:
         git status
         git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
 
-    # 수정된 파일 commit & push
     - name: Commit manifest files
       if: steps.git-check.outputs.changes_exist == 'true'
       run: |
@@ -84,14 +82,14 @@ jobs:
         --server argocd.dev-alltimecatcher.com \
         --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
         
-    # - name: Send Notification
-    #   if: ${{ always() }}
-    #   run: |
-    #     if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
-    #       MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
-    #     elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
-    #       MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
-    #     else
-    #       MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
-    #     fi
-    #     curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+    - name: Send Notification
+      if: ${{ always() }}
+      run: |
+        if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
+          MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
+        elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
+          MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
+        else
+          MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
+        fi
+        curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}

@@ -2,10 +2,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "main", "dev", "refactor-jdb-gitaction-workflow" ]
+    branches: [ "main", "dev" ]
 
 env:
-  # ECR_URL: ${{ secrets.ECR_REPO_DEV }}
   AWS_DEV_CATCHER_ECR: ${{ secrets.AWS_DEV_CATCHER_ECR }}
   AWS_PRD_CATCHER_ECR: ${{ secrets.AWS_PRD_CATCHER_ECR }}
   ROLE_ARN: ${{ secrets.OIDC_ROLE }}
@@ -110,7 +109,6 @@ jobs:
           git status
           git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
   
-      # 수정된 파일 commit & push
       - name: Commit manifest files
         if: steps.git-check.outputs.changes_exist == 'true'
         run: |
@@ -126,14 +124,14 @@ jobs:
           --server argocd.dev-alltimecatcher.com \
           --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
           
-      # - name: Send Notification
-      #   if: ${{ always() }}
-      #   run: |
-      #     if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
-      #       MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
-      #     elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
-      #       MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
-      #     else
-      #       MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
-      #     fi
-      #     curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
+      - name: Send Notification
+        if: ${{ always() }}
+        run: |
+          if [[ '${{ steps.git-check.outputs.changes_exist }}' == 'true' && ${{ job.status }} == 'success' ]]; then
+            MESSAGE="✅ ${{ job.status }} Kustomize Update 성공: catcher-service-kusto - by ${{ github.actor }}"
+          elif [[ '${{ steps.git-check.outputs.changes_exist }}' != 'true' && ${{ job.status }} == 'success' ]]; then
+            MESSAGE="ℹ️ ${{ job.status }} Kustomize : 수정 사항 없음 - catcher-service-kusto - by ${{ github.actor }}"
+          else
+            MESSAGE="❌ ${{ job.status }} Kustomize Update 실패: catcher-service-kusto - by ${{ github.actor }}"
+          fi
+          curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
