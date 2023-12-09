@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -53,9 +52,9 @@ public class Schedule extends BaseTimeEntity {
     @Column(name = "end_at", nullable = false)
     private LocalDateTime endAt; // 일정 종료
 
-    @Column(name = "participate_start_at", nullable = false)
+    @Column(name = "participate_start_at")
     private LocalDateTime participateStartAt; // 모집 시작
 
-    @Column(name = "participate_end_at", nullable = false)
+    @Column(name = "participate_end_at")
     private LocalDateTime participateEndAt; // 모집 종료
 }

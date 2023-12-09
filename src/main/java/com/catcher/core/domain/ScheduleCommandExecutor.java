@@ -4,11 +4,9 @@ import com.catcher.core.domain.command.Command;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CommandExecutorImpl implements CommandExecutor {
-
+public class ScheduleCommandExecutor implements CommandExecutor {
     @Override
-    public <T> T run(final Command<T> command) {
+    public <T> T run(Command<T> command) {
         return command.execute();
     }
-
 }

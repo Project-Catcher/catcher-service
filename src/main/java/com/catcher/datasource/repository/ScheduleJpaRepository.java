@@ -1,13 +1,20 @@
 package com.catcher.datasource.repository;
 
 import com.catcher.core.domain.entity.Schedule;
+import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByUserIdInAndStatusIn(Long userId, List<ScheduleStatus> status);
-    List<Schedule> findByUserIdInAndStatusInAndEndAtAfterOrderByStartAtAsc(Long userId, List<ScheduleStatus> status, LocalDate today);
+    Optional<Schedule> findById(Long scheduleId);
+
+    List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
+
+    List<Schedule> findByUserIdInAndStatusInAndEndAtAfterOrderByStartAtAsc(Long userId, List<ScheduleStatus> statusList, LocalDate date);
+
+    List<Schedule> findByUserIdInAndStatusIn(Long userId, List<ScheduleStatus> statusList);
 }

@@ -3,6 +3,7 @@ package com.catcher.datasource;
 import com.catcher.core.database.ScheduleRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleParticipant;
+import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.datasource.repository.ScheduleJpaRepository;
@@ -15,13 +16,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class ScheduleAdapter implements ScheduleRepository {
+public class ScheduleRepositoryImpl implements ScheduleRepository {
     private final ScheduleJpaRepository scheduleJpaRepository;
     private final ScheduleParticipantJpaRepository scheduleParticipantJpaRepository;
+
+    @Override
+    public Optional<Schedule> findById(Long scheduleId) {
+        return scheduleJpaRepository.findById(scheduleId);
+    }
+
+    @Override
+    public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
+        return scheduleJpaRepository.findByUserAndStatus(user, scheduleStatus);
+    }
 
     @Override
     public List<Schedule> upcomingScheduleList(Long userId) {
