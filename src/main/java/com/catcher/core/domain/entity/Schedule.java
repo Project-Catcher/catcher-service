@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -47,14 +48,14 @@ public class Schedule extends BaseTimeEntity {
     private ScheduleStatus status;
 
     @Column(name = "start_at", nullable = false)
-    private ZonedDateTime startAt; // 일정 시작
+    private LocalDateTime startAt; // 일정 시작
 
     @Column(name = "end_at", nullable = false)
-    private ZonedDateTime endAt; // 일정 종료
+    private LocalDateTime endAt; // 일정 종료
 
     @Column(name = "participate_start_at", nullable = false)
-    private ZonedDateTime participateStartAt; // 모집 시작
+    private LocalDateTime participateStartAt; // 모집 시작
 
     @Column(name = "participate_end_at", nullable = false)
-    private ZonedDateTime participateEndAt; // 모집 종료
+    private LocalDateTime participateEndAt; // 모집 종료
 }

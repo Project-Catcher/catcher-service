@@ -8,6 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByStatusInOrderByStartAtAsc(List<ScheduleStatus> status);
+    List<Schedule> findByUserIdInAndStatusIn(Long userId, List<ScheduleStatus> status);
     List<Schedule> findByUserIdInAndStatusInAndEndAtAfterOrderByStartAtAsc(Long userId, List<ScheduleStatus> status, LocalDate today);
 }
