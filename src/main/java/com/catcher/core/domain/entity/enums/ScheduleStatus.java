@@ -1,5 +1,5 @@
 package com.catcher.core.domain.entity.enums;
 
 public enum ScheduleStatus {
-    NORMAL, REPORTED, DELETED, DRAFT
+    NORMAL, TEMPORARY, REPORTED, DELETED, DRAFT
 }
