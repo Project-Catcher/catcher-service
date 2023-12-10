@@ -37,7 +37,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     public List<Schedule> upcomingScheduleList(Long userId) {
-        List<ScheduleStatus> statusList = List.of(ScheduleStatus.PUBLIC, ScheduleStatus.PARTIAL);
+        List<ScheduleStatus> statusList = List.of(ScheduleStatus.NORMAL);
         LocalDate today = LocalDate.now();
 
         //내가 만든 스케줄 리스트
