@@ -25,4 +25,9 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
         return scheduleJpaRepository.findByUserAndStatus(user, scheduleStatus);
     }
+
+    @Override
+    public void save(Schedule schedule) {
+        scheduleJpaRepository.save(schedule);
+    }
 }

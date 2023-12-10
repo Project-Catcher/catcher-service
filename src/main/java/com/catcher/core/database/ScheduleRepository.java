@@ -11,4 +11,6 @@ public interface ScheduleRepository {
     Optional<Schedule> findById(Long scheduleId);
 
     List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
+
+    void save(Schedule schedule);
 }

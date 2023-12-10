@@ -36,9 +36,8 @@ public class Schedule extends BaseTimeEntity {
 
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "upload_file_id", nullable = false)
-    private UploadFile uploadFile;
+    @Column(nullable = false)
+    private String thumbnailUrl;
 
     @Column(nullable = false)
     private Long viewCount;
@@ -63,4 +62,15 @@ public class Schedule extends BaseTimeEntity {
 
     @Column(name = "participate_end_at")
     private ZonedDateTime participateEndAt; // 모집 종료
+
+    public void draftSchedule(
+            Long participantLimit, Long budget, PublicStatus publicStatus,
+            ZonedDateTime participateStartAt, ZonedDateTime participateEndAt
+    ) {
+        this.participantLimit = participantLimit;
+        this.budget = budget;
+        this.publicStatus = publicStatus;
+        this.participateStartAt = participateStartAt;
+        this.participateEndAt = participateEndAt;
+    }
 }
