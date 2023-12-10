@@ -29,8 +29,6 @@ public class Schedule extends BaseTimeEntity {
 
     private Long participantLimit;
 
-    private String locationDetail;
-
     @Column(nullable = false)
     private String title;
 
