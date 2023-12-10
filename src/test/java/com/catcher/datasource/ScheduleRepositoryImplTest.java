@@ -86,8 +86,7 @@ public class ScheduleRepositoryImplTest {
 
             Schedule schedule = generateSchedule(
                     user,
-                    // TODO: 랜덤값으로 변경 필요
-                    ScheduleStatus.NORMAL,
+                    statusValues[random.nextInt(statusValues.length)],
                     LocalDateTime.now().plus(5, ChronoUnit.DAYS),
                     LocalDateTime.now().plus(7, ChronoUnit.DAYS),
                     uploadFile
