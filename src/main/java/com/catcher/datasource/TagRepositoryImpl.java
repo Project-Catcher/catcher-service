@@ -2,6 +2,7 @@ package com.catcher.datasource;
 
 import com.catcher.core.database.TagRepository;
 import com.catcher.core.domain.entity.Tag;
+import com.catcher.core.domain.entity.enums.RecommendedStatus;
 import com.catcher.infrastructure.jpa.repository.TagJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -24,7 +25,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public List<Tag> findByIsRecommendedTrue() {
-        return tagJpaRepository.findByIsRecommendedTrue();
+    public List<Tag> findByRecommendedStatus(RecommendedStatus recommendedStatus) {
+        return tagJpaRepository.findByRecommendedStatus(recommendedStatus);
     }
 }

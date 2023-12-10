@@ -1,5 +1,6 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.entity.enums.RecommendedStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ public class Tag extends BaseTimeEntity {
 
     private String name;
 
-    private boolean isRecommended;
+    private RecommendedStatus recommendedStatus;
 
     private ZonedDateTime deletedAt;
 }

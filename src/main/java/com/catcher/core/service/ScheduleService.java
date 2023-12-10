@@ -6,6 +6,7 @@ import com.catcher.core.database.*;
 import com.catcher.core.domain.entity.*;
 import com.catcher.core.domain.entity.enums.ContentType;
 import com.catcher.core.domain.entity.enums.ItemType;
+import com.catcher.core.domain.entity.enums.RecommendedStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.core.dto.request.SaveScheduleInfoRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
@@ -133,7 +134,7 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public RecommendedTagResponse getRecommendedTags() {
-        List<Tag> tagList = tagRepository.findByIsRecommendedTrue();
+        List<Tag> tagList = tagRepository.findByRecommendedStatus(RecommendedStatus.ENABLED);
         List<RecommendedTagResponse.TagDTO> tagDTOList = tagList.stream()
                 .map(RecommendedTagResponse.TagDTO::new)
                 .collect(Collectors.toList());
