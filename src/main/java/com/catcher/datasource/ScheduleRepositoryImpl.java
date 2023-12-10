@@ -23,7 +23,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
-        return scheduleJpaRepository.findByUserAndStatus(user, scheduleStatus);
+        return scheduleJpaRepository.findByUserAndScheduleStatus(user, scheduleStatus);
     }
 
     @Override
