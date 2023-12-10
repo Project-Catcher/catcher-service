@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ScheduleParticipantJpaRepository extends JpaRepository<ScheduleParticipant, Long> {
     List<ScheduleParticipant> findByUserIdAndStatus(Long userId, ParticipantStatus status);
+
+    List<ScheduleParticipant> findByStatus(ParticipantStatus participantStatus);
 }

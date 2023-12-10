@@ -8,15 +8,16 @@ import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.datasource.repository.ScheduleJpaRepository;
 import com.catcher.datasource.repository.ScheduleParticipantJpaRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -25,6 +26,9 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     private final ScheduleJpaRepository scheduleJpaRepository;
     private final ScheduleParticipantJpaRepository scheduleParticipantJpaRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Override
     public Optional<Schedule> findById(Long scheduleId) {
         return scheduleJpaRepository.findById(scheduleId);
@@ -32,24 +36,19 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
-        return scheduleJpaRepository.findByUserAndStatus(user, scheduleStatus);
+        return scheduleJpaRepository.findByUserAndScheduleStatus(user, scheduleStatus);
     }
 
     @Override
     public List<Schedule> upcomingScheduleList(Long userId) {
         List<ScheduleStatus> statusList = List.of(ScheduleStatus.NORMAL);
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
 
         //내가 만든 스케줄 리스트
-        List<Schedule> myOwnList = scheduleJpaRepository.findByUserIdInAndStatusInAndEndAtAfterOrderByStartAtAsc(userId, statusList, today);
+        List<Schedule> myOwnList = scheduleJpaRepository.findByUserIdAndScheduleStatusInAndEndAtAfterOrderByStartAtAsc(userId, statusList, today);
 
         //내가 참여한 스케줄 리스트
-        List<Schedule> participantList = scheduleParticipantJpaRepository.findByUserIdAndStatus(userId, ParticipantStatus.APPROVE).stream()
-                .map(
-                        ScheduleParticipant::getSchedule
-                )
-                .filter(schedule -> schedule.getEndAt().isAfter(LocalDateTime.now()))
-                .collect(Collectors.toList());
+        List<Schedule> participantList = appliedScheduleList(userId);
 
         List<Schedule> combinedList = new ArrayList<>(myOwnList);
         combinedList.addAll(participantList);
@@ -57,7 +56,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         combinedList.sort(Comparator.comparing(Schedule::getStartAt));
 
         return combinedList.stream()
-                .limit(5)
+                .limit(7)
                 .collect(Collectors.toList());
     }
 
@@ -65,8 +64,42 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     public List<Schedule> draftScheduleList(Long userId) {
         List<ScheduleStatus> statusList = List.of(ScheduleStatus.DRAFT);
 
-        return scheduleJpaRepository.findByUserIdInAndStatusIn(userId, statusList).stream()
-                .limit(5)
+        return scheduleJpaRepository.findByUserIdAndScheduleStatusIn(userId, statusList).stream()
+                .limit(7)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Schedule> openScheduleList() {
+        List<Schedule> scheduleList = scheduleJpaRepository.findByScheduleStatusAndParticipationPeriod(ScheduleStatus.NORMAL, LocalDateTime.now());
+
+        //인원이 다 찼는지 확인
+        TypedQuery<Object[]> query = entityManager.createQuery(
+                "SELECT COUNT(sp), sp.schedule.id FROM ScheduleParticipant sp GROUP BY sp.schedule.id",
+                Object[].class
+        );
+
+        List<Object[]> countAndScheduleId = query.getResultList();
+
+        Map<Long, Long> scheduleIdCountMap = countAndScheduleId.stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[1],
+                        result -> (Long) result[0]
+                ));
+
+        return scheduleList.stream()
+                .filter(schedule -> scheduleIdCountMap.getOrDefault(schedule.getId(), 0L) < schedule.getParticipantLimit())
+                .limit(7)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Schedule> appliedScheduleList(Long userId) {
+        return scheduleParticipantJpaRepository.findByUserIdAndStatus(userId, ParticipantStatus.APPROVE).stream()
+                .map(
+                        ScheduleParticipant::getSchedule
+                )
+                .filter(schedule -> schedule.getEndAt().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
 }

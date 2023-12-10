@@ -78,16 +78,14 @@ public class ScheduleService {
     public MyListResponse myList(Long userId){
         MyListResponse response = new MyListResponse();
 
-//        TODO: 5개만 반환하도록 설정 필요
         //다가오는 일정
-        scheduleRepository.upcomingScheduleList(userId);
-
+        response.setUpcomingList(scheduleRepository.upcomingScheduleList(userId));
         //작성중인 일정
-        scheduleRepository.draftScheduleList(userId);
-
+        response.setDraftList(scheduleRepository.draftScheduleList(userId));
         //모집 중
-
+        response.setOpenList(scheduleRepository.openScheduleList());
         //참여 신청
+        response.setAppliedList(scheduleRepository.appliedScheduleList(userId));
 
         return response;
     }
