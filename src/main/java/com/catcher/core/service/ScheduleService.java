@@ -76,12 +76,12 @@ public class ScheduleService {
         return new SaveUserItemResponse(userItem);
     }
 
-    @Transactional(readOnly = true)
-    public CatcherItemResponse getCatcherItems(String query) {
-        // TODO queryDSL 추후 작업
-        List<CatcherItemResponse.CatcherItemDTO> catcherItemDTOList = new ArrayList<>();
-        return new CatcherItemResponse(catcherItemDTOList);
-    }
+//    @Transactional(readOnly = true)
+//    public CatcherItemResponse getCatcherItems(String query) {
+//        // TODO queryDSL 추후 작업
+//        List<CatcherItemResponse.CatcherItemDTO> catcherItemDTOList = new ArrayList<>();
+//        return new CatcherItemResponse(catcherItemDTOList);
+//    }
 
     @Transactional
     public SaveScheduleInfoResponse saveScheduleInfo(SaveScheduleInfoRequest request, User user) {
@@ -119,6 +119,7 @@ public class ScheduleService {
                     if (tag == null) {
                         tag = createTag(tagName);
                         tagRepository.save(tag);
+                        tagMap.put(tagName, tag);
                     }
                     return createScheduleTag(schedule, tag);
                 })

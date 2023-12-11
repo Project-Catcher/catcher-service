@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -56,14 +57,14 @@ public class Schedule extends BaseTimeEntity {
     private ZonedDateTime endAt; // 일정 종료
 
     @Column(name = "participate_start_at")
-    private ZonedDateTime participateStartAt; // 모집 시작
+    private LocalDateTime participateStartAt; // 모집 시작
 
     @Column(name = "participate_end_at")
-    private ZonedDateTime participateEndAt; // 모집 종료
+    private LocalDateTime participateEndAt; // 모집 종료
 
     public void draftSchedule(
             Long participantLimit, Long budget, PublicStatus publicStatus,
-            ZonedDateTime participateStartAt, ZonedDateTime participateEndAt
+            LocalDateTime participateStartAt, LocalDateTime participateEndAt
     ) {
         this.participantLimit = participantLimit;
         this.budget = budget;

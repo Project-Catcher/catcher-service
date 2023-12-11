@@ -12,6 +12,7 @@ import com.catcher.core.service.ScheduleService;
 import com.catcher.security.CatcherUser;
 import com.catcher.core.domain.ScheduleCommandExecutor;
 import com.catcher.core.domain.command.ScheduleDetailSaveCommand;
+import com.catcher.security.annotation.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,9 +65,9 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
-    @PostMapping("/items")
+    @PostMapping("/userItem")
     public CommonResponse<SaveUserItemResponse> saveUserItem(
-            @AuthenticationPrincipal CatcherUser catcherUser,
+            @CurrentUser CatcherUser catcherUser,
             @Valid @RequestBody UserItemRequest request
     ) {
         User user = catcherUser.getUser();
@@ -75,13 +76,13 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
-    @GetMapping("/items")
-    public CommonResponse<CatcherItemResponse> getCatcherItems(
-            @RequestParam String query
-    ) {
-        CatcherItemResponse response = scheduleService.getCatcherItems(query);
-        return CommonResponse.success(response);
-    }
+//    @GetMapping("/catcherItem")
+//    public CommonResponse<CatcherItemResponse> getCatcherItems(
+//            @RequestParam String query
+//    ) {
+//        CatcherItemResponse response = scheduleService.getCatcherItems(query);
+//        return CommonResponse.success(response);
+//    }
 
     @GetMapping("/tag")
     public CommonResponse<RecommendedTagResponse> getTags() {

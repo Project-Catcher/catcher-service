@@ -4,7 +4,7 @@ import com.catcher.common.utils.customValid.valid.ValidEnum;
 import com.catcher.core.domain.entity.enums.PublicStatus;
 import lombok.Getter;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,7 +18,7 @@ public class SaveDraftScheduleRequest {
 
     private Long budget;
 
-    private ZonedDateTime participateStartAt;
+    private LocalDateTime participateStartAt;
 
-    private ZonedDateTime participateEndAt;
+    private LocalDateTime participateEndAt;
 }
