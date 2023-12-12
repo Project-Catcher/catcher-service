@@ -80,14 +80,6 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
-//    @GetMapping("/catcherItem")
-//    public CommonResponse<CatcherItemResponse> getCatcherItems(
-//            @RequestParam String query
-//    ) {
-//        CatcherItemResponse response = scheduleService.getCatcherItems(query);
-//        return CommonResponse.success(response);
-//    }
-
     @GetMapping("/tag")
     public CommonResponse<RecommendedTagResponse> getTags() {
         RecommendedTagResponse response = scheduleService.getRecommendedTags();
