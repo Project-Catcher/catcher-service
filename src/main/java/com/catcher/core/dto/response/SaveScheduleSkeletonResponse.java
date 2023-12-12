@@ -4,10 +4,10 @@ import com.catcher.core.domain.entity.Schedule;
 import lombok.Getter;
 
 @Getter
-public class SaveScheduleInfoResponse {
+public class SaveScheduleSkeletonResponse {
     private final Long id;
 
-    public SaveScheduleInfoResponse(Schedule schedule) {
+    public SaveScheduleSkeletonResponse(Schedule schedule) {
         this.id = schedule.getId();
     }
 }

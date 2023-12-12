@@ -1,12 +1,15 @@
 package com.catcher.core.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
 @Getter
-public class SaveScheduleInfoRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class SaveScheduleSkeletonRequest {
     @NotBlank
     private String title;
 

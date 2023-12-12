@@ -4,7 +4,7 @@ import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.command.DraftScheduleGetCommand;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.UserRole;
-import com.catcher.core.dto.request.SaveScheduleInfoRequest;
+import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
 import com.catcher.core.dto.request.UserItemRequest;
@@ -50,11 +50,11 @@ public class ScheduleController {
 
     @PostMapping("/draft")
     @AuthorizationRequired(value = UserRole.USER)
-    public CommonResponse<SaveScheduleInfoResponse> saveScheduleInfo(
+    public CommonResponse<SaveScheduleSkeletonResponse> saveScheduleSkeleton(
             @CurrentUser User user,
-            @Valid @RequestBody SaveScheduleInfoRequest request
+            @Valid @RequestBody SaveScheduleSkeletonRequest request
     ) {
-        SaveScheduleInfoResponse response = scheduleService.saveScheduleInfo(request, user);
+        SaveScheduleSkeletonResponse response = scheduleService.saveScheduleSkeleton(request, user);
         return CommonResponse.success(response);
     }
 

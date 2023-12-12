@@ -8,7 +8,7 @@ import com.catcher.core.domain.entity.enums.ContentType;
 import com.catcher.core.domain.entity.enums.ItemType;
 import com.catcher.core.domain.entity.enums.RecommendedStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
-import com.catcher.core.dto.request.SaveScheduleInfoRequest;
+import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
 import com.catcher.core.dto.request.UserItemRequest;
@@ -72,7 +72,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public SaveScheduleInfoResponse saveScheduleInfo(SaveScheduleInfoRequest request, User user) {
+    public SaveScheduleSkeletonResponse saveScheduleSkeleton(SaveScheduleSkeletonRequest request, User user) {
         Location location = getLocation(request.getLocation());
 
         Schedule schedule = Schedule.builder()
@@ -80,6 +80,7 @@ public class ScheduleService {
                 .user(user)
                 .thumbnailUrl(request.getThumbnail())
                 .location(location)
+                .viewCount(0L)
                 .startAt(request.getStartAt())
                 .endAt(request.getEndAt())
                 .scheduleStatus(ScheduleStatus.DRAFT)
@@ -95,7 +96,7 @@ public class ScheduleService {
 
         uploadFileRepository.save(uploadFile);
 
-        return new SaveScheduleInfoResponse(schedule);
+        return new SaveScheduleSkeletonResponse(schedule);
     }
 
     @Transactional
@@ -180,6 +181,7 @@ public class ScheduleService {
     private Tag createTag(String tagName) {
         return Tag.builder()
                 .name(tagName)
+                .recommendedStatus(RecommendedStatus.DISABLED)
                 .build();
     }
 
