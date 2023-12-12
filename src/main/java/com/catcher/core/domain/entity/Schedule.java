@@ -63,9 +63,15 @@ public class Schedule extends BaseTimeEntity {
     private LocalDateTime participateEndAt; // 모집 종료
 
     public void draftSchedule(
+            String title, String thumbnailUrl, ZonedDateTime startAt, ZonedDateTime endAt, Location location,
             Long participantLimit, Long budget, PublicStatus publicStatus,
             LocalDateTime participateStartAt, LocalDateTime participateEndAt
     ) {
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.location = location;
         this.participantLimit = participantLimit;
         this.budget = budget;
         this.publicStatus = publicStatus;

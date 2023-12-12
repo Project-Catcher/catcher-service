@@ -52,8 +52,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId){
-        Schedule schedule = getSchedule(scheduleId);
+    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user){
+        Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
         ScheduleDetail scheduleDetail = createScheduleDetail(request, schedule);
@@ -64,11 +64,7 @@ public class ScheduleService {
     public SaveUserItemResponse saveUserItem(User user, UserItemRequest request) {
         Category category = getCategory(request.getCategory());
 
-        var address = addressPort.getAddressByQuery(request.getLocation())
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_ADDRESS_RESULT_FOR_QUERY));
-        Location location = locationPort.findByAreaCode(address.getAreaCode())
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_LOCATION_RESULT));
-
+        Location location = getLocation(request.getLocation());
         UserItem userItem = createUserItem(user, request, category, location);
         userItemRepository.save(userItem);
 
@@ -84,10 +80,13 @@ public class ScheduleService {
 
     @Transactional
     public SaveScheduleInfoResponse saveScheduleInfo(SaveScheduleInfoRequest request, User user) {
+        Location location = getLocation(request.getLocation());
+
         Schedule schedule = Schedule.builder()
                 .title(request.getTitle())
                 .user(user)
                 .thumbnailUrl(request.getThumbnail())
+                .location(location)
                 .startAt(request.getStartAt())
                 .endAt(request.getEndAt())
                 .scheduleStatus(ScheduleStatus.DRAFT)
@@ -107,8 +106,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void saveDraftSchedule(SaveDraftScheduleRequest request, Long scheduleId) {
-        Schedule schedule = getSchedule(scheduleId);
+    public void saveDraftSchedule(SaveDraftScheduleRequest request, Long scheduleId, User user) {
+        Schedule schedule = getSchedule(scheduleId, user);
         Map<String, Tag> tagMap = tagRepository.findAll().stream()
                 .collect(Collectors.toMap(Tag::getName, Function.identity()));
 
@@ -126,8 +125,13 @@ public class ScheduleService {
 
         scheduleTagRepository.saveAll(scheduleTagList);
 
-        schedule.draftSchedule(request.getParticipant(), request.getBudget(), request.getIsPublic(),
-                request.getParticipateStartAt(), request.getParticipateEndAt());
+        Location location = getLocation(request.getLocation());
+
+        schedule.draftSchedule(
+                request.getTitle(), request.getThumbnail(), request.getStartAt(), request.getEndAt(),
+                location, request.getParticipant(), request.getBudget(), request.getIsPublic(),
+                request.getParticipateStartAt(), request.getParticipateEndAt()
+        );
 
         scheduleRepository.save(schedule);
     }
@@ -149,6 +153,13 @@ public class ScheduleService {
             case CATCHERITEM -> catcherItemPort.findById(itemId)
                     .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
         }
+    }
+
+    private Location getLocation(String query) {
+        var address = addressPort.getAddressByQuery(query)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_ADDRESS_RESULT_FOR_QUERY));
+        return locationPort.findByAreaCode(address.getAreaCode())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_LOCATION_RESULT));
     }
 
     private ScheduleDetail createScheduleDetail(ScheduleDetailRequest request, Schedule schedule) {
@@ -191,8 +202,8 @@ public class ScheduleService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
     }
 
-    private Schedule getSchedule(Long scheduleId) {
-        return scheduleRepository.findById(scheduleId)
+    private Schedule getSchedule(Long scheduleId, User user) {
+        return scheduleRepository.findByIdAndUser(scheduleId, user)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
     }
 }
