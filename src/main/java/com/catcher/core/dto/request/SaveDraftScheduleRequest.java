@@ -3,13 +3,16 @@ package com.catcher.core.dto.request;
 import com.catcher.common.utils.customValid.valid.ValidEnum;
 import com.catcher.core.domain.entity.enums.PublicStatus;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class SaveDraftScheduleRequest {
     @NotBlank
     private String title;

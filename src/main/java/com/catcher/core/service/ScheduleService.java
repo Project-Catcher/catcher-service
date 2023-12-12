@@ -11,7 +11,7 @@ import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.UserItemRequest;
+import com.catcher.core.dto.request.SaveUserItemRequest;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
 import com.catcher.core.port.CatcherItemPort;
@@ -61,7 +61,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public SaveUserItemResponse saveUserItem(User user, UserItemRequest request) {
+    public SaveUserItemResponse saveUserItem(User user, SaveUserItemRequest request) {
         Category category = getCategory(request.getCategory());
 
         Location location = getLocation(request.getLocation());
@@ -168,7 +168,7 @@ public class ScheduleService {
                 .build();
     }
 
-    private UserItem createUserItem(User user, UserItemRequest request, Category category, Location location) {
+    private UserItem createUserItem(User user, SaveUserItemRequest request, Category category, Location location) {
         return UserItem.builder()
                 .user(user)
                 .category(category)

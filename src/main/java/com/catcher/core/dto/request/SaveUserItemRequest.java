@@ -1,10 +1,13 @@
 package com.catcher.core.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
-public class UserItemRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class SaveUserItemRequest {
     @NotBlank
     private String title;
 
@@ -12,5 +15,6 @@ public class UserItemRequest {
 
     private String description;
 
+    @NotBlank
     private String category;
 }

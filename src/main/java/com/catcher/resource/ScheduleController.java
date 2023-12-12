@@ -7,7 +7,7 @@ import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.UserItemRequest;
+import com.catcher.core.dto.request.SaveUserItemRequest;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.service.ScheduleService;
 import com.catcher.core.domain.ScheduleCommandExecutor;
@@ -73,7 +73,7 @@ public class ScheduleController {
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<SaveUserItemResponse> saveUserItem(
             @CurrentUser User user,
-            @Valid @RequestBody UserItemRequest request
+            @Valid @RequestBody SaveUserItemRequest request
     ) {
         SaveUserItemResponse response = scheduleService.saveUserItem(user, request);
 
