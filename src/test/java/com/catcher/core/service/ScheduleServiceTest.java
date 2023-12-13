@@ -3,6 +3,7 @@ package com.catcher.core.service;
 import com.catcher.AppApplication;
 import com.catcher.common.exception.BaseException;
 import com.catcher.core.database.ScheduleRepository;
+import com.catcher.core.database.ScheduleTagRepository;
 import com.catcher.core.database.TagRepository;
 import com.catcher.core.database.UserItemRepository;
 import com.catcher.core.db.UserRepository;
@@ -54,6 +55,9 @@ class ScheduleServiceTest {
     TagRepository tagRepository;
 
     @Autowired
+    ScheduleTagRepository scheduleTagRepository;
+
+    @Autowired
     LocationPort locationPort;
 
     @PersistenceContext
@@ -86,8 +90,6 @@ class ScheduleServiceTest {
         assertEquals(1, result.getSchedules().size());
         assertEquals(draftSchedule.getTitle(), result.getSchedules().get(0).getTitle());
     }
-
-
 
     @DisplayName("SUCCESS: 임시 저장된 일정 조회 시, 임시 저장된 일정이 없을 경우")
     @Test
@@ -131,8 +133,8 @@ class ScheduleServiceTest {
         assertEquals(1, savedSchedules.size());
 
         Schedule savedSchedule = savedSchedules.get(0);
-        assertThat(savedSchedule.getTitle()).isEqualTo("제목");
-        assertThat(savedSchedule.getThumbnailUrl()).isEqualTo("image.png");
+        assertThat(savedSchedule.getTitle()).isEqualTo(request.getTitle());
+        assertThat(savedSchedule.getThumbnailUrl()).isEqualTo(request.getThumbnail());
     }
 
     @DisplayName("SUCCESS: 일정 임시 저장")
@@ -146,7 +148,6 @@ class ScheduleServiceTest {
                 .orElseThrow();
 
         Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
-
         scheduleRepository.save(schedule);
 
         List<String> tagList = List.of("친구와", "나홀로");
@@ -158,6 +159,9 @@ class ScheduleServiceTest {
 
         // Then
         assertThat(schedule.getTitle()).isEqualTo(request.getTitle());
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).size(), tagList.size());
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).get(0).getTag().getName(), tagList.get(0));
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).get(1).getTag().getName(), tagList.get(1));
     }
 
     @DisplayName("FAIL: 임시 저장 시, 유효한 일정이 아닐 경우")
@@ -180,6 +184,39 @@ class ScheduleServiceTest {
 
         // When, Then
         assertThatThrownBy(() -> scheduleService.saveDraftSchedule(request, schedule.getId(), reader))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("FAIL: 임시 저장 시, 공개 여부 enum 값이 정의된 것과 다를 경우")
+    @Test
+    void status_different_save_draft_schedule() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Location location = locationPort.findByAreaCode("1100000000")
+                .orElseThrow();
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        List<String> tagList = List.of("친구와", "나홀로");
+        SaveDraftScheduleRequest request = SaveDraftScheduleRequest.builder()
+                .title("제목")
+                .thumbnail("image.png")
+                .location("서울특별시")
+                .startAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .endAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .tags(tagList)
+                .isPublic(PublicStatus.PUBLIC)
+                .participant(0L)
+                .budget(0L)
+                .participateEndAt(LocalDateTime.now())
+                .participateStartAt(LocalDateTime.now())
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.saveDraftSchedule(request, schedule.getId(), user))
                 .isInstanceOf(BaseException.class);
     }
 

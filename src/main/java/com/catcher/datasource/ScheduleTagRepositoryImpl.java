@@ -1,6 +1,7 @@
 package com.catcher.datasource;
 
 import com.catcher.core.database.ScheduleTagRepository;
+import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleTag;
 import com.catcher.infrastructure.jpa.repository.ScheduleTagJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,10 @@ public class ScheduleTagRepositoryImpl implements ScheduleTagRepository {
     @Override
     public void saveAll(List<ScheduleTag> scheduleTagList) {
         scheduleTagJpaRepository.saveAll(scheduleTagList);
+    }
+
+    @Override
+    public List<ScheduleTag> findBySchedule(Schedule schedule) {
+        return scheduleTagJpaRepository.findBySchedule(schedule);
     }
 }
