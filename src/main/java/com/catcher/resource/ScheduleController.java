@@ -14,6 +14,7 @@ import com.catcher.core.domain.ScheduleCommandExecutor;
 import com.catcher.core.domain.command.ScheduleDetailSaveCommand;
 import com.catcher.security.annotation.AuthorizationRequired;
 import com.catcher.security.annotation.CurrentUser;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class ScheduleController {
     private final ScheduleCommandExecutor commandExecutor;
     private final ScheduleService scheduleService;
 
+    @Operation(summary = "임시 저장된 일정 목록 조회")
     @GetMapping("/draft")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<DraftScheduleResponse> getDraftSchedule(
@@ -35,6 +37,7 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
+    @Operation(summary = "세부 일정 저장")
     @PostMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> saveScheduleDetail(
@@ -48,6 +51,7 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "일정 기본 정보 저장")
     @PostMapping("/draft")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<SaveScheduleSkeletonResponse> saveScheduleSkeleton(
@@ -58,6 +62,7 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
+    @Operation(summary = "일정 임시 저장")
     @PutMapping("/draft/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> saveDraftSchedule(
@@ -69,6 +74,7 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "나만의 아이템 저장")
     @PostMapping("/userItem")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<SaveUserItemResponse> saveUserItem(
@@ -80,6 +86,7 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
+    @Operation(summary = "추천 태그 목록 조회")
     @GetMapping("/tag")
     public CommonResponse<RecommendedTagResponse> getTags() {
         RecommendedTagResponse response = scheduleService.getRecommendedTags();
