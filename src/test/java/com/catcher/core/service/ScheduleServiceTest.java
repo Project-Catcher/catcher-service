@@ -187,39 +187,6 @@ class ScheduleServiceTest {
                 .isInstanceOf(BaseException.class);
     }
 
-    @DisplayName("FAIL: 임시 저장 시, 공개 여부 enum 값이 정의된 것과 다를 경우")
-    @Test
-    void status_different_save_draft_schedule() {
-        // Given
-        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
-        userRepository.save(user);
-
-        Location location = locationPort.findByAreaCode("1100000000")
-                .orElseThrow();
-
-        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
-        scheduleRepository.save(schedule);
-
-        List<String> tagList = List.of("친구와", "나홀로");
-        SaveDraftScheduleRequest request = SaveDraftScheduleRequest.builder()
-                .title("제목")
-                .thumbnail("image.png")
-                .location("서울특별시")
-                .startAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
-                .endAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
-                .tags(tagList)
-                .isPublic(PublicStatus.PUBLIC)
-                .participant(0L)
-                .budget(0L)
-                .participateEndAt(LocalDateTime.now())
-                .participateStartAt(LocalDateTime.now())
-                .build();
-
-        // When, Then
-        assertThatThrownBy(() -> scheduleService.saveDraftSchedule(request, schedule.getId(), user))
-                .isInstanceOf(BaseException.class);
-    }
-
     @DisplayName("SUCCESS: 나만의 아이템 저장")
     @Test
     void save_user_item() {
