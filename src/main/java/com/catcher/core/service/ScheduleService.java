@@ -18,6 +18,7 @@ import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -150,6 +151,10 @@ public class ScheduleService {
     }
 
     private Location getLocation(String query) {
+        if (StringUtils.isEmpty(query)) {
+            return null;
+        }
+
         var address = addressPort.getAddressByQuery(query)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_ADDRESS_RESULT_FOR_QUERY));
         return locationPort.findByAreaCode(address.getAreaCode())
