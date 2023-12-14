@@ -17,12 +17,17 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     private final ScheduleJpaRepository scheduleJpaRepository;
 
     @Override
-    public Optional<Schedule> findById(Long scheduleId) {
-        return scheduleJpaRepository.findById(scheduleId);
+    public Optional<Schedule> findByIdAndUser(Long scheduleId, User user) {
+        return scheduleJpaRepository.findByIdAndUser(scheduleId, user);
     }
 
     @Override
     public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
-        return scheduleJpaRepository.findByUserAndStatus(user, scheduleStatus);
+        return scheduleJpaRepository.findByUserAndScheduleStatus(user, scheduleStatus);
+    }
+
+    @Override
+    public void save(Schedule schedule) {
+        scheduleJpaRepository.save(schedule);
     }
 }

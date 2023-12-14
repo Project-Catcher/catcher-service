@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -29,16 +30,13 @@ public class Schedule extends BaseTimeEntity {
 
     private Long participantLimit;
 
-    private String locationDetail;
-
     @Column(nullable = false)
     private String title;
 
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "upload_file_id", nullable = false)
-    private UploadFile uploadFile;
+    @Column(nullable = false)
+    private String thumbnailUrl;
 
     @Column(nullable = false)
     private Long viewCount;
@@ -59,8 +57,25 @@ public class Schedule extends BaseTimeEntity {
     private ZonedDateTime endAt; // 일정 종료
 
     @Column(name = "participate_start_at")
-    private ZonedDateTime participateStartAt; // 모집 시작
+    private LocalDateTime participateStartAt; // 모집 시작
 
     @Column(name = "participate_end_at")
-    private ZonedDateTime participateEndAt; // 모집 종료
+    private LocalDateTime participateEndAt; // 모집 종료
+
+    public void draftSchedule(
+            String title, String thumbnailUrl, ZonedDateTime startAt, ZonedDateTime endAt, Location location,
+            Long participantLimit, Long budget, PublicStatus publicStatus,
+            LocalDateTime participateStartAt, LocalDateTime participateEndAt
+    ) {
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.location = location;
+        this.participantLimit = participantLimit;
+        this.budget = budget;
+        this.publicStatus = publicStatus;
+        this.participateStartAt = participateStartAt;
+        this.participateEndAt = participateEndAt;
+    }
 }

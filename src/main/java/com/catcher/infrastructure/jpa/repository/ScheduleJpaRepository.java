@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
-    Optional<Schedule> findById(Long scheduleId);
+    List<Schedule> findByUserAndScheduleStatus(User user, ScheduleStatus scheduleStatus);
 
-    List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
+    Optional<Schedule> findByIdAndUser(Long scheduleId, User user);
 }
