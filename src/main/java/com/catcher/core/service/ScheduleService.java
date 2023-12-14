@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -142,6 +143,16 @@ public class ScheduleService {
                 .collect(Collectors.toList());
 
         return new RecommendedTagResponse(tagDTOList);
+    }
+
+    @Transactional(readOnly = true)
+    public GetUserItemResponse getUserItems(User user) {
+        List<UserItem> userItemList = userItemRepository.findByUser(user);
+        List<GetUserItemResponse.UserItemDTO> userItemDTOList = userItemList.stream()
+                .map(GetUserItemResponse.UserItemDTO::new)
+                .toList();
+
+        return new GetUserItemResponse(userItemDTOList);
     }
 
     private void isValidItem(ItemType itemType, Long itemId) {
