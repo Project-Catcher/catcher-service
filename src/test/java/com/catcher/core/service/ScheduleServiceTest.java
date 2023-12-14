@@ -19,9 +19,10 @@ import com.catcher.core.dto.response.DraftScheduleResponse;
 import com.catcher.core.dto.response.RecommendedTagResponse;
 import com.catcher.core.dto.response.SaveScheduleSkeletonResponse;
 import com.catcher.core.dto.response.SaveUserItemResponse;
-import com.catcher.core.port.LocationPort;
+import com.catcher.infrastructure.jpa.repository.LocationJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ class ScheduleServiceTest {
     ScheduleTagRepository scheduleTagRepository;
 
     @Autowired
-    LocationPort locationPort;
+    LocationJpaRepository locationJpaRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -66,15 +67,20 @@ class ScheduleServiceTest {
     @Autowired
     private ScheduleService scheduleService;
 
+    Location location = Location.initLocation("areacode", "description");
+
+    @BeforeEach
+    void beforeEach() {
+        locationJpaRepository.save(location);
+        flushAndClearPersistence();
+    }
+
     @DisplayName("SUCCESS: 임시 저장된 일정 조회")
     @Test
     void get_draft_schedule() {
         // Given
         User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
         userRepository.save(user);
-
-        Location location = locationPort.findByAreaCode("1100000000")
-                .orElseThrow();
 
         Schedule draftSchedule = createSchedule(user, location, ScheduleStatus.DRAFT);
         Schedule savedSchedule = createSchedule(user, location, ScheduleStatus.NORMAL);
@@ -144,9 +150,6 @@ class ScheduleServiceTest {
         User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
         userRepository.save(user);
 
-        Location location = locationPort.findByAreaCode("1100000000")
-                .orElseThrow();
-
         Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
         scheduleRepository.save(schedule);
 
@@ -172,9 +175,6 @@ class ScheduleServiceTest {
         User reader = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
         userRepository.save(owner);
         userRepository.save(reader);
-
-        Location location = locationPort.findByAreaCode("1100000000")
-                .orElseThrow();
 
         Schedule schedule = createSchedule(owner, location, ScheduleStatus.DRAFT);
         scheduleRepository.save(schedule);
