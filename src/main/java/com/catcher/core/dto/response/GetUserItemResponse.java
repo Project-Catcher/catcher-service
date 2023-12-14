@@ -21,11 +21,11 @@ public class GetUserItemResponse {
         private final String location;
         private final String description;
 
-        public UserItemDTO(UserItem userItem) {
+        public UserItemDTO(UserItem userItem, String location) {
             this.id = userItem.getId();
             this.title = userItem.getTitle();
             this.category = userItem.getCategory().getName();
-            this.location = userItem.getLocation().getAddress().getDescription();
+            this.location = location;
             this.description = userItem.getDescription();
         }
     }

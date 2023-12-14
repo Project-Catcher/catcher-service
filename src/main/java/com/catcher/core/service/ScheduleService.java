@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -148,7 +149,13 @@ public class ScheduleService {
     public GetUserItemResponse getUserItems(User user) {
         List<UserItem> userItemList = userItemRepository.findByUser(user);
         List<GetUserItemResponse.UserItemDTO> userItemDTOList = userItemList.stream()
-                .map(GetUserItemResponse.UserItemDTO::new)
+                .map(userItem -> {
+                    String location = null;
+                    if (userItem.getLocation() != null) {
+                        location = userItem.getLocation().getAddress().getDescription();
+                    }
+                    return new GetUserItemResponse.UserItemDTO(userItem, location);
+                })
                 .toList();
 
         return new GetUserItemResponse(userItemDTOList);
