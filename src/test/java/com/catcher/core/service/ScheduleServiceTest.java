@@ -15,6 +15,9 @@ import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.dto.response.*;
+import com.catcher.infrastructure.jpa.repository.CategoryJpaRepository;
+import com.catcher.infrastructure.jpa.repository.LocationJpaRepository;
 import com.catcher.core.dto.response.DraftScheduleResponse;
 import com.catcher.core.dto.response.RecommendedTagResponse;
 import com.catcher.core.dto.response.SaveScheduleSkeletonResponse;
@@ -58,7 +61,7 @@ class ScheduleServiceTest {
     ScheduleTagRepository scheduleTagRepository;
 
     @Autowired
-    CategoryPort categoryPort;
+    CategoryJpaRepository categoryJpaRepository;
 
     @Autowired
     LocationJpaRepository locationJpaRepository;
@@ -264,8 +267,8 @@ class ScheduleServiceTest {
         User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
         userRepository.save(user);
 
-        Category category = categoryPort.findByName("restaurant")
-                .orElseThrow();
+        Category category = Category.create("restaurant");
+        categoryJpaRepository.save(category);
 
         UserItem userItem1 = createUserItem(user, category, createRandomUUID());
         UserItem userItem2 = createUserItem(user, category, createRandomUUID());
