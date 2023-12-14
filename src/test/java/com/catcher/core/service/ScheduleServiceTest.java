@@ -58,6 +58,9 @@ class ScheduleServiceTest {
     ScheduleTagRepository scheduleTagRepository;
 
     @Autowired
+    CategoryPort categoryPort;
+
+    @Autowired
     LocationJpaRepository locationJpaRepository;
 
     @PersistenceContext
@@ -254,6 +257,46 @@ class ScheduleServiceTest {
         assertEquals(0, result.getTags().size());
     }
 
+    @DisplayName("SUCCESS: 나만의 아이템 목록 조회")
+    @Test
+    void get_user_items() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Category category = categoryPort.findByName("restaurant")
+                .orElseThrow();
+
+        UserItem userItem1 = createUserItem(user, category, createRandomUUID());
+        UserItem userItem2 = createUserItem(user, category, createRandomUUID());
+
+        userItemRepository.save(userItem1);
+        userItemRepository.save(userItem2);
+        flushAndClearPersistence();
+
+        // When
+        GetUserItemResponse result = scheduleService.getUserItems(user);
+
+        // Then
+        assertEquals(2, result.getItems().size());
+        assertEquals(userItem1.getCategory().getName(), result.getItems().get(0).getCategory());
+        assertEquals(userItem2.getCategory().getName(), result.getItems().get(1).getCategory());
+    }
+
+    @DisplayName("SUCCESS: 아이템이 없을 경우, 나만의 아이템 목록 조회")
+    @Test
+    void get_none_user_items() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        // When
+        GetUserItemResponse result = scheduleService.getUserItems(user);
+
+        // Then
+        assertEquals(0, result.getItems().size());
+    }
+
     private User createUser(String name, String phone, String email, String nickname) {
         return User.builder()
                 .username(name)
@@ -312,6 +355,14 @@ class ScheduleServiceTest {
         return Tag.builder()
                 .name(name)
                 .recommendedStatus(disabled)
+                .build();
+    }
+
+    private static UserItem createUserItem(User user, Category category, String title) {
+        return UserItem.builder()
+                .user(user)
+                .category(category)
+                .title(title)
                 .build();
     }
 
