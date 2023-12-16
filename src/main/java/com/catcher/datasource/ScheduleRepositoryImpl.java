@@ -6,6 +6,7 @@ import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.infrastructure.jpa.repository.ScheduleJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,7 +28,12 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     }
 
     @Override
-    public void save(Schedule schedule) {
-        scheduleJpaRepository.save(schedule);
+    public Schedule save(Schedule schedule) {
+        return scheduleJpaRepository.save(schedule);
+    }
+
+    @Override
+    public List<Schedule> findAll(Specification<Schedule> specification) {
+        return scheduleJpaRepository.findAll(specification);
     }
 }

@@ -4,24 +4,21 @@ import com.catcher.common.exception.BaseException;
 import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.*;
 import com.catcher.core.domain.entity.*;
-import com.catcher.core.domain.entity.enums.ContentType;
-import com.catcher.core.domain.entity.enums.ItemType;
-import com.catcher.core.domain.entity.enums.RecommendedStatus;
-import com.catcher.core.domain.entity.enums.ScheduleStatus;
-import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
-import com.catcher.core.dto.request.SaveDraftScheduleRequest;
-import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.domain.entity.enums.*;
+import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
 import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
+import com.catcher.core.specification.ScheduleSpecification;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -205,5 +202,68 @@ public class ScheduleService {
     private Schedule getSchedule(Long scheduleId, User user) {
         return scheduleRepository.findByIdAndUser(scheduleId, user)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+    }
+
+    public ScheduleListResponse getScheduleList(
+            Long participantFrom,
+            Long participantTo,
+            ZonedDateTime startAt,
+            ZonedDateTime endAt,
+            Long budgetFrom,
+            Long budgetTo,
+            SearchOption keywordOption,
+            String keyword) {
+
+        Specification<Schedule> specification = Specification.where(null);
+
+        if(participantFrom != null)
+            specification = specification.and(ScheduleSpecification.fromParticipant(participantFrom));
+
+        if(participantFrom != null)
+            specification = specification.and(ScheduleSpecification.toParticipant(participantTo));
+
+        if(startAt != null)
+            specification = specification.and(ScheduleSpecification.fromStartAt(startAt));
+
+        if(endAt != null)
+            specification = specification.and(ScheduleSpecification.toEndAt(endAt));
+
+        if(budgetFrom != null)
+            specification = specification.and(ScheduleSpecification.fromBudget(budgetFrom));
+
+        if(budgetTo != null)
+            specification = specification.and(ScheduleSpecification.toBudget(budgetTo));
+
+        if(keyword != null && keywordOption != null)
+            specification = specification.and(getSpecificationByKeywordOption(keywordOption, keyword));
+
+        List<Schedule> schedules = scheduleRepository.findAll(specification);
+
+        List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
+                .map(ScheduleListResponse.ScheduleDTO::new)
+                .toList();
+
+        return new ScheduleListResponse(scheduleDTOList);
+    }
+
+    private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
+        Specification<Schedule> specification = Specification.where(null);
+
+        if(keywordOption.equals(SearchOption.ALL)){
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLE)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+        } else if(keywordOption.equals(SearchOption.DESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLEANDDESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.WRITER)) {
+            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        }
+
+        return specification;
     }
 }

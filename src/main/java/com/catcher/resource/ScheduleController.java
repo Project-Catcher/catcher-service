@@ -3,11 +3,9 @@ package com.catcher.resource;
 import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.command.DraftScheduleGetCommand;
 import com.catcher.core.domain.entity.User;
+import com.catcher.core.domain.entity.enums.SearchOption;
 import com.catcher.core.domain.entity.enums.UserRole;
-import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
-import com.catcher.core.dto.request.SaveDraftScheduleRequest;
-import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.service.ScheduleService;
 import com.catcher.core.domain.ScheduleCommandExecutor;
@@ -17,7 +15,11 @@ import com.catcher.security.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/schedules")
@@ -90,6 +92,30 @@ public class ScheduleController {
     @GetMapping("/tag")
     public CommonResponse<RecommendedTagResponse> getTags() {
         RecommendedTagResponse response = scheduleService.getRecommendedTags();
+        return CommonResponse.success(response);
+    }
+
+    @GetMapping("/list")
+    public CommonResponse<ScheduleListResponse> getScheduleList(
+            @RequestParam(required = false) Long participantFrom,
+            @RequestParam(required = false) Long participantTo,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") ZonedDateTime startAt,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") ZonedDateTime endAt,
+            @RequestParam(required = false) Long budgetFrom,
+            @RequestParam(required = false) Long budgetTo,
+            @RequestParam(required = false) SearchOption keywordOption,
+            @RequestParam(required = false) String keyword
+            ){
+        ScheduleListResponse response = scheduleService.getScheduleList(
+                participantFrom,
+                participantTo,
+                startAt,
+                endAt,
+                budgetFrom,
+                budgetTo,
+                keywordOption,
+                keyword);
+
         return CommonResponse.success(response);
     }
 }
