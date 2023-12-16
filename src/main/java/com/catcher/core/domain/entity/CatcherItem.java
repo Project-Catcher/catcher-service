@@ -2,7 +2,6 @@ package com.catcher.core.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Where;
 
 import java.time.ZonedDateTime;
 

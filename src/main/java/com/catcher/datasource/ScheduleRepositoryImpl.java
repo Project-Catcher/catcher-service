@@ -1,6 +1,5 @@
 package com.catcher.datasource;
 
-import com.catcher.core.database.ScheduleParticipantRepository;
 import com.catcher.core.database.ScheduleRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleParticipant;
@@ -31,13 +30,18 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Schedule> findById(Long scheduleId) {
-        return scheduleJpaRepository.findById(scheduleId);
+    public Optional<Schedule> findByIdAndUser(Long scheduleId, User user) {
+        return scheduleJpaRepository.findByIdAndUser(scheduleId, user);
     }
 
     @Override
     public List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus) {
         return scheduleJpaRepository.findByUserAndScheduleStatus(user, scheduleStatus);
+    }
+
+    @Override
+    public void save(Schedule schedule) {
+        scheduleJpaRepository.save(schedule);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     public List<Schedule> draftScheduleList(Long userId) {
         List<ScheduleStatus> statusList = List.of(ScheduleStatus.DRAFT);
 
-        return scheduleJpaRepository.findByUserIdAndScheduleStatusIn(userId, statusList).stream()
+        return scheduleJpaRepository.findByUserIdAndScheduleStatusInOrderByCreatedAtDesc(userId, statusList).stream()
                 .limit(7)
                 .collect(Collectors.toList());
     }
@@ -76,9 +80,13 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
         //인원이 다 찼는지 확인
         TypedQuery<Object[]> query = entityManager.createQuery(
-                "SELECT COUNT(sp), sp.schedule.id FROM ScheduleParticipant sp GROUP BY sp.schedule.id",
+                "SELECT COUNT(sp), sp.schedule.id FROM ScheduleParticipant sp " +
+                        "WHERE sp.status = :status " +
+                        "GROUP BY sp.schedule.id",
                 Object[].class
         );
+
+        query.setParameter("status", ParticipantStatus.APPROVE);
 
         List<Object[]> countAndScheduleId = query.getResultList();
 
@@ -100,7 +108,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 .map(
                         ScheduleParticipant::getSchedule
                 )
-                .filter(schedule -> schedule.getEndAt().isAfter(LocalDateTime.now()))
+                .filter(schedule -> schedule.getEndAt().isAfter(LocalDateTime.now()) && schedule.getScheduleStatus() == ScheduleStatus.NORMAL)
                 .collect(Collectors.toList());
     }
 

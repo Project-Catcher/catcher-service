@@ -24,6 +24,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public void save(User user) {
+        userJpaRepository.save(user);
+    }
+
+    @Override
     public void saveAll(List<User> userList) {
         userJpaRepository.saveAll(userList);
     }

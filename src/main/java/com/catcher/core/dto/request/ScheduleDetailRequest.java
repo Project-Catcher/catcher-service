@@ -1,5 +1,6 @@
 package com.catcher.core.dto.request;
 
+import com.catcher.common.utils.customValid.valid.ValidEnum;
 import com.catcher.core.domain.entity.enums.ItemType;
 import lombok.Getter;
 
@@ -9,6 +10,7 @@ import java.time.ZonedDateTime;
 public class ScheduleDetailRequest {
     private Long itemId;
 
+    @ValidEnum(enumClass = ItemType.class)
     private ItemType itemType;
 
     private String description;

@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
-    Optional<Schedule> findById(Long scheduleId);
+    Optional<Schedule> findByIdAndUser(Long scheduleId, User user);
 
     List<Schedule> findByUserAndScheduleStatus(User user, ScheduleStatus scheduleStatus);
 
     List<Schedule> findByUserIdAndScheduleStatusInAndEndAtAfterOrderByStartAtAsc(Long userId, List<ScheduleStatus> statusList, LocalDateTime date);
 
-    List<Schedule> findByUserIdAndScheduleStatusIn(Long userId, List<ScheduleStatus> statusList);
+    List<Schedule> findByUserIdAndScheduleStatusInOrderByCreatedAtDesc(Long userId, List<ScheduleStatus> statusList);
 
     @Query("SELECT s FROM Schedule s " +
             "WHERE s.scheduleStatus = :status " +

@@ -3,13 +3,15 @@ package com.catcher.core.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@Table(name = "user_detail")
-public class UserItem {
+@Table(name = "user_item")
+public class UserItem extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,4 +32,7 @@ public class UserItem {
     private String title;
 
     private String description;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

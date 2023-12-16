@@ -29,4 +29,9 @@ public class BaseTimeEntity {
     private void preUpdate() {
         this.updatedAt = ZonedDateTime.now(ZONE);
     }
+
+    // 작성 중인 일정 TEST 위해 생성 - CW
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

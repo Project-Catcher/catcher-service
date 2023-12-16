@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository {
-    Optional<Schedule> findById(Long scheduleId);
+    Optional<Schedule> findByIdAndUser(Long scheduleId, User user);
 
     List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
+
+    void save(Schedule schedule);
 
     List<Schedule> upcomingScheduleList(Long userId);
 
