@@ -137,7 +137,6 @@ public class ScheduleRepositoryImplTest {
                     LocalDateTime.now(),
                     LocalDateTime.now()
             );
-            schedule.setCreatedAt(ZonedDateTime.now());
             draftScheduleList.add(schedule);
         }
         Schedule currentSchedule = generateSchedule(
@@ -146,7 +145,6 @@ public class ScheduleRepositoryImplTest {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        currentSchedule.setCreatedAt(ZonedDateTime.now().plusDays(1L));
         draftScheduleList.add(currentSchedule);
         scheduleRepository.saveAll(draftScheduleList);
 
