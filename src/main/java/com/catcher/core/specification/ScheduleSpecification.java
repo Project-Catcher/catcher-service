@@ -10,11 +10,6 @@ import java.time.ZonedDateTime;
 
 public class ScheduleSpecification {
 
-    public static Specification<Schedule> findByTheme(String theme){
-        return (root, query, criteriaBuilder)
-                -> criteriaBuilder.equal(root.get("theme"), theme);
-    }
-
     public static Specification<Schedule> likeTitle(String title) {
         return (root, query, criteriaBuilder)
                 -> criteriaBuilder.like(root.get("title"), "%" + title + "%");

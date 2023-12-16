@@ -3,7 +3,6 @@ package com.catcher.core.dto.response;
 import com.catcher.core.domain.entity.Location;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleTag;
-import com.catcher.core.domain.entity.Tag;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

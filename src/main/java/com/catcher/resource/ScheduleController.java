@@ -19,7 +19,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/schedules")
