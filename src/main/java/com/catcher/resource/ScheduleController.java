@@ -3,6 +3,7 @@ package com.catcher.resource;
 import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.command.TempScheduleGetCommand;
 import com.catcher.core.domain.entity.User;
+import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
 import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.dto.response.TempScheduleResponse;
@@ -10,7 +11,9 @@ import com.catcher.core.service.ScheduleService;
 import com.catcher.security.CatcherUser;
 import com.catcher.core.domain.ScheduleCommandExecutor;
 import com.catcher.core.domain.command.ScheduleDetailSaveCommand;
+import com.catcher.security.annotation.AuthorizationRequired;
 import com.catcher.security.annotation.CurrentUser;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +46,9 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "내 일정에 필요한 정보 가져오기")
     @GetMapping("/my-list")
+    @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<MyListResponse> mySchedule(@CurrentUser User user) {
         MyListResponse myList = scheduleService.myList(user.getId());
         return CommonResponse.success(200, myList);

@@ -1,5 +1,6 @@
 package com.catcher.datasource;
 
+import com.catcher.core.database.ScheduleParticipantRepository;
 import com.catcher.core.database.ScheduleRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleParticipant;
@@ -101,5 +102,10 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 )
                 .filter(schedule -> schedule.getEndAt().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveAll(List<Schedule> scheduleList) {
+        scheduleJpaRepository.saveAll(scheduleList);
     }
 }

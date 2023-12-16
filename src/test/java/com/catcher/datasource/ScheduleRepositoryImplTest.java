@@ -1,17 +1,15 @@
 package com.catcher.datasource;
 
+import com.catcher.core.database.LocationRepository;
+import com.catcher.core.database.ScheduleParticipantRepository;
 import com.catcher.core.database.ScheduleRepository;
+import com.catcher.core.database.UploadFileRepository;
 import com.catcher.core.db.UserRepository;
 import com.catcher.core.domain.entity.*;
 import com.catcher.core.domain.entity.enums.ContentType;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.core.domain.entity.enums.UserRole;
-import com.catcher.datasource.repository.LocationJpaRepository;
-import com.catcher.datasource.repository.ScheduleJpaRepository;
-import com.catcher.datasource.repository.ScheduleParticipantJpaRepository;
-import com.catcher.datasource.repository.UploadJpaRepository;
-import com.catcher.datasource.user.UserJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,43 +44,40 @@ public class ScheduleRepositoryImplTest {
     ScheduleRepository scheduleRepository;
 
     @Autowired
-    ScheduleJpaRepository scheduleJpaRepository;
+    ScheduleParticipantRepository scheduleParticipantRepository;
 
     @Autowired
-    ScheduleParticipantJpaRepository scheduleParticipantJpaRepository;
+    UserRepository userRepository;
 
     @Autowired
-    UserJpaRepository userJpaRepository;
+    UploadFileRepository uploadFileRepository;
 
     @Autowired
-    UploadJpaRepository uploadJpaRepository;
-
-    @Autowired
-    LocationJpaRepository locationJpaRepository;
+    LocationRepository locationRepository;
 
     List<User> userList;
     List<Schedule> scheduleList;
     List<ScheduleParticipant> scheduleParticipantList;
-    Location location = Location.initLocation("areacode", "description");
+    Location location = Location.initLocation("1111000000", "서울특별시 종로구");
 
     @BeforeEach
     void beforeEach() {
         userList = new ArrayList<>();
         scheduleList = new ArrayList<>();
         scheduleParticipantList = new ArrayList<>();
-        locationJpaRepository.save(location);
+        locationRepository.save(location);
 
         for (int i = 0; i < 10; i++) {
             User user = createUser();
             userList.add(user);
-            userJpaRepository.save(user);
         }
+        userRepository.saveAll(userList);
 
         for (User user : userList) {
             ScheduleStatus[] statusValues = ScheduleStatus.values();
             Random random = new Random();
             UploadFile uploadFile = generateUploadFile();
-            uploadJpaRepository.save(uploadFile);
+            uploadFileRepository.save(uploadFile);
 
             Schedule schedule = generateSchedule(
                     user,
@@ -93,17 +88,9 @@ public class ScheduleRepositoryImplTest {
             );
 
             scheduleList.add(schedule);
-            scheduleJpaRepository.save(schedule);
         }
 
-        for (User user : userList) {
-            ParticipantStatus[] participantStatus = ParticipantStatus.values();
-            Random random = new Random();
-            ScheduleParticipant scheduleParticipant = generateScheduleParticipant(user, scheduleList.get(0), participantStatus[random.nextInt(participantStatus.length)]);
-
-            scheduleParticipantList.add(scheduleParticipant);
-            scheduleParticipantJpaRepository.save(scheduleParticipant);
-        }
+        scheduleRepository.saveAll(scheduleList);
 
         flushAndClearPersistence();
     }
@@ -112,19 +99,33 @@ public class ScheduleRepositoryImplTest {
     @Test
     void upcomingScheduleList_will_return_satisfied_top_7() {
         //given
+        makeParticipant(null);
 
         for (User user : userList) {
             //when
             List<Schedule> upcomingScheduleList = scheduleRepository.upcomingScheduleList(user.getId());
 
             //then
-            assertThat(upcomingScheduleList.size() < 7);
+            assertThat(upcomingScheduleList.size() <= 7);
 
             for(Schedule schedule: upcomingScheduleList){
                 assertThat(schedule.getScheduleStatus() == ScheduleStatus.NORMAL);
                 assertThat(schedule.getEndAt().isAfter(LocalDateTime.of(LocalDate.now(), LocalTime.MIN)));
             }
         }
+    }
+
+    private void makeParticipant(ParticipantStatus fixedStatus){
+        for (User user : userList) {
+            ParticipantStatus[] participantStatus = ParticipantStatus.values();
+            Random random = new Random();
+            ScheduleParticipant scheduleParticipant = generateScheduleParticipant(user, scheduleList.get(0), fixedStatus == null ? participantStatus[random.nextInt(participantStatus.length)] : fixedStatus);
+
+            scheduleParticipantList.add(scheduleParticipant);
+        }
+        scheduleParticipantRepository.saveAll(scheduleParticipantList);
+
+        flushAndClearPersistence();
     }
 
     private ScheduleParticipant generateScheduleParticipant(User user, Schedule schedule, ParticipantStatus status) {

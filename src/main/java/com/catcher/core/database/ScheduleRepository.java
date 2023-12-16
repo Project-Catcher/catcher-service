@@ -19,4 +19,6 @@ public interface ScheduleRepository {
     List<Schedule> openScheduleList();
 
     List<Schedule> appliedScheduleList(Long userId);
+
+    void saveAll(List<Schedule> scheduleList);
 }
