@@ -379,19 +379,6 @@ public class ScheduleRepositoryImplTest {
         this.shouldSkipSetup = shouldSkipSetup;
     }
 
-    private void makeParticipant(ParticipantStatus fixedStatus) {
-        for (User user : userList) {
-            ParticipantStatus[] participantStatus = ParticipantStatus.values();
-            Random random = new Random();
-            ScheduleParticipant scheduleParticipant = generateScheduleParticipant(user, scheduleList.get(0), fixedStatus == null ? participantStatus[random.nextInt(participantStatus.length)] : fixedStatus);
-
-            scheduleParticipantList.add(scheduleParticipant);
-        }
-        scheduleParticipantJpaRepository.saveAll(scheduleParticipantList);
-
-        flushAndClearPersistence();
-    }
-
     private ScheduleParticipant generateScheduleParticipant(User user, Schedule schedule, ParticipantStatus status) {
         return ScheduleParticipant.builder()
                 .user(user)
