@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter
@@ -24,10 +23,10 @@ public class SaveDraftScheduleRequest {
     private String location;
 
     @NotBlank
-    private ZonedDateTime startAt;
+    private LocalDateTime startAt;
 
     @NotBlank
-    private ZonedDateTime endAt;
+    private LocalDateTime endAt;
 
     private List<String> tags;
 

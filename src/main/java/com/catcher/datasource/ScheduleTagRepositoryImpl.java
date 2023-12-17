@@ -3,7 +3,7 @@ package com.catcher.datasource;
 import com.catcher.core.database.ScheduleTagRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleTag;
-import com.catcher.infrastructure.jpa.repository.ScheduleTagJpaRepository;
+import com.catcher.datasource.repository.ScheduleTagJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

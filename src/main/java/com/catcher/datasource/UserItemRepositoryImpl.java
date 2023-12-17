@@ -2,7 +2,7 @@ package com.catcher.datasource;
 
 import com.catcher.core.database.UserItemRepository;
 import com.catcher.core.domain.entity.UserItem;
-import com.catcher.infrastructure.jpa.repository.UserItemJpaRepository;
+import com.catcher.datasource.repository.UserItemJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

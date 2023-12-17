@@ -14,11 +14,13 @@ import com.catcher.core.dto.request.ScheduleDetailRequest;
 import com.catcher.core.dto.request.SaveUserItemRequest;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
+import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserItemRepository userItemRepository;
@@ -53,7 +56,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user){
+    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user) {
         Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
@@ -205,5 +208,15 @@ public class ScheduleService {
     private Schedule getSchedule(Long scheduleId, User user) {
         return scheduleRepository.findByIdAndUser(scheduleId, user)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+    }
+
+    @Transactional
+    public MyListResponse myList(Long userId) {
+        return new MyListResponse(
+                scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
+                scheduleRepository.draftScheduleList(userId),       //작성중인 일정
+                scheduleRepository.openScheduleList(),              //모집 중
+                scheduleRepository.appliedScheduleList(userId)      //참여 신청
+        );
     }
 }

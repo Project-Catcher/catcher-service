@@ -9,6 +9,7 @@ import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
 import com.catcher.core.dto.request.SaveUserItemRequest;
 import com.catcher.core.dto.response.*;
+import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.service.ScheduleService;
 import com.catcher.core.domain.ScheduleCommandExecutor;
 import com.catcher.core.domain.command.ScheduleDetailSaveCommand;
@@ -91,5 +92,13 @@ public class ScheduleController {
     public CommonResponse<RecommendedTagResponse> getTags() {
         RecommendedTagResponse response = scheduleService.getRecommendedTags();
         return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "내 일정에 필요한 정보 가져오기")
+    @GetMapping("/my-list")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<MyListResponse> mySchedule(@CurrentUser User user) {
+        MyListResponse myList = scheduleService.myList(user.getId());
+        return CommonResponse.success(200, myList);
     }
 }

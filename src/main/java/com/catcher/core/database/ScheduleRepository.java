@@ -13,4 +13,14 @@ public interface ScheduleRepository {
     List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
 
     void save(Schedule schedule);
+
+    List<Schedule> upcomingScheduleList(Long userId);
+
+    List<Schedule> draftScheduleList(Long userId);
+
+    List<Schedule> openScheduleList();
+
+    List<Schedule> appliedScheduleList(Long userId);
+
+    void saveAll(List<Schedule> scheduleList);
 }
