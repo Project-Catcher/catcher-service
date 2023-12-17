@@ -1,12 +1,11 @@
 package com.catcher.core.specification;
 
-import com.catcher.core.domain.entity.Schedule;
-import com.catcher.core.domain.entity.User;
-import com.catcher.core.domain.entity.enums.SearchOption;
+import com.catcher.core.domain.entity.*;
+import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 public class ScheduleSpecification {
 
@@ -30,12 +29,12 @@ public class ScheduleSpecification {
                 -> criteriaBuilder.lessThanOrEqualTo(root.get("budget"), budget);
     }
 
-    public static Specification<Schedule> fromStartAt(ZonedDateTime startAt) {
+    public static Specification<Schedule> fromStartAt(LocalDateTime startAt) {
         return (root, query, criteriaBuilder)
                 -> criteriaBuilder.greaterThanOrEqualTo(root.get("startAt"), startAt);
     }
 
-    public static Specification<Schedule> toEndAt(ZonedDateTime endAt) {
+    public static Specification<Schedule> toEndAt(LocalDateTime endAt) {
         return (root, query, criteriaBuilder)
                 -> criteriaBuilder.lessThanOrEqualTo(root.get("endAt"), endAt);
     }
@@ -56,5 +55,9 @@ public class ScheduleSpecification {
 
             return criteriaBuilder.like(join.get("username"), "%" + username + "%");
         };
+    }
+
+    public static Specification<Schedule> scheduleStatus(ScheduleStatus scheduleStatus) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("scheduleStatus"), scheduleStatus);
     }
 }

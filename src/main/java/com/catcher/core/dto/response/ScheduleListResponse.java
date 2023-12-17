@@ -3,12 +3,14 @@ package com.catcher.core.dto.response;
 import com.catcher.core.domain.entity.Location;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleTag;
+import com.catcher.core.domain.entity.Tag;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class ScheduleListResponse {
@@ -29,11 +31,11 @@ public class ScheduleListResponse {
         private final Long budget;
         private final int participantCount;
         private final Location location;
-        private final ZonedDateTime startAt;
-        private final ZonedDateTime endAt;
+        private final LocalDateTime startAt;
+        private final LocalDateTime endAt;
         private final LocalDateTime participantStartAt;
         private final LocalDateTime participantEndAt;
-        private final Set<ScheduleTag> scheduleTags;
+        private final List<Tag> scheduleTags;
 
         public ScheduleDTO(Schedule schedule) {
             this.id = schedule.getId();
@@ -49,7 +51,7 @@ public class ScheduleListResponse {
             this.endAt = schedule.getEndAt();
             this.participantStartAt = schedule.getParticipateStartAt();
             this.participantEndAt = schedule.getParticipateEndAt();
-            this.scheduleTags = schedule.getScheduleTags();
+            this.scheduleTags = schedule.getScheduleTags().stream().map(ScheduleTag::getTag).collect(Collectors.toList());
 
         }
     }

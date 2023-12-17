@@ -8,6 +8,8 @@ import com.catcher.core.domain.entity.ScheduleParticipant;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
+import com.catcher.core.domain.entity.enums.SearchOption;
+import com.catcher.core.specification.ScheduleSpecification;
 import com.catcher.datasource.repository.ScheduleJpaRepository;
 import com.catcher.datasource.repository.ScheduleParticipantJpaRepository;
 import jakarta.persistence.EntityManager;
@@ -48,7 +50,31 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     }
 
     @Override
-    public List<Schedule> findAll(Specification<Schedule> specification) {
+    public List<Schedule> findAllByParams(Map<String, Object> params) {
+        Specification<Schedule> specification = Specification.where(ScheduleSpecification.scheduleStatus(ScheduleStatus.NORMAL));
+
+        if(params.get("participantFrom") != null)
+            specification = specification.and(ScheduleSpecification.fromParticipant(Long.valueOf((String) params.get("participantFrom"))));
+
+        if(params.get("participantTo") != null)
+            specification = specification.and(ScheduleSpecification.toParticipant(Long.valueOf((String) params.get("participantTo"))));
+
+        if(params.get("startAt") != null)
+            specification = specification.and(ScheduleSpecification.fromStartAt(LocalDateTime.parse((String)params.get("startAt"))));
+
+        if(params.get("endAt") != null)
+            specification = specification.and(ScheduleSpecification.toEndAt(LocalDateTime.parse((String)params.get("endAt"))));
+
+        if(params.get("budgetFrom") != null)
+            specification = specification.and(ScheduleSpecification.fromBudget(Long.valueOf((String) params.get("budgetFrom"))));
+
+        if(params.get("budgetTo") != null)
+            specification = specification.and(ScheduleSpecification.toBudget(Long.valueOf((String) params.get("budgetTo"))));
+
+        if(params.get("keyword") != null && params.get("keywordOption") != null)
+            specification = specification.and(getSpecificationByKeywordOption(SearchOption.valueOf((String)params.get("keywordOption")), (String)params.get("keyword")));
+
+
         return scheduleJpaRepository.findAll(specification);
     }
 
@@ -132,5 +158,25 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         if(!isUpdated){
             throw new BaseException(BaseResponseStatus.FAIL_DELETE_DRAFT_SCHEDULE);
         }
+    }
+    private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
+        Specification<Schedule> specification = Specification.where(null);
+
+        if(keywordOption.equals(SearchOption.ALL)){
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLE)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+        } else if(keywordOption.equals(SearchOption.DESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLEANDDESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.WRITER)) {
+            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        }
+
+        return specification;
     }
 }

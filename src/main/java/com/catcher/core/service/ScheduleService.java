@@ -12,10 +12,8 @@ import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
-import com.catcher.core.specification.ScheduleSpecification;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.jpa.domain.Specification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -221,40 +219,9 @@ public class ScheduleService {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
     }
 
-    public ScheduleListResponse getScheduleList(
-            Long participantFrom,
-            Long participantTo,
-            ZonedDateTime startAt,
-            ZonedDateTime endAt,
-            Long budgetFrom,
-            Long budgetTo,
-            SearchOption keywordOption,
-            String keyword) {
+    public ScheduleListResponse getScheduleList(Map<String, Object> params) {
 
-        Specification<Schedule> specification = Specification.where(null);
-
-        if(participantFrom != null)
-            specification = specification.and(ScheduleSpecification.fromParticipant(participantFrom));
-
-        if(participantFrom != null)
-            specification = specification.and(ScheduleSpecification.toParticipant(participantTo));
-
-        if(startAt != null)
-            specification = specification.and(ScheduleSpecification.fromStartAt(startAt));
-
-        if(endAt != null)
-            specification = specification.and(ScheduleSpecification.toEndAt(endAt));
-
-        if(budgetFrom != null)
-            specification = specification.and(ScheduleSpecification.fromBudget(budgetFrom));
-
-        if(budgetTo != null)
-            specification = specification.and(ScheduleSpecification.toBudget(budgetTo));
-
-        if(keyword != null && keywordOption != null)
-            specification = specification.and(getSpecificationByKeywordOption(keywordOption, keyword));
-
-        List<Schedule> schedules = scheduleRepository.findAll(specification);
+        List<Schedule> schedules = scheduleRepository.findAllByParams(params);
 
         List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
                 .map(ScheduleListResponse.ScheduleDTO::new)
@@ -263,24 +230,4 @@ public class ScheduleService {
         return new ScheduleListResponse(scheduleDTOList);
     }
 
-    private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
-        Specification<Schedule> specification = Specification.where(null);
-
-        if(keywordOption.equals(SearchOption.ALL)){
-            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
-            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
-            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
-        } else if(keywordOption.equals(SearchOption.TITLE)) {
-            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
-        } else if(keywordOption.equals(SearchOption.DESCRIPTION)) {
-            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
-        } else if(keywordOption.equals(SearchOption.TITLEANDDESCRIPTION)) {
-            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
-            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
-        } else if(keywordOption.equals(SearchOption.WRITER)) {
-            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
-        }
-
-        return specification;
-    }
 }
