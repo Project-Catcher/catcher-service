@@ -4,6 +4,7 @@ import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,4 +27,9 @@ public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByScheduleStatusAndParticipationPeriod(
             @Param("status") ScheduleStatus status,
             @Param("currentDateTime") LocalDateTime currentDateTime);
+
+    @Modifying
+    @Query("UPDATE Schedule s SET s.scheduleStatus = 'DELETED' WHERE s.id = :id AND s.user.id = :userId")
+    int updateScheduleToDeleted(@Param("userId") Long userId, @Param("id") Long id);
+
 }

@@ -1,5 +1,6 @@
 package com.catcher.datasource;
 
+import com.catcher.common.exception.BaseException;
 import com.catcher.core.database.ScheduleRepository;
 import com.catcher.core.db.UserRepository;
 import com.catcher.core.domain.entity.*;
@@ -23,13 +24,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static com.catcher.core.domain.entity.enums.UserProvider.CATCHER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @ActiveProfiles("test")
@@ -117,6 +116,7 @@ public class ScheduleRepositoryImplTest {
     @Test
     void empty_upcoming_schedule_list() {
         //given
+        setShouldSkipSetup(true);
 
         //when
         List<Schedule> upcomingScheduleList = scheduleRepository.upcomingScheduleList(userList.get(0).getId());
@@ -373,6 +373,54 @@ public class ScheduleRepositoryImplTest {
         //then
         assertThat(openScheduleList.size()).isEqualTo(0);
     }
+
+    @DisplayName("작성 중인 일정을 삭제하는 데 성공하면 상태가 DELETED 이다")
+    @Test
+    void success_deleting_draft_schedule() {
+        //given
+        Long userId = userList.get(0).getId();
+        Schedule draftSchedule = generateSchedule(
+                userList.get(0),
+                ScheduleStatus.DRAFT,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        scheduleRepository.save(draftSchedule);
+
+        //when
+        scheduleRepository.deleteDraftSchedule(userId, draftSchedule.getId());
+
+        flushAndClearPersistence();
+
+        Optional<Schedule> updatedSchedule = scheduleRepository.findByIdAndUser(draftSchedule.getId(), userList.get(0));
+
+        //then
+        assertThat(updatedSchedule.get().getScheduleStatus()).isEqualTo(ScheduleStatus.DELETED);
+
+    }
+
+    @DisplayName("작성 중인 일정을 삭제하는 데 실패하면 예외를 던진다")
+    @Test
+    void fail_deleting_draft_schedule() {
+        //given
+        Long userId = userList.get(0).getId();
+        Schedule draftSchedule = generateSchedule(
+                userList.get(0),
+                ScheduleStatus.DRAFT,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        scheduleRepository.save(draftSchedule);
+        flushAndClearPersistence();
+
+        //when
+
+        //then
+        assertThrows(BaseException.class, () ->
+                scheduleRepository.deleteDraftSchedule(userId + 1L, draftSchedule.getId())
+        );
+    }
+
 
     private void setShouldSkipSetup(boolean shouldSkipSetup) {
         this.shouldSkipSetup = shouldSkipSetup;

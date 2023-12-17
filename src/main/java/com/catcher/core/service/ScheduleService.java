@@ -219,4 +219,9 @@ public class ScheduleService {
                 scheduleRepository.appliedScheduleList(userId)      //참여 신청
         );
     }
+
+    @Transactional
+    public void deleteDraftSchedule(Long userId, Long scheduleId) {
+        scheduleRepository.deleteDraftSchedule(userId, scheduleId);
+    }
 }
