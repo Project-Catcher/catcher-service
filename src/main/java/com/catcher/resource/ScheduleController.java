@@ -101,4 +101,16 @@ public class ScheduleController {
         MyListResponse myList = scheduleService.myList(user.getId());
         return CommonResponse.success(200, myList);
     }
+
+    @Operation(summary = "작성 중인 일정 삭제하기")
+    @DeleteMapping("/draft/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> deleteDraftSchedule(
+            @CurrentUser User user,
+            @PathVariable Long scheduleId
+    ) {
+        scheduleService.deleteDraftSchedule(user.getId(), scheduleId);
+        return CommonResponse.success();
+    }
+
 }

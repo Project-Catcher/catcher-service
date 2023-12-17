@@ -1,5 +1,7 @@
 package com.catcher.datasource;
 
+import com.catcher.common.exception.BaseException;
+import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.ScheduleRepository;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.ScheduleParticipant;
@@ -115,5 +117,14 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     @Override
     public void saveAll(List<Schedule> scheduleList) {
         scheduleJpaRepository.saveAll(scheduleList);
+    }
+
+    @Override
+    public void deleteDraftSchedule(Long userId, Long scheduleId) {
+        boolean isUpdated = scheduleJpaRepository.updateScheduleToDeleted(userId, scheduleId) == 1;
+
+        if(!isUpdated){
+            throw new BaseException(BaseResponseStatus.FAIL_DELETE_DRAFT_SCHEDULE);
+        }
     }
 }
