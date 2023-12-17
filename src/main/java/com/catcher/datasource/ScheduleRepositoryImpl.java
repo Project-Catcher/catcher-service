@@ -159,6 +159,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
             throw new BaseException(BaseResponseStatus.FAIL_DELETE_DRAFT_SCHEDULE);
         }
     }
+    
     private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
         Specification<Schedule> specification = Specification.where(null);
 
