@@ -94,6 +94,16 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
+    @Operation(summary = "나만의 아이템 목록 조회")
+    @GetMapping("/userItem")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<GetUserItemResponse> getUserItem(
+            @CurrentUser User user
+    ) {
+        GetUserItemResponse response = scheduleService.getUserItems(user);
+        return CommonResponse.success(response);
+    }
+
     @Operation(summary = "내 일정에 필요한 정보 가져오기")
     @GetMapping("/my-list")
     @AuthorizationRequired(value = UserRole.USER)
