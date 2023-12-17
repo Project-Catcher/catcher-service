@@ -421,7 +421,6 @@ public class ScheduleRepositoryImplTest {
         );
     }
 
-
     private void setShouldSkipSetup(boolean shouldSkipSetup) {
         this.shouldSkipSetup = shouldSkipSetup;
     }
