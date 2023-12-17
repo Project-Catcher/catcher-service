@@ -103,7 +103,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "작성 중인 일정 삭제하기")
-    @DeleteMapping("/draft")
+    @DeleteMapping("/draft/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> deleteDraftSchedule(
             @CurrentUser User user,
