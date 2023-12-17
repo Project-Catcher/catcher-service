@@ -164,6 +164,7 @@ public class ScheduleRepositoryImplTest {
     @Test
     void empty_draft_schedule_list() {
         //given
+        setShouldSkipSetup(true);
 
         //when
         List<Schedule> draftScheduleList = scheduleRepository.draftScheduleList(userList.get(0).getId());
