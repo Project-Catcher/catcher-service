@@ -98,11 +98,13 @@ public class ScheduleController {
         return CommonResponse.success(response);
     }
 
-    @GetMapping("/list")
-    public CommonResponse<ScheduleListResponse> getScheduleList(
-            @RequestParam Map<String, Object> params
-            ){
-        ScheduleListResponse response = scheduleService.getScheduleList(params);
+    @Operation(summary = "나만의 아이템 목록 조회")
+    @GetMapping("/userItem")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<GetUserItemResponse> getUserItem(
+            @CurrentUser User user
+    ) {
+        GetUserItemResponse response = scheduleService.getUserItems(user);
 
         return CommonResponse.success(response);
     }
@@ -125,5 +127,11 @@ public class ScheduleController {
         scheduleService.deleteDraftSchedule(user.getId(), scheduleId);
         return CommonResponse.success();
     }
+  
+    @GetMapping("/list")
+    public CommonResponse<ScheduleListResponse> getScheduleList(
+            @RequestParam Map<String, Object> params
+            ){
+        ScheduleListResponse response = scheduleService.getScheduleList(params);
 
 }

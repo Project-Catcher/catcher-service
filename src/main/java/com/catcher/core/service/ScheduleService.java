@@ -138,6 +138,22 @@ public class ScheduleService {
         return new RecommendedTagResponse(tagDTOList);
     }
 
+    @Transactional(readOnly = true)
+    public GetUserItemResponse getUserItems(User user) {
+        List<UserItem> userItemList = userItemRepository.findByUser(user);
+        List<GetUserItemResponse.UserItemDTO> userItemDTOList = userItemList.stream()
+                .map(userItem -> {
+                    String location = null;
+                    if (userItem.getLocation() != null) {
+                        location = userItem.getLocation().getAddress().getDescription();
+                    }
+                    return new GetUserItemResponse.UserItemDTO(userItem, location);
+                })
+                .toList();
+
+        return new GetUserItemResponse(userItemDTOList);
+    }
+
     private void isValidItem(ItemType itemType, Long itemId) {
         switch (itemType) {
             case USERITEM -> userItemRepository.findById(itemId)
