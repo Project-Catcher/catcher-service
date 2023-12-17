@@ -95,7 +95,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "나만의 아이템 목록 조회")
-    @GetMapping("/useritem")
+    @GetMapping("/userItem")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<GetUserItemResponse> getUserItem(
             @CurrentUser User user
