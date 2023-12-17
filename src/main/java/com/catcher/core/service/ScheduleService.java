@@ -56,7 +56,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user){
+    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user) {
         Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
@@ -211,18 +211,12 @@ public class ScheduleService {
     }
 
     @Transactional
-    public MyListResponse myList(Long userId){
-        MyListResponse response = new MyListResponse();
-
-        //다가오는 일정
-        response.setUpcomingList(scheduleRepository.upcomingScheduleList(userId));
-        //작성중인 일정
-        response.setDraftList(scheduleRepository.draftScheduleList(userId));
-        //모집 중
-        response.setOpenList(scheduleRepository.openScheduleList());
-        //참여 신청
-        response.setAppliedList(scheduleRepository.appliedScheduleList(userId));
-
-        return response;
+    public MyListResponse myList(Long userId) {
+        return new MyListResponse(
+                scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
+                scheduleRepository.draftScheduleList(userId),       //작성중인 일정
+                scheduleRepository.openScheduleList(),              //모집 중
+                scheduleRepository.appliedScheduleList(userId)      //참여 신청
+        );
     }
 }
