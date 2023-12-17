@@ -3,7 +3,7 @@ package com.catcher.core.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,8 +20,8 @@ public class SaveScheduleSkeletonRequest {
     private String location;
 
     @NotBlank
-    private ZonedDateTime startAt;
+    private LocalDateTime startAt;
 
     @NotBlank
-    private ZonedDateTime endAt;
+    private LocalDateTime endAt;
 }

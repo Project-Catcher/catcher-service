@@ -8,6 +8,7 @@ import com.catcher.core.domain.entity.enums.*;
 import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
+import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
@@ -15,10 +16,10 @@ import com.catcher.core.specification.ScheduleSpecification;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserItemRepository userItemRepository;
@@ -202,6 +204,21 @@ public class ScheduleService {
     private Schedule getSchedule(Long scheduleId, User user) {
         return scheduleRepository.findByIdAndUser(scheduleId, user)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+    }
+
+    @Transactional
+    public MyListResponse myList(Long userId) {
+        return new MyListResponse(
+                scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
+                scheduleRepository.draftScheduleList(userId),       //작성중인 일정
+                scheduleRepository.openScheduleList(),              //모집 중
+                scheduleRepository.appliedScheduleList(userId)      //참여 신청
+        );
+    }
+
+    @Transactional
+    public void deleteDraftSchedule(Long userId, Long scheduleId) {
+        scheduleRepository.deleteDraftSchedule(userId, scheduleId);
     }
 
     public ScheduleListResponse getScheduleList(

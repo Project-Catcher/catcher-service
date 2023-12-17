@@ -7,6 +7,7 @@ import com.catcher.core.domain.entity.enums.SearchOption;
 import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
+import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.service.ScheduleService;
 import com.catcher.core.domain.ScheduleCommandExecutor;
 import com.catcher.core.domain.command.ScheduleDetailSaveCommand;
@@ -117,4 +118,24 @@ public class ScheduleController {
 
         return CommonResponse.success(response);
     }
+
+    @Operation(summary = "내 일정에 필요한 정보 가져오기")
+    @GetMapping("/my-list")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<MyListResponse> mySchedule(@CurrentUser User user) {
+        MyListResponse myList = scheduleService.myList(user.getId());
+        return CommonResponse.success(200, myList);
+    }
+
+    @Operation(summary = "작성 중인 일정 삭제하기")
+    @DeleteMapping("/draft/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> deleteDraftSchedule(
+            @CurrentUser User user,
+            @PathVariable Long scheduleId
+    ) {
+        scheduleService.deleteDraftSchedule(user.getId(), scheduleId);
+        return CommonResponse.success();
+    }
+
 }

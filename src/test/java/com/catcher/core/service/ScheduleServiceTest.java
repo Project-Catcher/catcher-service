@@ -19,7 +19,7 @@ import com.catcher.core.dto.response.DraftScheduleResponse;
 import com.catcher.core.dto.response.RecommendedTagResponse;
 import com.catcher.core.dto.response.SaveScheduleSkeletonResponse;
 import com.catcher.core.dto.response.SaveUserItemResponse;
-import com.catcher.infrastructure.jpa.repository.LocationJpaRepository;
+import com.catcher.datasource.repository.LocationJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -123,8 +122,8 @@ class ScheduleServiceTest {
                 .title("제목")
                 .thumbnail("image.png")
                 .location("서울특별시")
-                .startAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
-                .endAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
                 .build();
 
         // When
@@ -280,8 +279,8 @@ class ScheduleServiceTest {
                 .thumbnailUrl("image.jpg")
                 .location(location)
                 .scheduleStatus(scheduleStatus)
-                .startAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
-                .endAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
                 .build();
     }
 
@@ -290,8 +289,8 @@ class ScheduleServiceTest {
                 .title("제목")
                 .thumbnail("image.png")
                 .location("서울특별시")
-                .startAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
-                .endAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul")))
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
                 .tags(tagList)
                 .isPublic(PublicStatus.PUBLIC)
                 .participant(0L)

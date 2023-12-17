@@ -58,10 +58,10 @@ public class Schedule extends BaseTimeEntity {
     private Set<ScheduleTag> scheduleTags;
 
     @Column(name = "start_at", nullable = false)
-    private ZonedDateTime startAt; // 일정 시작
+    private LocalDateTime startAt; // 일정 시작
 
     @Column(name = "end_at", nullable = false)
-    private ZonedDateTime endAt; // 일정 종료
+    private LocalDateTime endAt; // 일정 종료
 
     @Column(name = "participate_start_at")
     private LocalDateTime participateStartAt; // 모집 시작
@@ -70,7 +70,7 @@ public class Schedule extends BaseTimeEntity {
     private LocalDateTime participateEndAt; // 모집 종료
 
     public void draftSchedule(
-            String title, String thumbnailUrl, ZonedDateTime startAt, ZonedDateTime endAt, Location location,
+            String title, String thumbnailUrl, LocalDateTime startAt, LocalDateTime endAt, Location location,
             Long participantLimit, Long budget, PublicStatus publicStatus,
             LocalDateTime participateStartAt, LocalDateTime participateEndAt
     ) {

@@ -2,7 +2,7 @@ package com.catcher.infrastructure.adapter;
 
 import com.catcher.core.domain.entity.Location;
 import com.catcher.core.port.LocationPort;
-import com.catcher.infrastructure.jpa.repository.LocationJpaRepository;
+import com.catcher.datasource.repository.LocationJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

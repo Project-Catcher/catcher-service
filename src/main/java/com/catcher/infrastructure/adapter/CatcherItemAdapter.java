@@ -3,7 +3,7 @@ package com.catcher.infrastructure.adapter;
 import com.catcher.core.domain.entity.CatcherItem;
 import com.catcher.core.domain.entity.Category;
 import com.catcher.core.port.CatcherItemPort;
-import com.catcher.infrastructure.jpa.repository.CatcherItemJpaRepository;
+import com.catcher.datasource.repository.CatcherItemJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

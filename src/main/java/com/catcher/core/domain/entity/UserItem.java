@@ -3,7 +3,7 @@ package com.catcher.core.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -34,5 +34,5 @@ public class UserItem extends BaseTimeEntity {
     private String description;
 
     @Column(name = "deleted_at")
-    private ZonedDateTime deletedAt;
+    private LocalDateTime deletedAt;
 }
