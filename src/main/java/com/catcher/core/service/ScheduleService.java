@@ -235,6 +235,7 @@ public class ScheduleService {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
     }
 
+    @Transactional(readOnly = true)
     public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
 
         List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
