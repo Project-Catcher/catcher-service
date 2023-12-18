@@ -2,12 +2,15 @@ package com.catcher.core.dto.request;
 
 import com.catcher.common.utils.customValid.valid.ValidEnum;
 import com.catcher.core.domain.entity.enums.ItemType;
-import lombok.Getter;
+import lombok.*;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Getter
-public class ScheduleDetailRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class SaveScheduleDetailRequest {
     private Long itemId;
 
     @ValidEnum(enumClass = ItemType.class)
@@ -17,7 +20,7 @@ public class ScheduleDetailRequest {
 
     private String color;
 
-    private ZonedDateTime startAt;
+    private LocalDateTime startAt;
 
-    private ZonedDateTime endAt;
+    private LocalDateTime endAt;
 }
