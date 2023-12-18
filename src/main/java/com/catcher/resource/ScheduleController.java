@@ -123,4 +123,14 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "일정 참여 신청")
+    @GetMapping("/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> participateSchedule (
+            @CurrentUser User user,
+            @PathVariable Long scheduleId
+    ) {
+        scheduleService.participateSchedule(user, scheduleId);
+        return CommonResponse.success();
+    }
 }

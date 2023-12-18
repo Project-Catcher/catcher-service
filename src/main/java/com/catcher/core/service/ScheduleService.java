@@ -4,10 +4,7 @@ import com.catcher.common.exception.BaseException;
 import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.*;
 import com.catcher.core.domain.entity.*;
-import com.catcher.core.domain.entity.enums.ContentType;
-import com.catcher.core.domain.entity.enums.ItemType;
-import com.catcher.core.domain.entity.enums.RecommendedStatus;
-import com.catcher.core.domain.entity.enums.ScheduleStatus;
+import com.catcher.core.domain.entity.enums.*;
 import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
 import com.catcher.core.dto.request.SaveDraftScheduleRequest;
 import com.catcher.core.dto.request.ScheduleDetailRequest;
@@ -24,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -43,6 +41,7 @@ public class ScheduleService {
     private final TagRepository tagRepository;
     private final UploadFileRepository uploadFileRepository;
     private final ScheduleTagRepository scheduleTagRepository;
+    private final ScheduleParticipantRepository scheduleParticipantRepository;
 
     @Transactional(readOnly = true)
     public DraftScheduleResponse getDraftSchedule(User user) {
@@ -239,5 +238,38 @@ public class ScheduleService {
     @Transactional
     public void deleteDraftSchedule(Long userId, Long scheduleId) {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
+    }
+
+    @Transactional
+    public void participateSchedule(User user, Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(()->new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        // 인원제한이 있을 경우 참여 인원 체크
+        if (schedule.getParticipantLimit() != null) {
+            Long countParticipant = scheduleParticipantRepository.findCountScheduleParticipantByStatusAndScheduleId(scheduleId, ParticipantStatus.APPROVE);
+            //이미 참여 인원을 초과하였을 경우
+            if(countParticipant >= schedule.getParticipantLimit()) {
+                throw new BaseException(BaseResponseStatus.FULL_PARTICIPATE_LIMIT);
+            }
+        }
+
+        ScheduleParticipant scheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), scheduleId).orElse(null);
+        // 참여하지 않은 상태일 경우 참여 처리
+        if(scheduleParticipant == null) {
+            scheduleRepository.participateSchedule(user, scheduleId);
+        } else {
+            switch (scheduleParticipant.getStatus()) {
+                case CANCEL -> deleteAndInsertScheduleParticipant(scheduleParticipant, schedule, user);
+                case REJECT -> throw new BaseException(BaseResponseStatus.REJECTED_PARTICIPATE);
+                case APPROVE -> throw new BaseException(BaseResponseStatus.ALREADY_PARTICIPATED_STATUS);
+                case PENDING -> throw new BaseException(BaseResponseStatus.PARTICIPATE_WAITING_FOR_APPROVE);
+            }
+        }
+    }
+
+    private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
+        scheduleParticipantRepository.deleteById(scheduleParticipant.getId(), ZonedDateTime.now());
+        scheduleRepository.participateSchedule(user, schedule.getId());
     }
 }

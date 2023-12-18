@@ -25,4 +25,8 @@ public interface ScheduleRepository {
     void saveAll(List<Schedule> scheduleList);
 
     void deleteDraftSchedule(Long userId, Long scheduleId);
+
+    void participateSchedule(User user, Long scheduleId);
+
+    Optional<Schedule> findById(Long scheduleId);
 }
