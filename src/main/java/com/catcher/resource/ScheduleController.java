@@ -2,9 +2,7 @@ package com.catcher.resource;
 
 import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.command.DraftScheduleGetCommand;
-import com.catcher.core.domain.entity.Category;
 import com.catcher.core.domain.entity.User;
-import com.catcher.core.domain.entity.enums.SearchOption;
 import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
@@ -17,12 +15,7 @@ import com.catcher.security.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/schedules")
@@ -130,8 +123,9 @@ public class ScheduleController {
   
     @GetMapping("/list")
     public CommonResponse<ScheduleListResponse> getScheduleList(
-            @RequestParam Map<String, Object> params
-            ){
-        ScheduleListResponse response = scheduleService.getScheduleList(params);
-
+            ScheduleListRequest scheduleListRequest
+            ) {
+        ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
+        return CommonResponse.success(response);
+    }
 }

@@ -235,9 +235,9 @@ public class ScheduleService {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
     }
 
-    public ScheduleListResponse getScheduleList(Map<String, Object> params) {
+    public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
 
-        List<Schedule> schedules = scheduleRepository.findAllByParams(params);
+        List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
 
         List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
                 .map(ScheduleListResponse.ScheduleDTO::new)

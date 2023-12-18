@@ -7,8 +7,6 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -28,9 +26,6 @@ public class Schedule extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
-
-    @OneToMany(mappedBy = "schedule")
-    private Set<ScheduleParticipant> scheduleParticipants;
 
     private Long participantLimit;
 
@@ -53,9 +48,6 @@ public class Schedule extends BaseTimeEntity {
 
     @Enumerated(value = EnumType.STRING)
     private PublicStatus publicStatus;
-
-    @OneToMany(mappedBy = "schedule")
-    private Set<ScheduleTag> scheduleTags;
 
     @Column(name = "start_at", nullable = false)
     private LocalDateTime startAt; // 일정 시작

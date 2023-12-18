@@ -9,6 +9,7 @@ import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import com.catcher.core.domain.entity.enums.SearchOption;
+import com.catcher.core.dto.request.ScheduleListRequest;
 import com.catcher.core.specification.ScheduleSpecification;
 import com.catcher.datasource.repository.ScheduleJpaRepository;
 import com.catcher.datasource.repository.ScheduleParticipantJpaRepository;
@@ -50,30 +51,30 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     }
 
     @Override
-    public List<Schedule> findAllByParams(Map<String, Object> params) {
+    public List<Schedule> findMainScheduleList(ScheduleListRequest scheduleListRequest) {
+
         Specification<Schedule> specification = Specification.where(ScheduleSpecification.scheduleStatus(ScheduleStatus.NORMAL));
 
-        if(params.get("participantFrom") != null)
-            specification = specification.and(ScheduleSpecification.fromParticipant(Long.valueOf((String) params.get("participantFrom"))));
+        if(scheduleListRequest.getParticipantFrom() != null)
+            specification = specification.and(ScheduleSpecification.fromParticipant(scheduleListRequest.getParticipantFrom()));
 
-        if(params.get("participantTo") != null)
-            specification = specification.and(ScheduleSpecification.toParticipant(Long.valueOf((String) params.get("participantTo"))));
+        if(scheduleListRequest.getParticipantTo() != null)
+            specification = specification.and(ScheduleSpecification.toParticipant(scheduleListRequest.getParticipantTo()));
 
-        if(params.get("startAt") != null)
-            specification = specification.and(ScheduleSpecification.fromStartAt(LocalDateTime.parse((String)params.get("startAt"))));
+        if(scheduleListRequest.getStartAt() != null)
+            specification = specification.and(ScheduleSpecification.fromStartAt(scheduleListRequest.getStartAt()));
 
-        if(params.get("endAt") != null)
-            specification = specification.and(ScheduleSpecification.toEndAt(LocalDateTime.parse((String)params.get("endAt"))));
+        if(scheduleListRequest.getEndAt() != null)
+            specification = specification.and(ScheduleSpecification.toEndAt(scheduleListRequest.getEndAt()));
 
-        if(params.get("budgetFrom") != null)
-            specification = specification.and(ScheduleSpecification.fromBudget(Long.valueOf((String) params.get("budgetFrom"))));
+        if(scheduleListRequest.getBudgetFrom() != null)
+            specification = specification.and(ScheduleSpecification.fromBudget(scheduleListRequest.getBudgetFrom()));
 
-        if(params.get("budgetTo") != null)
-            specification = specification.and(ScheduleSpecification.toBudget(Long.valueOf((String) params.get("budgetTo"))));
+        if(scheduleListRequest.getBudgetTo() != null)
+            specification = specification.and(ScheduleSpecification.toBudget(scheduleListRequest.getBudgetTo()));
 
-        if(params.get("keyword") != null && params.get("keywordOption") != null)
-            specification = specification.and(getSpecificationByKeywordOption(SearchOption.valueOf((String)params.get("keywordOption")), (String)params.get("keyword")));
-
+        if(scheduleListRequest.getKeyword() != null && scheduleListRequest.getKeywordOption() != null)
+            specification = specification.and(getSpecificationByKeywordOption(scheduleListRequest.getKeywordOption(), scheduleListRequest.getKeyword()));
 
         return scheduleJpaRepository.findAll(specification);
     }
@@ -164,18 +165,21 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         Specification<Schedule> specification = Specification.where(null);
 
         if(keywordOption.equals(SearchOption.ALL)){
-            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
-            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
-            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword))
+                    .or(ScheduleSpecification.likeDescription(keyword))
+                    .or(ScheduleSpecification.likeByUsername(keyword))
+                    .or(ScheduleSpecification.inTagName(keyword));
         } else if(keywordOption.equals(SearchOption.TITLE)) {
             specification = specification.or(ScheduleSpecification.likeTitle(keyword));
         } else if(keywordOption.equals(SearchOption.DESCRIPTION)) {
             specification = specification.or(ScheduleSpecification.likeDescription(keyword));
         } else if(keywordOption.equals(SearchOption.TITLEANDDESCRIPTION)) {
-            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
-            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword))
+                    .or(ScheduleSpecification.likeDescription(keyword));
         } else if(keywordOption.equals(SearchOption.WRITER)) {
             specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        } else if(keywordOption.equals(SearchOption.TAG)) {
+            specification = specification.or(ScheduleSpecification.inTagName(keyword));
         }
 
         return specification;
