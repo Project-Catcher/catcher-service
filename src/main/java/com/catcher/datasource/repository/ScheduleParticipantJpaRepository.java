@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,15 +22,14 @@ public interface ScheduleParticipantJpaRepository extends JpaRepository<Schedule
     @Query("SELECT COUNT(*) " +
             "FROM ScheduleParticipant sp " +
             "WHERE sp.deletedAt IS NULL AND sp.status = :participantStatus AND sp.schedule.id = :scheduleId")
-    int findCountScheduleParticipantByStatusAndScheduleId(
+    long findCountScheduleParticipantByStatusAndScheduleId(
             @Param("participantStatus")ParticipantStatus participantStatus,
             @Param("scheduleId")Long scheduleId
     );
 
     @Modifying
-    @Query("UPDATE ScheduleParticipant sp SET sp.deletedAt = :zonedDateTime WHERE sp.id = :scheduleParticipantId")
+    @Query("UPDATE ScheduleParticipant sp SET sp.deletedAt = CURRENT_TIMESTAMP WHERE sp.id = :scheduleParticipantId")
     void deleteById(
-            @Param Long scheduleParticipantId,
-            @Param ZonedDateTime zonedDateTime
+            @Param Long scheduleParticipantId
     );
 }
