@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -241,11 +242,17 @@ public class ScheduleService {
 
     @Transactional
     public void participateSchedule(User user, Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findByIdAndScheduleStatus(scheduleId, ScheduleStatus.NORMAL)
                 .orElseThrow(()->new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
 
+        // 현재 시간이 참여 가능 기간보다 이후일 경우 or 현재 시간이 참여 가능 기간보다 이전일 경우 예외 처리
+        if(LocalDateTime.now().isAfter(schedule.getParticipateEndAt())
+                || LocalDateTime.now().isAfter(schedule.getParticipateStartAt())) {
+            throw new BaseException(BaseResponseStatus.INVALID_SCHEDULE_PARTICIPANT_TIME);
+        }
+
         // 인원제한이 있을 경우 참여 인원 체크
-        if (schedule.getParticipantLimit() != null) {
+        if(schedule.getParticipantLimit() != null) {
             Long countParticipant = scheduleParticipantRepository.findCountScheduleParticipantByStatusAndScheduleId(scheduleId, ParticipantStatus.APPROVE);
             //이미 참여 인원을 초과하였을 경우
             if(countParticipant >= schedule.getParticipantLimit()) {

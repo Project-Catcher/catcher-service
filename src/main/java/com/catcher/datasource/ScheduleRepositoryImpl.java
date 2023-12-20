@@ -145,4 +145,9 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     public Optional<Schedule> findById(Long scheduleId) {
         return scheduleJpaRepository.findById(scheduleId);
     }
+
+    @Override
+    public Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus) {
+        return scheduleJpaRepository.findByIdAndScheduleStatus(scheduleId, scheduleStatus);
+    }
 }

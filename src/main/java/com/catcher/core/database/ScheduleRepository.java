@@ -29,4 +29,6 @@ public interface ScheduleRepository {
     void participateSchedule(User user, Long scheduleId);
 
     Optional<Schedule> findById(Long scheduleId);
+
+    Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus);
 }

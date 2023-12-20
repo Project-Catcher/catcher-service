@@ -21,6 +21,7 @@ public enum BaseResponseStatus {
     PARTICIPATE_WAITING_FOR_APPROVE(2005, "승인 대기중인 일정입니다."),
     FULL_PARTICIPATE_LIMIT(2006, "참여 제한 인원을 초과하였습니다."),
     REJECTED_PARTICIPATE(2007, "참여가 거절된 일정입니다."),
+    INVALID_SCHEDULE_PARTICIPANT_TIME(2008, "참가 일정이 유효하지 않은 신청입니다."),
 
     /**
      * 3000 : Response 오류
