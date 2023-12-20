@@ -38,15 +38,15 @@ public class ScheduleController {
     @Operation(summary = "세부 일정 저장")
     @PostMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
-    public CommonResponse<Object> saveScheduleDetail(
+    public CommonResponse<SaveScheduleDetailResponse> saveScheduleDetail(
             @CurrentUser User user,
             @PathVariable Long scheduleId,
-            @RequestBody ScheduleDetailRequest request
+            @RequestBody SaveScheduleDetailRequest request
     ) {
         ScheduleDetailSaveCommand saveCommand = new ScheduleDetailSaveCommand(scheduleService, request, scheduleId, user);
-        commandExecutor.run(saveCommand);
+        SaveScheduleDetailResponse response = commandExecutor.run(saveCommand);
 
-        return CommonResponse.success();
+        return CommonResponse.success(response);
     }
 
     @Operation(summary = "일정 기본 정보 저장")
@@ -126,6 +126,28 @@ public class ScheduleController {
             ScheduleListRequest scheduleListRequest
             ) {
         ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
-        return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "세부 일정 수정")
+    @PatchMapping("/{scheduleDetailId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> updateScheduleDetail(
+            @CurrentUser User user,
+            @PathVariable Long scheduleDetailId,
+            @RequestBody UpdateScheduleDetailRequest request
+    ) {
+        scheduleService.updateScheduleDetail(user, scheduleDetailId, request);
+        return CommonResponse.success();
+    }
+
+    @Operation(summary = "세부 일정 삭제")
+    @DeleteMapping("/{scheduleDetailId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> deleteScheduleDetail(
+            @CurrentUser User user,
+            @PathVariable Long scheduleDetailId
+    ) {
+        scheduleService.deleteScheduleDetail(user, scheduleDetailId);
+        return CommonResponse.success();
     }
 }
