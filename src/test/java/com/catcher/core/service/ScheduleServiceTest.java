@@ -2,24 +2,17 @@ package com.catcher.core.service;
 
 import com.catcher.AppApplication;
 import com.catcher.common.exception.BaseException;
-import com.catcher.core.database.ScheduleRepository;
-import com.catcher.core.database.ScheduleTagRepository;
-import com.catcher.core.database.TagRepository;
-import com.catcher.core.database.UserItemRepository;
+import com.catcher.core.database.*;
 import com.catcher.core.db.UserRepository;
 import com.catcher.core.domain.entity.*;
-import com.catcher.core.domain.entity.enums.PublicStatus;
-import com.catcher.core.domain.entity.enums.RecommendedStatus;
-import com.catcher.core.domain.entity.enums.ScheduleStatus;
-import com.catcher.core.domain.entity.enums.UserRole;
-import com.catcher.core.dto.request.SaveDraftScheduleRequest;
-import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
-import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.domain.entity.enums.*;
+import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.dto.response.DraftScheduleResponse;
 import com.catcher.core.dto.response.RecommendedTagResponse;
 import com.catcher.core.dto.response.SaveScheduleSkeletonResponse;
 import com.catcher.core.dto.response.SaveUserItemResponse;
+import com.catcher.datasource.repository.CatcherItemJpaRepository;
 import com.catcher.datasource.repository.CategoryJpaRepository;
 import com.catcher.datasource.repository.LocationJpaRepository;
 import jakarta.persistence.EntityManager;
@@ -34,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.catcher.core.domain.entity.enums.UserProvider.CATCHER;
@@ -60,6 +54,12 @@ class ScheduleServiceTest {
     ScheduleTagRepository scheduleTagRepository;
 
     @Autowired
+    ScheduleDetailRepository scheduleDetailRepository;
+
+    @Autowired
+    CatcherItemJpaRepository catcherItemJpaRepository;
+
+    @Autowired
     CategoryJpaRepository categoryJpaRepository;
 
     @Autowired
@@ -73,9 +73,12 @@ class ScheduleServiceTest {
 
     Location location = Location.initLocation("areacode", "description");
 
+    Category category = Category.create("category");
+
     @BeforeEach
     void beforeEach() {
         locationJpaRepository.save(location);
+        categoryJpaRepository.save(category);
         flushAndClearPersistence();
     }
 
@@ -266,11 +269,8 @@ class ScheduleServiceTest {
         User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
         userRepository.save(user);
 
-        Category category = Category.create("restaurant");
-        categoryJpaRepository.save(category);
-
-        UserItem userItem1 = createUserItem(user, category, createRandomUUID());
-        UserItem userItem2 = createUserItem(user, category, createRandomUUID());
+        UserItem userItem1 = createUserItem(user, createRandomUUID());
+        UserItem userItem2 = createUserItem(user, createRandomUUID());
 
         userItemRepository.save(userItem1);
         userItemRepository.save(userItem2);
@@ -297,6 +297,208 @@ class ScheduleServiceTest {
 
         // Then
         assertEquals(0, result.getItems().size());
+    }
+
+    @DisplayName("SUCCESS: 세부 일정 저장")
+    @Test
+    void save_schedule_detail() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+
+        CatcherItem catcherItem = createCatcherItem(createRandomUUID(), createRandomUUID());
+        catcherItemJpaRepository.save(catcherItem);
+
+        SaveScheduleDetailRequest saveScheduleDetailRequest = SaveScheduleDetailRequest.builder()
+                .itemId(catcherItem.getId())
+                .itemType(ItemType.CATCHERITEM)
+                .description("세부 일정 저장")
+                .color("red")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+
+        // When
+        SaveScheduleDetailResponse result = scheduleService.saveScheduleDetail(saveScheduleDetailRequest, schedule.getId(), user);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isNotNull();
+        assertThat(scheduleDetailRepository.findByIdWithUser(result.getId())).isPresent();
+    }
+
+    @DisplayName("FAIL: 세부 일정 저장 시 아이템 아이디와 아이템 타입이 매칭이 되지 않을 경우")
+    @Test
+    void invalid_item_save_schedule_detail() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+
+        UserItem userItem = createUserItem(user, createRandomUUID());
+        userItemRepository.save(userItem);
+
+        CatcherItem catcherItem = createCatcherItem(createRandomUUID(), createRandomUUID());
+        catcherItemJpaRepository.save(catcherItem);
+
+        SaveScheduleDetailRequest saveScheduleDetailRequest = SaveScheduleDetailRequest.builder()
+                .itemId(catcherItem.getId())
+                .itemType(ItemType.USERITEM)
+                .description("세부 일정 저장")
+                .color("red")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.saveScheduleDetail(saveScheduleDetailRequest, schedule.getId(), user))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("FAIL: 세부 일정 저장 시 작성자와 유저가 다를 경우")
+    @Test
+    void invalid_user_save_schedule_detail() {
+        // Given
+        User owner = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        userRepository.save(owner);
+
+        Schedule schedule = createSchedule(owner, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+
+        UserItem userItem = createUserItem(owner, createRandomUUID());
+        userItemRepository.save(userItem);
+
+        CatcherItem catcherItem = createCatcherItem(createRandomUUID(), createRandomUUID());
+        catcherItemJpaRepository.save(catcherItem);
+
+        SaveScheduleDetailRequest saveScheduleDetailRequest = SaveScheduleDetailRequest.builder()
+                .itemId(catcherItem.getId())
+                .itemType(ItemType.USERITEM)
+                .description("세부 일정 저장")
+                .color("red")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.saveScheduleDetail(saveScheduleDetailRequest, schedule.getId(), user))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("SUCCESS: 세부 일정 수정")
+    @Test
+    void update_schedule_detail() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        UpdateScheduleDetailRequest request = UpdateScheduleDetailRequest.builder()
+                .description("update")
+                .color("blue")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+
+        // When
+        scheduleService.updateScheduleDetail(user, scheduleDetail.getId(), request);
+
+        // Then
+        assertEquals(scheduleDetail.getColor(), request.getColor());
+        assertEquals(scheduleDetail.getDescription(), request.getDescription());
+        assertThat(scheduleDetail.getItemId()).isNotNull();
+        assertThat(scheduleDetail.getItemType()).isNotNull();
+    }
+
+    @DisplayName("FAIL: 세부 일정 수정 시 작성자와 수정자가 다를 경우")
+    @Test
+    void invalid_user_schedule_detail() {
+        // Given
+        User owner = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        userRepository.save(owner);
+
+        Schedule schedule = createSchedule(owner, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        UpdateScheduleDetailRequest request = UpdateScheduleDetailRequest.builder()
+                .description("update")
+                .color("blue")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.updateScheduleDetail(user, scheduleDetail.getId(), request))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("SUCCESS: 세부 일정 삭제")
+    @Test
+    void delete_schedule_detail() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        // When
+        scheduleService.deleteScheduleDetail(user, scheduleDetail.getId());
+
+        // Then
+        assertEquals(Optional.empty(), scheduleDetailRepository.findByIdWithUser(scheduleDetail.getId()));
+    }
+
+    private static ScheduleDetail createScheduleDetail(Schedule schedule, ItemType itemType, Long itemId) {
+        return ScheduleDetail.builder()
+                .schedule(schedule)
+                .itemId(itemId)
+                .itemType(itemType)
+                .description("description")
+                .color("red")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .build();
+    }
+
+    @DisplayName("FAIL: 세부 일정 삭제 시 작성자와 유저가 다를 경우")
+    @Test
+    void invalid_user_delete_schedule_detail() {
+        // Given
+        User owner = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        userRepository.save(owner);
+
+        Schedule schedule = createSchedule(owner, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.deleteScheduleDetail(user, scheduleDetail.getId()))
+                .isInstanceOf(BaseException.class);
     }
 
     private User createUser(String name, String phone, String email, String nickname) {
@@ -360,11 +562,22 @@ class ScheduleServiceTest {
                 .build();
     }
 
-    private static UserItem createUserItem(User user, Category category, String title) {
+    private UserItem createUserItem(User user, String title) {
         return UserItem.builder()
                 .user(user)
                 .category(category)
                 .title(title)
+                .build();
+    }
+
+    private CatcherItem createCatcherItem(String hashValue, String title) {
+        return CatcherItem.builder()
+                .category(category)
+                .location(location)
+                .itemHashValue(hashValue)
+                .title(title)
+                .startAt(ZonedDateTime.now())
+                .endAt(ZonedDateTime.now())
                 .build();
     }
 
