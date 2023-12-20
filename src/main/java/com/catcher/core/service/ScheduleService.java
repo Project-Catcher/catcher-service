@@ -5,10 +5,7 @@ import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.*;
 import com.catcher.core.domain.entity.*;
 import com.catcher.core.domain.entity.enums.*;
-import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
-import com.catcher.core.dto.request.SaveDraftScheduleRequest;
-import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
 import com.catcher.core.dto.response.MyListResponse;
@@ -55,12 +52,14 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void saveScheduleDetail(ScheduleDetailRequest request, Long scheduleId, User user) {
+    public SaveScheduleDetailResponse saveScheduleDetail(SaveScheduleDetailRequest request, Long scheduleId, User user) {
         Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
         ScheduleDetail scheduleDetail = createScheduleDetail(request, schedule);
         scheduleDetailRepository.save(scheduleDetail);
+
+        return new SaveScheduleDetailResponse(scheduleDetail);
     }
 
     @Transactional
@@ -159,6 +158,21 @@ public class ScheduleService {
         return new GetUserItemResponse(userItemDTOList);
     }
 
+    @Transactional
+    public void updateScheduleDetail(User user, Long scheduleDetailId, UpdateScheduleDetailRequest request) {
+        ScheduleDetail scheduleDetail = getScheduleDetail(user, scheduleDetailId);
+        scheduleDetail.updateScheduleDetail(request.getColor(), request.getDescription(),
+                request.getStartAt(), request.getEndAt());
+
+        scheduleDetailRepository.save(scheduleDetail);
+    }
+
+    @Transactional
+    public void deleteScheduleDetail(User user, Long scheduleDetailId){
+        getScheduleDetail(user, scheduleDetailId);
+        scheduleDetailRepository.deleteScheduleDetail(user, scheduleDetailId);
+    }
+
     private void isValidItem(ItemType itemType, Long itemId) {
         switch (itemType) {
             case USERITEM -> userItemRepository.findById(itemId)
@@ -179,7 +193,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_LOCATION_RESULT));
     }
 
-    private ScheduleDetail createScheduleDetail(ScheduleDetailRequest request, Schedule schedule) {
+    private ScheduleDetail createScheduleDetail(SaveScheduleDetailRequest request, Schedule schedule) {
         return ScheduleDetail.builder()
                 .schedule(schedule)
                 .itemType(request.getItemType())
@@ -277,5 +291,17 @@ public class ScheduleService {
     private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
         scheduleParticipantRepository.deleteById(scheduleParticipant.getId());
         scheduleRepository.participateSchedule(user, schedule.getId());
+    }
+  
+    private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
+        ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
+              .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        User owner = scheduleDetail.getSchedule().getUser();
+        if (!owner.equals(user)) {
+            throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORIZATION);
+        }
+
+        return scheduleDetail;
     }
 }

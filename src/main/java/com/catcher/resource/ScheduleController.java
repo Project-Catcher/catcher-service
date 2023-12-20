@@ -4,10 +4,7 @@ import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.command.DraftScheduleGetCommand;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.UserRole;
-import com.catcher.core.dto.request.SaveScheduleSkeletonRequest;
-import com.catcher.core.dto.request.SaveDraftScheduleRequest;
-import com.catcher.core.dto.request.ScheduleDetailRequest;
-import com.catcher.core.dto.request.SaveUserItemRequest;
+import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.dto.response.MyListResponse;
 import com.catcher.core.service.ScheduleService;
@@ -41,15 +38,15 @@ public class ScheduleController {
     @Operation(summary = "세부 일정 저장")
     @PostMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
-    public CommonResponse<Object> saveScheduleDetail(
+    public CommonResponse<SaveScheduleDetailResponse> saveScheduleDetail(
             @CurrentUser User user,
             @PathVariable Long scheduleId,
-            @RequestBody ScheduleDetailRequest request
+            @RequestBody SaveScheduleDetailRequest request
     ) {
         ScheduleDetailSaveCommand saveCommand = new ScheduleDetailSaveCommand(scheduleService, request, scheduleId, user);
-        commandExecutor.run(saveCommand);
+        SaveScheduleDetailResponse response = commandExecutor.run(saveCommand);
 
-        return CommonResponse.success();
+        return CommonResponse.success(response);
     }
 
     @Operation(summary = "일정 기본 정보 저장")
@@ -123,6 +120,30 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "세부 일정 수정")
+    @PatchMapping("/{scheduleDetailId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> updateScheduleDetail(
+            @CurrentUser User user,
+            @PathVariable Long scheduleDetailId,
+            @RequestBody UpdateScheduleDetailRequest request
+    ) {
+        scheduleService.updateScheduleDetail(user, scheduleDetailId, request);
+        return CommonResponse.success();
+    }
+
+    @Operation(summary = "세부 일정 삭제")
+    @DeleteMapping("/{scheduleDetailId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> deleteScheduleDetail(
+            @CurrentUser User user,
+            @PathVariable Long scheduleDetailId
+    ) {
+        scheduleService.deleteScheduleDetail(user, scheduleDetailId);
+
+        return CommonResponse.success();
+    }
+  
     @Operation(summary = "일정 참여 신청")
     @GetMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
@@ -131,6 +152,7 @@ public class ScheduleController {
             @PathVariable Long scheduleId
     ) {
         scheduleService.participateSchedule(user, scheduleId);
+      
         return CommonResponse.success();
     }
 }
