@@ -53,6 +53,7 @@ public class ScheduleService {
 
     @Transactional
     public SaveScheduleDetailResponse saveScheduleDetail(SaveScheduleDetailRequest request, Long scheduleId, User user) {
+
         Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
@@ -293,6 +294,18 @@ public class ScheduleService {
         scheduleRepository.participateSchedule(user, schedule.getId());
     }
   
+    @Transactional(readOnly = true)
+    public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
+
+        List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
+
+        List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
+                .map(ScheduleListResponse.ScheduleDTO::new)
+                .toList();
+
+        return new ScheduleListResponse(scheduleDTOList);
+    }
+
     private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
         ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
               .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));

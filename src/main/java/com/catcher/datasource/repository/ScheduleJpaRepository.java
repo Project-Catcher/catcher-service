@@ -4,6 +4,7 @@ import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long> {
+public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long>, JpaSpecificationExecutor<Schedule> {
     Optional<Schedule> findByIdAndUser(Long scheduleId, User user);
 
     List<Schedule> findByUserAndScheduleStatus(User user, ScheduleStatus scheduleStatus);

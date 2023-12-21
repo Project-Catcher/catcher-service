@@ -8,12 +8,16 @@ import com.catcher.core.domain.entity.ScheduleParticipant;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
+import com.catcher.core.domain.entity.enums.SearchOption;
+import com.catcher.core.dto.request.ScheduleListRequest;
+import com.catcher.core.specification.ScheduleSpecification;
 import com.catcher.datasource.repository.ScheduleJpaRepository;
 import com.catcher.datasource.repository.ScheduleParticipantJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -42,8 +46,37 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     }
 
     @Override
-    public void save(Schedule schedule) {
-        scheduleJpaRepository.save(schedule);
+    public Schedule save(Schedule schedule) {
+        return scheduleJpaRepository.save(schedule);
+    }
+
+    @Override
+    public List<Schedule> findMainScheduleList(ScheduleListRequest scheduleListRequest) {
+
+        Specification<Schedule> specification = Specification.where(ScheduleSpecification.scheduleStatus(ScheduleStatus.NORMAL));
+
+        if(scheduleListRequest.getParticipantFrom() != null)
+            specification = specification.and(ScheduleSpecification.fromParticipant(scheduleListRequest.getParticipantFrom()));
+
+        if(scheduleListRequest.getParticipantTo() != null)
+            specification = specification.and(ScheduleSpecification.toParticipant(scheduleListRequest.getParticipantTo()));
+
+        if(scheduleListRequest.getStartAt() != null)
+            specification = specification.and(ScheduleSpecification.fromStartAt(scheduleListRequest.getStartAt()));
+
+        if(scheduleListRequest.getEndAt() != null)
+            specification = specification.and(ScheduleSpecification.toEndAt(scheduleListRequest.getEndAt()));
+
+        if(scheduleListRequest.getBudgetFrom() != null)
+            specification = specification.and(ScheduleSpecification.fromBudget(scheduleListRequest.getBudgetFrom()));
+
+        if(scheduleListRequest.getBudgetTo() != null)
+            specification = specification.and(ScheduleSpecification.toBudget(scheduleListRequest.getBudgetTo()));
+
+        if(scheduleListRequest.getKeyword() != null && scheduleListRequest.getKeywordOption() != null)
+            specification = specification.and(getSpecificationByKeywordOption(scheduleListRequest.getKeywordOption(), scheduleListRequest.getKeyword()));
+
+        return scheduleJpaRepository.findAll(specification);
     }
 
     @Override
@@ -149,5 +182,29 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     @Override
     public Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus) {
         return scheduleJpaRepository.findByIdAndScheduleStatus(scheduleId, scheduleStatus);
+    }
+    
+    private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
+        Specification<Schedule> specification = Specification.where(null);
+
+        if(keywordOption.equals(SearchOption.ALL)){
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword))
+                    .or(ScheduleSpecification.likeDescription(keyword))
+                    .or(ScheduleSpecification.likeByUsername(keyword))
+                    .or(ScheduleSpecification.inTagName(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLE)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword));
+        } else if(keywordOption.equals(SearchOption.DESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.TITLEANDDESCRIPTION)) {
+            specification = specification.or(ScheduleSpecification.likeTitle(keyword))
+                    .or(ScheduleSpecification.likeDescription(keyword));
+        } else if(keywordOption.equals(SearchOption.WRITER)) {
+            specification = specification.or(ScheduleSpecification.likeByUsername(keyword));
+        } else if(keywordOption.equals(SearchOption.TAG)) {
+            specification = specification.or(ScheduleSpecification.inTagName(keyword));
+        }
+
+        return specification;
     }
 }
