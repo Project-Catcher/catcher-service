@@ -4,7 +4,7 @@ import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,5 +29,5 @@ public class ScheduleParticipant extends BaseTimeEntity {
     @Column(nullable = false)
     private ParticipantStatus status;
 
-    private ZonedDateTime deletedAt;
+    private LocalDateTime deletedAt;
 }

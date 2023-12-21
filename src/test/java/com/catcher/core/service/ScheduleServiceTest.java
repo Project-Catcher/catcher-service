@@ -320,7 +320,7 @@ class ScheduleServiceTest {
         assertThat(scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId())).isPresent();
     }
 
-    @DisplayName("SUCCESS : 정상 참여 처리")
+    @DisplayName("SUCCESS : 정상 참여 처리 (신청자 취소)")
     @Test
     void participate_when_already_cancel() {
         // given
@@ -336,7 +336,9 @@ class ScheduleServiceTest {
         flushAndClearPersistence();
 
         // then
-        assertThat(scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId())).isPresent();
+        Optional<ScheduleParticipant> savedScheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId());
+        assertThat(savedScheduleParticipant).isPresent();
+        assertEquals(savedScheduleParticipant.orElse(null).getStatus(), ParticipantStatus.PENDING);
     }
 
     @DisplayName("FAIL : 이미 신청한 내역이 존재")
@@ -623,8 +625,10 @@ class ScheduleServiceTest {
                 .thumbnailUrl("image.jpg")
                 .location(location)
                 .scheduleStatus(scheduleStatus)
-                .startAt(LocalDateTime.now())
-                .endAt(LocalDateTime.now())
+                .startAt(LocalDateTime.now().minusDays(1L))
+                .endAt(LocalDateTime.now().plusDays(1L))
+                .participateStartAt(LocalDateTime.now().minusDays(1L))
+                .participateEndAt(LocalDateTime.now().plusDays(1L))
                 .build();
     }
 

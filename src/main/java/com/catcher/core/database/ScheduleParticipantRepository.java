@@ -13,7 +13,7 @@ public interface ScheduleParticipantRepository {
 
     Long findCountScheduleParticipantByStatusAndScheduleId(Long scheduleId, ParticipantStatus participantStatus);
 
-    void deleteById(Long scheduleId);
+    int updateScheduleParticipantToDeleted(Long scheduleId);
 
     void save(ScheduleParticipant scheduleParticipant);
 }

@@ -261,7 +261,7 @@ public class ScheduleService {
 
         // 현재 시간이 참여 가능 기간보다 이후일 경우 or 현재 시간이 참여 가능 기간보다 이전일 경우 예외 처리
         if(LocalDateTime.now().isAfter(schedule.getParticipateEndAt())
-                || LocalDateTime.now().isAfter(schedule.getParticipateStartAt())) {
+                || LocalDateTime.now().isBefore(schedule.getParticipateStartAt())) {
             throw new BaseException(BaseResponseStatus.INVALID_SCHEDULE_PARTICIPANT_TIME);
         }
 
@@ -289,7 +289,7 @@ public class ScheduleService {
     }
 
     private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
-        scheduleParticipantRepository.deleteById(scheduleParticipant.getId());
+        scheduleParticipantRepository.updateScheduleParticipantToDeleted(scheduleParticipant.getId());
         scheduleRepository.participateSchedule(user, schedule.getId());
     }
   

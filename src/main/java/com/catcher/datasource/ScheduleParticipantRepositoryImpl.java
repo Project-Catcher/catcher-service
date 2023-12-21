@@ -31,8 +31,8 @@ public class ScheduleParticipantRepositoryImpl implements ScheduleParticipantRep
     }
 
     @Override
-    public void deleteById(Long scheduleId) {
-        scheduleParticipantJpaRepository.deleteById(scheduleId);
+    public int updateScheduleParticipantToDeleted(Long scheduleId) {
+        return scheduleParticipantJpaRepository.updateScheduleParticipantToDeleted(scheduleId);
     }
 
     @Override

@@ -29,7 +29,7 @@ public interface ScheduleParticipantJpaRepository extends JpaRepository<Schedule
 
     @Modifying
     @Query("UPDATE ScheduleParticipant sp SET sp.deletedAt = CURRENT_TIMESTAMP WHERE sp.id = :scheduleParticipantId")
-    void deleteById(
-            @Param Long scheduleParticipantId
+    int updateScheduleParticipantToDeleted(
+            @Param("scheduleParticipantId") Long scheduleParticipantId
     );
 }
