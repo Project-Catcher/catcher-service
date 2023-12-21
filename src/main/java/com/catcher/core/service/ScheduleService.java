@@ -4,10 +4,7 @@ import com.catcher.common.exception.BaseException;
 import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.*;
 import com.catcher.core.domain.entity.*;
-import com.catcher.core.domain.entity.enums.ContentType;
-import com.catcher.core.domain.entity.enums.ItemType;
-import com.catcher.core.domain.entity.enums.RecommendedStatus;
-import com.catcher.core.domain.entity.enums.ScheduleStatus;
+import com.catcher.core.domain.entity.enums.*;
 import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.port.AddressPort;
@@ -54,6 +51,7 @@ public class ScheduleService {
 
     @Transactional
     public SaveScheduleDetailResponse saveScheduleDetail(SaveScheduleDetailRequest request, Long scheduleId, User user) {
+
         Schedule schedule = getSchedule(scheduleId, user);
         isValidItem(request.getItemType(), request.getItemId());
 
@@ -253,6 +251,18 @@ public class ScheduleService {
     @Transactional
     public void deleteDraftSchedule(Long userId, Long scheduleId) {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
+    }
+
+    @Transactional(readOnly = true)
+    public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
+
+        List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
+
+        List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
+                .map(ScheduleListResponse.ScheduleDTO::new)
+                .toList();
+
+        return new ScheduleListResponse(scheduleDTOList);
     }
 
     private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {

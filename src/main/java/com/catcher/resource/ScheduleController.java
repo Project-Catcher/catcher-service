@@ -98,6 +98,7 @@ public class ScheduleController {
             @CurrentUser User user
     ) {
         GetUserItemResponse response = scheduleService.getUserItems(user);
+
         return CommonResponse.success(response);
     }
 
@@ -118,6 +119,13 @@ public class ScheduleController {
     ) {
         scheduleService.deleteDraftSchedule(user.getId(), scheduleId);
         return CommonResponse.success();
+    }
+  
+    @GetMapping("/list")
+    public CommonResponse<ScheduleListResponse> getScheduleList(
+            ScheduleListRequest scheduleListRequest
+            ) {
+        ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
     }
 
     @Operation(summary = "세부 일정 수정")

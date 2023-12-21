@@ -3,6 +3,7 @@ package com.catcher.core.database;
 import com.catcher.core.domain.entity.Schedule;
 import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
+import com.catcher.core.dto.request.ScheduleListRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public interface ScheduleRepository {
 
     List<Schedule> findByUserAndStatus(User user, ScheduleStatus scheduleStatus);
 
-    void save(Schedule schedule);
+    Schedule save(Schedule schedule);
 
     List<Schedule> upcomingScheduleList(Long userId);
 
@@ -25,4 +26,7 @@ public interface ScheduleRepository {
     void saveAll(List<Schedule> scheduleList);
 
     void deleteDraftSchedule(Long userId, Long scheduleId);
+
+    List<Schedule> findMainScheduleList(ScheduleListRequest scheduleListRequest);
+
 }
