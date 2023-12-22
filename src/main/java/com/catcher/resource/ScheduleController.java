@@ -184,4 +184,16 @@ public class ScheduleController {
 
         return CommonResponse.success();
     }
+
+    @Operation(summary = "일정 저장")
+    @PostMapping("/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> saveSchedule(
+            @CurrentUser User user,
+            @PathVariable Long scheduleId,
+            @RequestBody SaveScheduleRequest request
+    ) {
+        scheduleService.saveSchedule(user, scheduleId, request);
+        return CommonResponse.success();
+    }
 }

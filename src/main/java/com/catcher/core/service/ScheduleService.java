@@ -106,6 +106,8 @@ public class ScheduleService {
     @Transactional
     public void saveDraftSchedule(SaveDraftScheduleRequest request, Long scheduleId, User user) {
         Schedule schedule = getSchedule(scheduleId, user);
+        scheduleTagRepository.deleteBySchedule(schedule);
+
         Map<String, Tag> tagMap = tagRepository.findAll().stream()
                 .collect(Collectors.toMap(Tag::getName, Function.identity()));
 
@@ -355,5 +357,37 @@ public class ScheduleService {
                 .schedule(schedule)
                 .tag(tag)
                 .build();
+    }
+
+    @Transactional
+    public void saveSchedule(User user, Long scheduleId, SaveScheduleRequest request) {
+        Schedule schedule = getSchedule(scheduleId, user);
+        scheduleTagRepository.deleteBySchedule(schedule);
+
+        Map<String, Tag> tagMap = tagRepository.findAll().stream()
+                .collect(Collectors.toMap(Tag::getName, Function.identity()));
+
+        List<ScheduleTag> scheduleTagList = request.getTags().stream()
+                .map(tagName -> {
+                    Tag tag = tagMap.get(tagName);
+                    if (tag == null) {
+                        tag = createTag(tagName);
+                        tagRepository.save(tag);
+                        tagMap.put(tagName, tag);
+                    }
+                    return createScheduleTag(schedule, tag);
+                })
+                .collect(Collectors.toList());
+
+        scheduleTagRepository.saveAll(scheduleTagList);
+
+        Location location = getLocation(request.getLocation());
+        schedule.saveSchedule(
+                request.getTitle(), request.getThumbnail(), request.getStartAt(), request.getEndAt(),
+                location, request.getParticipant(), request.getBudget(), request.getIsPublic(),
+                request.getParticipateStartAt(), request.getParticipateEndAt()
+        );
+
+        scheduleRepository.save(schedule);
     }
 }
