@@ -8,6 +8,7 @@ import com.catcher.datasource.repository.ScheduleDetailJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -33,5 +34,10 @@ public class ScheduleDetailRepositoryImpl implements ScheduleDetailRepository {
     @Override
     public void deleteScheduleDetail(User user, Long scheduleDetailId) {
         scheduleDetailJpaRepository.updateScheduleDetailToDeleted(user, scheduleDetailId);
+    }
+
+    @Override
+    public List<ScheduleDetail> findBySchedule(Schedule schedule) {
+        return scheduleDetailJpaRepository.findBySchedule(schedule);
     }
 }
