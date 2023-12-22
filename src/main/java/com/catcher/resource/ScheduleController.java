@@ -36,7 +36,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 저장")
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/detail/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<SaveScheduleDetailResponse> saveScheduleDetail(
             @CurrentUser User user,
@@ -131,7 +131,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 수정")
-    @PatchMapping("/{scheduleDetailId}")
+    @PatchMapping("/detail/{scheduleDetailId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> updateScheduleDetail(
             @CurrentUser User user,
@@ -143,7 +143,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 삭제")
-    @DeleteMapping("/{scheduleDetailId}")
+    @DeleteMapping("/detail/{scheduleDetailId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> deleteScheduleDetail(
             @CurrentUser User user,
