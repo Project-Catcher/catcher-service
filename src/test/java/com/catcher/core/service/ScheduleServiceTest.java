@@ -551,7 +551,7 @@ class ScheduleServiceTest {
 
         // Then
         assertEquals(0, result.getTemplates().size());
-       }
+   }
 
     private Template createTemplate(Schedule schedule, RecommendedStatus status) {
         return Template.builder()
