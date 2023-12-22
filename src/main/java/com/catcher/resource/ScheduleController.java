@@ -158,5 +158,4 @@ public class ScheduleController {
         GetRecommendedTemplateResponse response = scheduleService.getRecommendedTemplate();
         return CommonResponse.success(response);
     }
-
 }
