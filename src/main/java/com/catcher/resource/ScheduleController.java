@@ -126,6 +126,7 @@ public class ScheduleController {
             ScheduleListRequest scheduleListRequest
             ) {
         ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
+        return CommonResponse.success(response);
     }
 
     @Operation(summary = "세부 일정 수정")
