@@ -150,4 +150,12 @@ public class ScheduleController {
         scheduleService.deleteScheduleDetail(user, scheduleDetailId);
         return CommonResponse.success();
     }
+
+    @Operation(summary = "추천 템플릿 목록 조회")
+    @GetMapping("/templates")
+    public CommonResponse<GetRecommendedTemplateResponse> getTemplates() {
+        GetRecommendedTemplateResponse response = scheduleService.getRecommendedTemplate();
+        return CommonResponse.success(response);
+    }
+
 }

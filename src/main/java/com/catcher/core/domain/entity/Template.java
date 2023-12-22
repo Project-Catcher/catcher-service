@@ -9,6 +9,8 @@ import java.time.ZonedDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "template")
 public class Template extends BaseTimeEntity {
     @Id
