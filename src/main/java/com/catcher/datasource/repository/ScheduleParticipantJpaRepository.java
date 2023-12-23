@@ -38,6 +38,6 @@ public interface ScheduleParticipantJpaRepository extends JpaRepository<Schedule
     @Modifying
     @Query("UPDATE ScheduleParticipant sp " +
             "SET sp.status = 'CANCEL', sp.deletedAt = CURRENT_TIMESTAMP " +
-            "WHERE sp.user.id = :userId AND sp.schedule.id = :scheduleId AND sp.status = 'APPROVE'")
+            "WHERE sp.user.id = :userId AND sp.schedule.id = :scheduleId AND sp.status = 'PENDING'")
     int updateStatusToCancel(@Param("userId") Long userId, @Param("scheduleId") Long scheduleId);
 }

@@ -111,7 +111,7 @@ class ScheduleParticipantRepositoryImplTest {
         Long userId = userList.get(1).getId();
         Schedule schedule = scheduleList.get(0);
         scheduleParticipantList.add(generateScheduleParticipant(userList.get(0), schedule, ParticipantStatus.APPROVE));
-        scheduleParticipantList.add(generateScheduleParticipant(userList.get(1), schedule, ParticipantStatus.APPROVE));
+        scheduleParticipantList.add(generateScheduleParticipant(userList.get(1), schedule, ParticipantStatus.PENDING));
 
         scheduleParticipantRepository.saveAll(scheduleParticipantList);
         flushAndClearPersistence();
