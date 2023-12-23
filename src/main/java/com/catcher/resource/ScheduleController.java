@@ -155,7 +155,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 참여 신청")
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/{scheduleId}/participants")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> participateSchedule(
             @CurrentUser User user,
@@ -174,7 +174,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 참여 신청 취소")
-    @PatchMapping("/{scheduleId}")
+    @PatchMapping("/{scheduleId}/participants")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> cancelParticipateSchedule(
             @CurrentUser User user,
