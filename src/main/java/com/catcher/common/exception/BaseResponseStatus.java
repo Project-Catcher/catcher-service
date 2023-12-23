@@ -35,6 +35,8 @@ public enum BaseResponseStatus {
     DATABASE_ERROR(4000, "데이터베이스 연결에 실패하였습니다."),
     REDIS_ERROR(4002, "redis 연결에 실패하였습니다."),
     FAIL_DELETE_DRAFT_SCHEDULE(4003, "작성 중인 일정을 삭제하는 데 실패하였습니다."),
+    FAIL_CANCEL_SCHEDULE_PARTICIPANT_STATUS(4004, "참여 신청 취소에 실패하였습니다."),
+
     /**
      * 5000: AWS Error
      */
