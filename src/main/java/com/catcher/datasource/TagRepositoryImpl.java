@@ -20,12 +20,17 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public void save(Tag tag) {
-        tagJpaRepository.save(tag);
+    public Tag save(Tag tag) {
+        return tagJpaRepository.save(tag);
     }
 
     @Override
     public List<Tag> findByRecommendedStatus(RecommendedStatus recommendedStatus) {
         return tagJpaRepository.findByRecommendedStatus(recommendedStatus);
+    }
+
+    @Override
+    public List<Tag> findByNames(List<String> tags) {
+        return tagJpaRepository.findByNameIn(tags);
     }
 }

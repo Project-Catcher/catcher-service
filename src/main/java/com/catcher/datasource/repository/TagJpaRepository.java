@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface TagJpaRepository extends JpaRepository<Tag, Long> {
     List<Tag> findByRecommendedStatus(RecommendedStatus recommendedStatus);
+
+    List<Tag> findByNameIn(List<String> tagNames);
 }
