@@ -1,5 +1,7 @@
 package com.catcher.datasource;
 
+import com.catcher.common.exception.BaseException;
+import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.database.ScheduleParticipantRepository;
 import com.catcher.core.domain.entity.ScheduleParticipant;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
@@ -20,13 +22,15 @@ public class ScheduleParticipantRepositoryImpl implements ScheduleParticipantRep
         scheduleParticipantJpaRepository.saveAll(scheduleParticipantList);
     }
 
+
+
     @Override
-    public Optional<ScheduleParticipant> findByUserAndScheduleId(Long userId, Long scheduleId) {
+    public Optional<ScheduleParticipant> findByUserAndScheduleIdFilteredByDeletedAt(Long userId, Long scheduleId) {
         return scheduleParticipantJpaRepository.findByUserIdAndScheduleIdAndDeletedAtIsNull(userId, scheduleId);
     }
 
     @Override
-    public Long findCountScheduleParticipantByStatusAndScheduleId(Long scheduleId, ParticipantStatus participantStatus) {
+    public Long findCountScheduleParticipantByStatusAndScheduleId(ParticipantStatus participantStatus, Long scheduleId) {
         return scheduleParticipantJpaRepository.findCountScheduleParticipantByStatusAndScheduleId(participantStatus, scheduleId);
     }
 
@@ -38,5 +42,19 @@ public class ScheduleParticipantRepositoryImpl implements ScheduleParticipantRep
     @Override
     public void save(ScheduleParticipant scheduleParticipant) {
         scheduleParticipantJpaRepository.save(scheduleParticipant);
+    }
+
+    @Override
+    public void cancelScheduleParticipant(Long userId, Long scheduleId) {
+        boolean isUpdated = scheduleParticipantJpaRepository.updateStatusToCancel(userId, scheduleId) > 0;
+
+        if(!isUpdated){
+            throw new BaseException(BaseResponseStatus.FAIL_CANCEL_SCHEDULE_PARTICIPANT_STATUS);
+        }
+    }
+
+    @Override
+    public Optional<ScheduleParticipant> findByUserAndScheduleId(Long userId, Long scheduleId) {
+        return scheduleParticipantJpaRepository.findByUserIdAndScheduleId(userId, scheduleId);
     }
 }

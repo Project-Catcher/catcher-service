@@ -9,11 +9,15 @@ import java.util.Optional;
 public interface ScheduleParticipantRepository {
     void saveAll(List<ScheduleParticipant> scheduleParticipantList);
 
-    Optional<ScheduleParticipant> findByUserAndScheduleId(Long userId, Long scheduleId);
+    Optional<ScheduleParticipant> findByUserAndScheduleIdFilteredByDeletedAt(Long userId, Long scheduleId);
 
-    Long findCountScheduleParticipantByStatusAndScheduleId(Long scheduleId, ParticipantStatus participantStatus);
+    Long findCountScheduleParticipantByStatusAndScheduleId(ParticipantStatus participantStatus, Long scheduleId);
 
     int updateScheduleParticipantToDeleted(Long scheduleId);
 
     void save(ScheduleParticipant scheduleParticipant);
+
+    void cancelScheduleParticipant(Long userId, Long scheduleId);
+
+    Optional<ScheduleParticipant> findByUserAndScheduleId(Long userId, Long scheduleId);
 }

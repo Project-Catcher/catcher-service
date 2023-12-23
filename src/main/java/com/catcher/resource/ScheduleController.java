@@ -120,11 +120,11 @@ public class ScheduleController {
         scheduleService.deleteDraftSchedule(user.getId(), scheduleId);
         return CommonResponse.success();
     }
-  
+
     @GetMapping("/list")
     public CommonResponse<ScheduleListResponse> getScheduleList(
             ScheduleListRequest scheduleListRequest
-            ) {
+    ) {
         ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
         return CommonResponse.success(response);
     }
@@ -152,16 +152,16 @@ public class ScheduleController {
 
         return CommonResponse.success();
     }
-  
+
     @Operation(summary = "일정 참여 신청")
     @GetMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
-    public CommonResponse<Object> participateSchedule (
+    public CommonResponse<Object> participateSchedule(
             @CurrentUser User user,
             @PathVariable Long scheduleId
     ) {
         scheduleService.participateSchedule(user, scheduleId);
-      
+
         return CommonResponse.success();
     }
 
@@ -170,5 +170,17 @@ public class ScheduleController {
     public CommonResponse<GetRecommendedTemplateResponse> getTemplates() {
         GetRecommendedTemplateResponse response = scheduleService.getRecommendedTemplate();
         return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "일정 참여 신청 취소")
+    @PatchMapping("/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> cancelParticipateSchedule(
+            @CurrentUser User user,
+            @PathVariable Long scheduleId
+    ) {
+        scheduleService.cancelParticipateSchedule(user, scheduleId);
+
+        return CommonResponse.success();
     }
 }

@@ -320,7 +320,7 @@ class ScheduleServiceTest {
         flushAndClearPersistence();
 
         // then
-        assertThat(scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId())).isPresent();
+        assertThat(scheduleParticipantRepository.findByUserAndScheduleIdFilteredByDeletedAt(user.getId(), schedule.getId())).isPresent();
     }
 
     @DisplayName("SUCCESS : 정상 참여 처리 (신청자 취소)")
@@ -339,7 +339,7 @@ class ScheduleServiceTest {
         flushAndClearPersistence();
 
         // then
-        Optional<ScheduleParticipant> savedScheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId());
+        Optional<ScheduleParticipant> savedScheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleIdFilteredByDeletedAt(user.getId(), schedule.getId());
         assertThat(savedScheduleParticipant).isPresent();
         assertEquals(savedScheduleParticipant.orElse(null).getStatus(), ParticipantStatus.PENDING);
     }

@@ -2,7 +2,7 @@ package com.catcher.datasource.repository;
 
 import com.catcher.core.domain.entity.ScheduleParticipant;
 import com.catcher.core.domain.entity.enums.ParticipantStatus;
-import feign.Param;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface ScheduleParticipantJpaRepository extends JpaRepository<ScheduleParticipant, Long> {
     List<ScheduleParticipant> findByUserIdAndStatus(Long userId, ParticipantStatus status);
+
+    Optional<ScheduleParticipant> findByUserIdAndScheduleId(Long userId, Long scheduleId);
 
     List<ScheduleParticipant> findByStatus(ParticipantStatus participantStatus);
 
@@ -23,8 +25,8 @@ public interface ScheduleParticipantJpaRepository extends JpaRepository<Schedule
             "FROM ScheduleParticipant sp " +
             "WHERE sp.deletedAt IS NULL AND sp.status = :participantStatus AND sp.schedule.id = :scheduleId")
     long findCountScheduleParticipantByStatusAndScheduleId(
-            @Param("participantStatus")ParticipantStatus participantStatus,
-            @Param("scheduleId")Long scheduleId
+            @Param("participantStatus") ParticipantStatus participantStatus,
+            @Param("scheduleId") Long scheduleId
     );
 
     @Modifying
@@ -32,4 +34,10 @@ public interface ScheduleParticipantJpaRepository extends JpaRepository<Schedule
     int updateScheduleParticipantToDeleted(
             @Param("scheduleParticipantId") Long scheduleParticipantId
     );
+
+    @Modifying
+    @Query("UPDATE ScheduleParticipant sp " +
+            "SET sp.status = 'CANCEL', sp.deletedAt = CURRENT_TIMESTAMP " +
+            "WHERE sp.user.id = :userId AND sp.schedule.id = :scheduleId AND sp.status = 'APPROVE'")
+    int updateStatusToCancel(@Param("userId") Long userId, @Param("scheduleId") Long scheduleId);
 }

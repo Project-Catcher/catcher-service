@@ -170,11 +170,12 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void deleteScheduleDetail(User user, Long scheduleDetailId){
+    public void deleteScheduleDetail(User user, Long scheduleDetailId) {
         getScheduleDetail(user, scheduleDetailId);
         scheduleDetailRepository.deleteScheduleDetail(user, scheduleDetailId);
     }
 
+    @Transactional
     private void isValidItem(ItemType itemType, Long itemId) {
         switch (itemType) {
             case USERITEM -> userItemRepository.findById(itemId)
@@ -184,6 +185,7 @@ public class ScheduleService {
         }
     }
 
+    @Transactional
     private Location getLocation(String query) {
         if (StringUtils.isEmpty(query)) {
             return null;
@@ -194,6 +196,130 @@ public class ScheduleService {
         return locationPort.findByAreaCode(address.getAreaCode())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_LOCATION_RESULT));
     }
+
+    @Transactional
+    private Category getCategory(String category) {
+        return categoryPort.findByName(category)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+    }
+
+    @Transactional
+    private Schedule getSchedule(Long scheduleId, User user) {
+        return scheduleRepository.findByIdAndUser(scheduleId, user)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+    }
+
+    @Transactional
+    public MyListResponse myList(Long userId) {
+        return new MyListResponse(
+                scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
+                scheduleRepository.draftScheduleList(userId),       //작성중인 일정
+                scheduleRepository.openScheduleList(),              //모집 중
+                scheduleRepository.appliedScheduleList(userId)      //참여 신청
+        );
+    }
+
+    @Transactional
+    public void deleteDraftSchedule(Long userId, Long scheduleId) {
+        scheduleRepository.deleteDraftSchedule(userId, scheduleId);
+    }
+
+    @Transactional
+    public void participateSchedule(User user, Long scheduleId) {
+        Schedule schedule = scheduleRepository.findByIdAndScheduleStatus(scheduleId, ScheduleStatus.NORMAL)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        // 현재 시간이 참여 가능 기간보다 이후일 경우 or 현재 시간이 참여 가능 기간보다 이전일 경우 예외 처리
+        if (LocalDateTime.now().isAfter(schedule.getParticipateEndAt())
+                || LocalDateTime.now().isBefore(schedule.getParticipateStartAt())) {
+            throw new BaseException(BaseResponseStatus.INVALID_SCHEDULE_PARTICIPANT_TIME);
+        }
+
+        // 인원제한이 있을 경우 참여 인원 체크
+        if (schedule.getParticipantLimit() != null) {
+            Long countParticipant = scheduleParticipantRepository.findCountScheduleParticipantByStatusAndScheduleId(ParticipantStatus.APPROVE, scheduleId);
+            //이미 참여 인원을 초과하였을 경우
+            if (countParticipant >= schedule.getParticipantLimit()) {
+                throw new BaseException(BaseResponseStatus.FULL_PARTICIPATE_LIMIT);
+            }
+        }
+
+        ScheduleParticipant scheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleIdFilteredByDeletedAt(user.getId(), scheduleId).orElse(null);
+        // 참여하지 않은 상태일 경우 참여 처리
+        if (scheduleParticipant == null) {
+            scheduleRepository.participateSchedule(user, scheduleId);
+        } else {
+            switch (scheduleParticipant.getStatus()) {
+                case CANCEL -> deleteAndInsertScheduleParticipant(scheduleParticipant, schedule, user);
+                case REJECT -> throw new BaseException(BaseResponseStatus.REJECTED_PARTICIPATE);
+                case APPROVE -> throw new BaseException(BaseResponseStatus.ALREADY_PARTICIPATED_STATUS);
+                case PENDING -> throw new BaseException(BaseResponseStatus.PARTICIPATE_WAITING_FOR_APPROVE);
+            }
+        }
+    }
+
+    @Transactional
+    private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
+        scheduleParticipantRepository.updateScheduleParticipantToDeleted(scheduleParticipant.getId());
+        scheduleRepository.participateSchedule(user, schedule.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
+
+        List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
+
+        List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
+                .map(ScheduleListResponse.ScheduleDTO::new)
+                .toList();
+
+        return new ScheduleListResponse(scheduleDTOList);
+    }
+
+    @Transactional
+    private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
+        ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        User owner = scheduleDetail.getSchedule().getUser();
+        if (!owner.equals(user)) {
+            throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORIZATION);
+        }
+
+        return scheduleDetail;
+    }
+
+    @Transactional(readOnly = true)
+    public GetRecommendedTemplateResponse getRecommendedTemplate() {
+        List<Template> templateList = templateRepository.findByRecommendedStatus(RecommendedStatus.ENABLED);
+
+        List<GetRecommendedTemplateResponse.TemplateDTO> templateDTOList = templateList.stream()
+                .map(template -> {
+                    List<ScheduleDetail> scheduleDetailList = scheduleDetailRepository.findBySchedule(template.getSchedule());
+                    return getTemplateDTO(template, scheduleDetailList);
+                })
+                .collect(Collectors.toList());
+
+        return new GetRecommendedTemplateResponse(templateDTOList);
+    }
+
+    @Transactional
+    private GetRecommendedTemplateResponse.TemplateDTO getTemplateDTO(Template template, List<ScheduleDetail> scheduleDetailList) {
+        List<GetRecommendedTemplateResponse.TemplateScheduleDetailDTO> templateScheduleDetailDTOList = scheduleDetailList.stream()
+                .map(GetRecommendedTemplateResponse.TemplateScheduleDetailDTO::new)
+                .collect(Collectors.toList());
+
+        return new GetRecommendedTemplateResponse.TemplateDTO(template, templateScheduleDetailDTOList);
+    }
+
+    @Transactional
+    public void cancelParticipateSchedule(User user, Long scheduleId) {
+        scheduleParticipantRepository.cancelScheduleParticipant(user.getId(), scheduleId);
+    }
+
+    /**
+     * 객체 생성은 파일 하단에 위치한다
+     */
 
     private ScheduleDetail createScheduleDetail(SaveScheduleDetailRequest request, Schedule schedule) {
         return ScheduleDetail.builder()
@@ -229,115 +355,5 @@ public class ScheduleService {
                 .schedule(schedule)
                 .tag(tag)
                 .build();
-    }
-
-    private Category getCategory(String category) {
-        return categoryPort.findByName(category)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-    }
-
-    private Schedule getSchedule(Long scheduleId, User user) {
-        return scheduleRepository.findByIdAndUser(scheduleId, user)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-    }
-
-    @Transactional
-    public MyListResponse myList(Long userId) {
-        return new MyListResponse(
-                scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
-                scheduleRepository.draftScheduleList(userId),       //작성중인 일정
-                scheduleRepository.openScheduleList(),              //모집 중
-                scheduleRepository.appliedScheduleList(userId)      //참여 신청
-        );
-    }
-
-    @Transactional
-    public void deleteDraftSchedule(Long userId, Long scheduleId) {
-        scheduleRepository.deleteDraftSchedule(userId, scheduleId);
-    }
-
-    @Transactional
-    public void participateSchedule(User user, Long scheduleId) {
-        Schedule schedule = scheduleRepository.findByIdAndScheduleStatus(scheduleId, ScheduleStatus.NORMAL)
-                .orElseThrow(()->new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-
-        // 현재 시간이 참여 가능 기간보다 이후일 경우 or 현재 시간이 참여 가능 기간보다 이전일 경우 예외 처리
-        if(LocalDateTime.now().isAfter(schedule.getParticipateEndAt())
-                || LocalDateTime.now().isBefore(schedule.getParticipateStartAt())) {
-            throw new BaseException(BaseResponseStatus.INVALID_SCHEDULE_PARTICIPANT_TIME);
-        }
-
-        // 인원제한이 있을 경우 참여 인원 체크
-        if(schedule.getParticipantLimit() != null) {
-            Long countParticipant = scheduleParticipantRepository.findCountScheduleParticipantByStatusAndScheduleId(scheduleId, ParticipantStatus.APPROVE);
-            //이미 참여 인원을 초과하였을 경우
-            if(countParticipant >= schedule.getParticipantLimit()) {
-                throw new BaseException(BaseResponseStatus.FULL_PARTICIPATE_LIMIT);
-            }
-        }
-
-        ScheduleParticipant scheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), scheduleId).orElse(null);
-        // 참여하지 않은 상태일 경우 참여 처리
-        if(scheduleParticipant == null) {
-            scheduleRepository.participateSchedule(user, scheduleId);
-        } else {
-            switch (scheduleParticipant.getStatus()) {
-                case CANCEL -> deleteAndInsertScheduleParticipant(scheduleParticipant, schedule, user);
-                case REJECT -> throw new BaseException(BaseResponseStatus.REJECTED_PARTICIPATE);
-                case APPROVE -> throw new BaseException(BaseResponseStatus.ALREADY_PARTICIPATED_STATUS);
-                case PENDING -> throw new BaseException(BaseResponseStatus.PARTICIPATE_WAITING_FOR_APPROVE);
-            }
-        }
-    }
-
-    private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
-        scheduleParticipantRepository.updateScheduleParticipantToDeleted(scheduleParticipant.getId());
-        scheduleRepository.participateSchedule(user, schedule.getId());
-    }
-  
-    @Transactional(readOnly = true)
-    public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
-
-        List<Schedule> schedules = scheduleRepository.findMainScheduleList(scheduleListRequest);
-
-        List<ScheduleListResponse.ScheduleDTO> scheduleDTOList = schedules.stream()
-                .map(ScheduleListResponse.ScheduleDTO::new)
-                .toList();
-
-        return new ScheduleListResponse(scheduleDTOList);
-    }
-
-    private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
-        ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
-              .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
-
-        User owner = scheduleDetail.getSchedule().getUser();
-        if (!owner.equals(user)) {
-            throw new BaseException(BaseResponseStatus.NO_ACCESS_AUTHORIZATION);
-        }
-
-        return scheduleDetail;
-    }
-
-    @Transactional(readOnly = true)
-    public GetRecommendedTemplateResponse getRecommendedTemplate() {
-        List<Template> templateList = templateRepository.findByRecommendedStatus(RecommendedStatus.ENABLED);
-
-        List<GetRecommendedTemplateResponse.TemplateDTO> templateDTOList = templateList.stream()
-                .map(template -> {
-                    List<ScheduleDetail> scheduleDetailList = scheduleDetailRepository.findBySchedule(template.getSchedule());
-                    return getTemplateDTO(template, scheduleDetailList);
-                })
-                .collect(Collectors.toList());
-
-        return new GetRecommendedTemplateResponse(templateDTOList);
-    }
-
-    private GetRecommendedTemplateResponse.TemplateDTO getTemplateDTO(Template template, List<ScheduleDetail> scheduleDetailList) {
-        List<GetRecommendedTemplateResponse.TemplateScheduleDetailDTO> templateScheduleDetailDTOList = scheduleDetailList.stream()
-                .map(GetRecommendedTemplateResponse.TemplateScheduleDetailDTO::new)
-                .collect(Collectors.toList());
-
-        return new GetRecommendedTemplateResponse.TemplateDTO(template, templateScheduleDetailDTOList);
     }
 }
