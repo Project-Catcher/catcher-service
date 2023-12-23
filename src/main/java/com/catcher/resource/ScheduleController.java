@@ -121,6 +121,7 @@ public class ScheduleController {
         return CommonResponse.success();
     }
 
+    @Operation(summary = "일정 메인 조회")
     @GetMapping("/list")
     public CommonResponse<ScheduleListResponse> getScheduleList(
             ScheduleListRequest scheduleListRequest
@@ -154,7 +155,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 참여 신청")
-    @GetMapping("/{scheduleId}")
+    @PostMapping("/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> participateSchedule(
             @CurrentUser User user,
