@@ -28,4 +28,9 @@ public class ScheduleTagRepositoryImpl implements ScheduleTagRepository {
     public List<ScheduleTag> findBySchedule(Schedule schedule) {
         return scheduleTagJpaRepository.findBySchedule(schedule);
     }
+
+    @Override
+    public void deleteBySchedule(Schedule schedule) {
+        scheduleTagJpaRepository.deleteBySchedule(schedule);
+    }
 }

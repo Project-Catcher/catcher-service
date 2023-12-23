@@ -176,6 +176,7 @@ class ScheduleServiceTest {
 
         // Then
         assertThat(schedule.getTitle()).isEqualTo(request.getTitle());
+        assertEquals(ScheduleStatus.DRAFT, schedule.getScheduleStatus());
         assertEquals(scheduleTagRepository.findBySchedule(schedule).size(), tagList.size());
         assertEquals(scheduleTagRepository.findBySchedule(schedule).get(0).getTag().getName(), tagList.get(0));
         assertEquals(scheduleTagRepository.findBySchedule(schedule).get(1).getTag().getName(), tagList.get(1));
@@ -658,6 +659,75 @@ class ScheduleServiceTest {
                 .theme("theme")
                 .recommendedStatus(status)
                 .build();
+    }
+
+    @DisplayName("SUCCESS: 일정 저장")
+    @Test
+    void save_schedule() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        List<String> tagList = List.of("친구와", "나홀로");
+        SaveScheduleRequest request = SaveScheduleRequest.builder()
+                .title("제목")
+                .thumbnail("image.png")
+                .location("서울특별시")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .tags(tagList)
+                .isPublic(PublicStatus.PUBLIC)
+                .participant(0L)
+                .budget(0L)
+                .participateEndAt(LocalDateTime.now())
+                .participateStartAt(LocalDateTime.now())
+                .build();
+
+        // When
+        scheduleService.saveSchedule(user, schedule.getId(), request);
+        flushAndClearPersistence();
+
+        // Then
+        assertThat(schedule.getTitle()).isEqualTo(request.getTitle());
+        assertEquals(ScheduleStatus.NORMAL, schedule.getScheduleStatus());
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).size(), tagList.size());
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).get(0).getTag().getName(), tagList.get(0));
+        assertEquals(scheduleTagRepository.findBySchedule(schedule).get(1).getTag().getName(), tagList.get(1));
+    }
+
+    @DisplayName("FAIL: 일정 저장 시 작성자와 유저가 다른 경우")
+    @Test
+    void invalid_user_when_save_schedule() {
+        // Given
+        User owner = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        userRepository.save(owner);
+
+        Schedule schedule = createSchedule(owner, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        List<String> tagList = List.of("친구와", "나홀로");
+        SaveScheduleRequest request = SaveScheduleRequest.builder()
+                .title("제목")
+                .thumbnail("image.png")
+                .location("서울특별시")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now())
+                .tags(tagList)
+                .isPublic(PublicStatus.PUBLIC)
+                .participant(0L)
+                .budget(0L)
+                .participateEndAt(LocalDateTime.now())
+                .participateStartAt(LocalDateTime.now())
+                .build();
+
+        // When, Then
+        assertThatThrownBy(() -> scheduleService.saveSchedule(user, schedule.getId(), request))
+                .isInstanceOf(BaseException.class);
     }
 
     private User createUser(String name, String phone, String email, String nickname) {
