@@ -126,6 +126,7 @@ public class ScheduleController {
             ScheduleListRequest scheduleListRequest
             ) {
         ScheduleListResponse response = scheduleService.getScheduleListByFilter(scheduleListRequest);
+        return CommonResponse.success(response);
     }
 
     @Operation(summary = "세부 일정 수정")
@@ -162,5 +163,12 @@ public class ScheduleController {
         scheduleService.participateSchedule(user, scheduleId);
       
         return CommonResponse.success();
+    }
+
+    @Operation(summary = "추천 템플릿 목록 조회")
+    @GetMapping("/templates")
+    public CommonResponse<GetRecommendedTemplateResponse> getTemplates() {
+        GetRecommendedTemplateResponse response = scheduleService.getRecommendedTemplate();
+        return CommonResponse.success(response);
     }
 }

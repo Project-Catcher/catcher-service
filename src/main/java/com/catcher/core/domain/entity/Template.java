@@ -3,13 +3,17 @@ package com.catcher.core.domain.entity;
 import com.catcher.core.domain.entity.enums.RecommendedStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.ZonedDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "template")
+@Where(clause = "deleted_at is null")
 public class Template extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

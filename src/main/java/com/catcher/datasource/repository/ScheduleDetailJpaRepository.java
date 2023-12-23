@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleDetailJpaRepository extends JpaRepository<ScheduleDetail, Long> {
@@ -23,4 +24,6 @@ public interface ScheduleDetailJpaRepository extends JpaRepository<ScheduleDetai
             "SET sd.deletedAt = CURRENT_TIMESTAMP " +
             "WHERE sd.id = :id AND sd.schedule.user = :user")
     void updateScheduleDetailToDeleted(@Param("user") User user, @Param("id") Long scheduleDetailId);
+
+    List<ScheduleDetail> findBySchedule(Schedule schedule);
 }

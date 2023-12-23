@@ -39,6 +39,7 @@ public class ScheduleService {
     private final UploadFileRepository uploadFileRepository;
     private final ScheduleTagRepository scheduleTagRepository;
     private final ScheduleParticipantRepository scheduleParticipantRepository;
+    private final TemplateRepository templateRepository;
 
     @Transactional(readOnly = true)
     public DraftScheduleResponse getDraftSchedule(User user) {
@@ -316,5 +317,27 @@ public class ScheduleService {
         }
 
         return scheduleDetail;
+    }
+
+    @Transactional(readOnly = true)
+    public GetRecommendedTemplateResponse getRecommendedTemplate() {
+        List<Template> templateList = templateRepository.findByRecommendedStatus(RecommendedStatus.ENABLED);
+
+        List<GetRecommendedTemplateResponse.TemplateDTO> templateDTOList = templateList.stream()
+                .map(template -> {
+                    List<ScheduleDetail> scheduleDetailList = scheduleDetailRepository.findBySchedule(template.getSchedule());
+                    return getTemplateDTO(template, scheduleDetailList);
+                })
+                .collect(Collectors.toList());
+
+        return new GetRecommendedTemplateResponse(templateDTOList);
+    }
+
+    private GetRecommendedTemplateResponse.TemplateDTO getTemplateDTO(Template template, List<ScheduleDetail> scheduleDetailList) {
+        List<GetRecommendedTemplateResponse.TemplateScheduleDetailDTO> templateScheduleDetailDTOList = scheduleDetailList.stream()
+                .map(GetRecommendedTemplateResponse.TemplateScheduleDetailDTO::new)
+                .collect(Collectors.toList());
+
+        return new GetRecommendedTemplateResponse.TemplateDTO(template, templateScheduleDetailDTOList);
     }
 }

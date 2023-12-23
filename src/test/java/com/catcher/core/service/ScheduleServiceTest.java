@@ -69,6 +69,9 @@ class ScheduleServiceTest {
     @Autowired
     ScheduleParticipantRepository scheduleParticipantRepository;
 
+    @Autowired
+    TemplateRepository templateRepository;
+
     @PersistenceContext
     EntityManager em;
 
@@ -597,6 +600,64 @@ class ScheduleServiceTest {
         // When, Then
         assertThatThrownBy(() -> scheduleService.deleteScheduleDetail(user, scheduleDetail.getId()))
                 .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("SUCCESS: 추천 템플릿 목록 조회")
+    @Test
+    void get_recommended_template() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        Template template = createTemplate(schedule, RecommendedStatus.ENABLED);
+        templateRepository.save(template);
+
+        // When
+        GetRecommendedTemplateResponse result = scheduleService.getRecommendedTemplate();
+
+        // Then
+        assertEquals(1, result.getTemplates().size());
+        assertEquals(template.getId(), result.getTemplates().get(0).getId());
+        assertEquals(template.getDays(), result.getTemplates().get(0).getDays());
+        assertEquals(scheduleDetail.getId(), result.getTemplates().get(0).getScheduleDetails().get(0).getId());
+    }
+
+    @DisplayName("SUCCESS: 추천 템플릿 목록 조회 시 추천 등록된 템플릿이 없을 경우")
+    @Test
+    void get_recommended_template_when_none_result() {
+        // Given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.DRAFT);
+        scheduleRepository.save(schedule);
+
+        ScheduleDetail scheduleDetail = createScheduleDetail(schedule, ItemType.CATCHERITEM, 1L);
+        scheduleDetailRepository.save(scheduleDetail);
+
+        Template template = createTemplate(schedule, RecommendedStatus.DISABLED);
+        templateRepository.save(template);
+
+        // When
+        GetRecommendedTemplateResponse result = scheduleService.getRecommendedTemplate();
+
+        // Then
+        assertEquals(0, result.getTemplates().size());
+   }
+
+    private Template createTemplate(Schedule schedule, RecommendedStatus status) {
+        return Template.builder()
+                .schedule(schedule)
+                .days(2L)
+                .theme("theme")
+                .recommendedStatus(status)
+                .build();
     }
 
     private User createUser(String name, String phone, String email, String nickname) {
