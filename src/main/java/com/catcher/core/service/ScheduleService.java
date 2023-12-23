@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -37,6 +38,7 @@ public class ScheduleService {
     private final TagRepository tagRepository;
     private final UploadFileRepository uploadFileRepository;
     private final ScheduleTagRepository scheduleTagRepository;
+    private final ScheduleParticipantRepository scheduleParticipantRepository;
     private final TemplateRepository templateRepository;
 
     @Transactional(readOnly = true)
@@ -254,6 +256,45 @@ public class ScheduleService {
         scheduleRepository.deleteDraftSchedule(userId, scheduleId);
     }
 
+    @Transactional
+    public void participateSchedule(User user, Long scheduleId) {
+        Schedule schedule = scheduleRepository.findByIdAndScheduleStatus(scheduleId, ScheduleStatus.NORMAL)
+                .orElseThrow(()->new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        // 현재 시간이 참여 가능 기간보다 이후일 경우 or 현재 시간이 참여 가능 기간보다 이전일 경우 예외 처리
+        if(LocalDateTime.now().isAfter(schedule.getParticipateEndAt())
+                || LocalDateTime.now().isBefore(schedule.getParticipateStartAt())) {
+            throw new BaseException(BaseResponseStatus.INVALID_SCHEDULE_PARTICIPANT_TIME);
+        }
+
+        // 인원제한이 있을 경우 참여 인원 체크
+        if(schedule.getParticipantLimit() != null) {
+            Long countParticipant = scheduleParticipantRepository.findCountScheduleParticipantByStatusAndScheduleId(scheduleId, ParticipantStatus.APPROVE);
+            //이미 참여 인원을 초과하였을 경우
+            if(countParticipant >= schedule.getParticipantLimit()) {
+                throw new BaseException(BaseResponseStatus.FULL_PARTICIPATE_LIMIT);
+            }
+        }
+
+        ScheduleParticipant scheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), scheduleId).orElse(null);
+        // 참여하지 않은 상태일 경우 참여 처리
+        if(scheduleParticipant == null) {
+            scheduleRepository.participateSchedule(user, scheduleId);
+        } else {
+            switch (scheduleParticipant.getStatus()) {
+                case CANCEL -> deleteAndInsertScheduleParticipant(scheduleParticipant, schedule, user);
+                case REJECT -> throw new BaseException(BaseResponseStatus.REJECTED_PARTICIPATE);
+                case APPROVE -> throw new BaseException(BaseResponseStatus.ALREADY_PARTICIPATED_STATUS);
+                case PENDING -> throw new BaseException(BaseResponseStatus.PARTICIPATE_WAITING_FOR_APPROVE);
+            }
+        }
+    }
+
+    private void deleteAndInsertScheduleParticipant(ScheduleParticipant scheduleParticipant, Schedule schedule, User user) {
+        scheduleParticipantRepository.updateScheduleParticipantToDeleted(scheduleParticipant.getId());
+        scheduleRepository.participateSchedule(user, schedule.getId());
+    }
+  
     @Transactional(readOnly = true)
     public ScheduleListResponse getScheduleListByFilter(ScheduleListRequest scheduleListRequest) {
 
@@ -268,7 +309,7 @@ public class ScheduleService {
 
     private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
         ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+              .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
 
         User owner = scheduleDetail.getSchedule().getUser();
         if (!owner.equals(user)) {

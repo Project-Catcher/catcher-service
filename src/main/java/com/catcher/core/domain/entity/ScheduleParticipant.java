@@ -4,6 +4,8 @@ import com.catcher.core.domain.entity.enums.ParticipantStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,4 +28,6 @@ public class ScheduleParticipant extends BaseTimeEntity {
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private ParticipantStatus status;
+
+    private LocalDateTime deletedAt;
 }

@@ -6,6 +6,7 @@ import com.catcher.core.database.*;
 import com.catcher.core.db.UserRepository;
 import com.catcher.core.domain.entity.*;
 import com.catcher.core.domain.entity.enums.*;
+
 import com.catcher.core.dto.request.*;
 import com.catcher.core.dto.response.*;
 import com.catcher.core.dto.response.DraftScheduleResponse;
@@ -64,6 +65,9 @@ class ScheduleServiceTest {
 
     @Autowired
     LocationJpaRepository locationJpaRepository;
+
+    @Autowired
+    ScheduleParticipantRepository scheduleParticipantRepository;
 
     @Autowired
     TemplateRepository templateRepository;
@@ -300,6 +304,100 @@ class ScheduleServiceTest {
 
         // Then
         assertEquals(0, result.getItems().size());
+    }
+
+    @DisplayName("SUCCESS : 정상 참여 처리")
+    @Test
+    void participate() {
+        // given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+
+        // when
+        scheduleService.participateSchedule(user, schedule.getId());
+        flushAndClearPersistence();
+
+        // then
+        assertThat(scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId())).isPresent();
+    }
+
+    @DisplayName("SUCCESS : 정상 참여 처리 (신청자 취소)")
+    @Test
+    void participate_when_already_cancel() {
+        // given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+        ScheduleParticipant scheduleParticipant = createScheduleParticipant(schedule, user, ParticipantStatus.CANCEL);
+        scheduleParticipantRepository.save(scheduleParticipant);
+
+        // when
+        scheduleService.participateSchedule(user, schedule.getId());
+        flushAndClearPersistence();
+
+        // then
+        Optional<ScheduleParticipant> savedScheduleParticipant = scheduleParticipantRepository.findByUserAndScheduleId(user.getId(), schedule.getId());
+        assertThat(savedScheduleParticipant).isPresent();
+        assertEquals(savedScheduleParticipant.orElse(null).getStatus(), ParticipantStatus.PENDING);
+    }
+
+    @DisplayName("FAIL : 이미 신청한 내역이 존재")
+    @Test
+    void participate_when_already_participate_waiting_for_approve() {
+        // given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+        ScheduleParticipant scheduleParticipant = createScheduleParticipant(schedule, user, ParticipantStatus.PENDING);
+        scheduleParticipantRepository.save(scheduleParticipant);
+
+        // when, then
+        assertThatThrownBy(()->scheduleService.participateSchedule(user, schedule.getId()))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("FAIL : 이미 거절된 내역")
+    @Test
+    void participate_when_already_rejected() {
+        // given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+        ScheduleParticipant scheduleParticipant = createScheduleParticipant(schedule, user, ParticipantStatus.REJECT);
+        scheduleParticipantRepository.save(scheduleParticipant);
+
+        // when, then
+        assertThatThrownBy(()->scheduleService.participateSchedule(user, schedule.getId()))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @DisplayName("FAIL : 이미 참여한 일정")
+    @Test
+    void participate_when_already_participate() {
+        // given
+        User user = createUser(createRandomUUID(), createRandomUUID(), createRandomUUID(), createRandomUUID());
+        userRepository.save(user);
+        Schedule schedule = createSchedule(user, location, ScheduleStatus.NORMAL);
+        scheduleRepository.save(schedule);
+        ScheduleParticipant scheduleParticipant = createScheduleParticipant(schedule, user, ParticipantStatus.APPROVE);
+        scheduleParticipantRepository.save(scheduleParticipant);
+
+        // when, then
+        assertThatThrownBy(()->scheduleService.participateSchedule(user, schedule.getId()))
+                .isInstanceOf(BaseException.class);
+    }
+
+    private ScheduleParticipant createScheduleParticipant(Schedule schedule, User user, ParticipantStatus participantStatus) {
+        return  ScheduleParticipant.builder()
+                .schedule(schedule)
+                .user(user)
+                .status(participantStatus)
+                .build();
     }
 
     @DisplayName("SUCCESS: 세부 일정 저장")
@@ -582,13 +680,16 @@ class ScheduleServiceTest {
     private static Schedule createSchedule(User user, Location location, ScheduleStatus scheduleStatus) {
         return Schedule.builder()
                 .user(user)
+                .participantLimit(5L)
                 .title("title")
                 .viewCount(0L)
                 .thumbnailUrl("image.jpg")
                 .location(location)
                 .scheduleStatus(scheduleStatus)
-                .startAt(LocalDateTime.now())
-                .endAt(LocalDateTime.now())
+                .startAt(LocalDateTime.now().minusDays(1L))
+                .endAt(LocalDateTime.now().plusDays(1L))
+                .participateStartAt(LocalDateTime.now().minusDays(1L))
+                .participateEndAt(LocalDateTime.now().plusDays(1L))
                 .build();
     }
 

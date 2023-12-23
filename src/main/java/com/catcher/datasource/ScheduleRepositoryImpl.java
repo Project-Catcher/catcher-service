@@ -160,6 +160,29 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
             throw new BaseException(BaseResponseStatus.FAIL_DELETE_DRAFT_SCHEDULE);
         }
     }
+
+    @Override
+    public void participateSchedule(User user, Long scheduleId) {
+        Schedule schedule = scheduleJpaRepository.findById(scheduleId).orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
+
+        ScheduleParticipant scheduleParticipant = ScheduleParticipant.builder()
+                .schedule(schedule)
+                .user(user)
+                .status(ParticipantStatus.PENDING)
+                .build();
+
+        scheduleParticipantJpaRepository.save(scheduleParticipant);
+    }
+
+    @Override
+    public Optional<Schedule> findById(Long scheduleId) {
+        return scheduleJpaRepository.findById(scheduleId);
+    }
+
+    @Override
+    public Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus) {
+        return scheduleJpaRepository.findByIdAndScheduleStatus(scheduleId, scheduleStatus);
+    }
     
     private Specification<Schedule> getSpecificationByKeywordOption(SearchOption keywordOption, String keyword) {
         Specification<Schedule> specification = Specification.where(null);

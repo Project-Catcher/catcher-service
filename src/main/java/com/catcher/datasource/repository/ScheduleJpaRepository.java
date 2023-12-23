@@ -33,4 +33,5 @@ public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long>, Jp
     @Query("UPDATE Schedule s SET s.scheduleStatus = 'DELETED' WHERE s.id = :id AND s.user.id = :userId")
     int updateScheduleToDeleted(@Param("userId") Long userId, @Param("id") Long id);
 
+    Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus);
 }
