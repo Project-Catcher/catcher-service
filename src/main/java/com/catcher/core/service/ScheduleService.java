@@ -175,7 +175,7 @@ public class ScheduleService {
         scheduleDetailRepository.deleteScheduleDetail(user, scheduleDetailId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     private void isValidItem(ItemType itemType, Long itemId) {
         switch (itemType) {
             case USERITEM -> userItemRepository.findById(itemId)
@@ -185,7 +185,7 @@ public class ScheduleService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     private Location getLocation(String query) {
         if (StringUtils.isEmpty(query)) {
             return null;
@@ -197,13 +197,13 @@ public class ScheduleService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NO_LOCATION_RESULT));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     private Category getCategory(String category) {
         return categoryPort.findByName(category)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     private Schedule getSchedule(Long scheduleId, User user) {
         return scheduleRepository.findByIdAndUser(scheduleId, user)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
@@ -276,7 +276,7 @@ public class ScheduleService {
         return new ScheduleListResponse(scheduleDTOList);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     private ScheduleDetail getScheduleDetail(User user, Long scheduleDetailId) {
         ScheduleDetail scheduleDetail = scheduleDetailRepository.findByIdWithUser(scheduleDetailId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
