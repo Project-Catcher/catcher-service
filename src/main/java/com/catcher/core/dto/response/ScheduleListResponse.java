@@ -24,13 +24,11 @@ public class ScheduleListResponse {
         private final String thumbnailUrl;
         private final Long viewCount;
         private final Long budget;
-        //private final int participantCount;
         private final Location location;
         private final LocalDateTime startAt;
         private final LocalDateTime endAt;
         private final LocalDateTime participantStartAt;
         private final LocalDateTime participantEndAt;
-        //private final List<Tag> scheduleTags;
 
         public ScheduleDTO(Schedule schedule) {
             this.id = schedule.getId();
@@ -40,14 +38,11 @@ public class ScheduleListResponse {
             this.thumbnailUrl = schedule.getThumbnailUrl();
             this.viewCount = schedule.getViewCount();
             this.budget = schedule.getBudget();
-            //this.participantCount = schedule.getScheduleParticipants().size();
             this.location = schedule.getLocation();
             this.startAt = schedule.getStartAt();
             this.endAt = schedule.getEndAt();
             this.participantStartAt = schedule.getParticipateStartAt();
             this.participantEndAt = schedule.getParticipateEndAt();
-            //this.scheduleTags = schedule.getScheduleTags().stream().map(ScheduleTag::getTag).collect(Collectors.toList());
-
         }
     }
 }
