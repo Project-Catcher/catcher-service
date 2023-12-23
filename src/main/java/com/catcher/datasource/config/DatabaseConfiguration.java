@@ -3,6 +3,8 @@ package com.catcher.datasource.config;
 import com.catcher.infrastructure.utils.KmsUtils;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @RequiredArgsConstructor
@@ -71,10 +74,18 @@ public class DatabaseConfiguration {
                 localPort
         ); // TODO: lport 값(현재 0)은 추후 서버 올릴때는 지정해줘야함
 
-        return DataSourceBuilder.create()
-                .url(kmsUtils.decrypt(databaseUrl).replace(Integer.toString(localPort), Integer.toString(assignedPort)))
-                .username(kmsUtils.decrypt(databaseUsername))
-                .password(kmsUtils.decrypt(databasePassword))
-                .build();
+
+        Properties properties = new Properties();
+        properties.setProperty("driverClassName", "org.mariadb.jdbc.Driver");
+        properties.setProperty("jdbcUrl", kmsUtils.decrypt(databaseUrl).replace(Integer.toString(localPort), Integer.toString(assignedPort)));
+        properties.setProperty("maxLifetime", "179000");
+        properties.setProperty("idleTimeout", "185000");
+        properties.setProperty("password", kmsUtils.decrypt(databasePassword));
+        properties.setProperty("username", kmsUtils.decrypt(databaseUsername));
+        properties.setProperty("leakDetectionThreshold", "60000");
+        properties.setProperty("maximumPoolSize", "20");
+        properties.setProperty("minimumIdle", "20");
+
+        return new HikariDataSource(new HikariConfig(properties));
     }
 }
