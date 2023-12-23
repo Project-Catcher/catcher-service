@@ -10,7 +10,6 @@ import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.dto.response.UserTagResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,6 @@ import java.util.UUID;
 
 import static com.catcher.core.domain.entity.enums.UserProvider.CATCHER;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = AppApplication.class)
 @Transactional
@@ -51,7 +49,7 @@ class UserTagServiceTest {
 
     @Test
     @DisplayName("유저 태그 삽입 요청시 정상적으로 삽입되어야 한다.")
-    void insert_test() {
+    void insert_user_tag_should_exists_in_db() {
         // given
         int saveTagCount = 10;
         List<String> userTagNames = new ArrayList<>(saveTagCount);
@@ -76,7 +74,7 @@ class UserTagServiceTest {
 
     @Test
     @DisplayName("유저 태그 삽입 요청시 기존 유저 태그들은 삭제되어야한다.")
-    void insert_test_2() {
+    void inser_user_tag_then_return_only_new_tags() {
         // given
         int before = 10;
         List<String> oldTags = new ArrayList<>();
