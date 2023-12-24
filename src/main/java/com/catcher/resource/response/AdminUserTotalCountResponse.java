@@ -8,14 +8,14 @@ import lombok.Getter;
 @Builder(access = AccessLevel.PRIVATE)
 public class AdminUserTotalCountResponse {
 
-    private Long numberOfAllUsers;
+    private Long numberOfUsers;
 
-    private Long numberOfAllWithDrawlUsers;
+    private Long numberOfWithDrawalUsers;
 
     public static AdminUserTotalCountResponse create(Long totalUserCount, Long deletedUserCount) {
         return AdminUserTotalCountResponse.builder()
-                .numberOfAllUsers(totalUserCount)
-                .numberOfAllWithDrawlUsers(deletedUserCount)
+                .numberOfUsers(totalUserCount)
+                .numberOfWithDrawalUsers(deletedUserCount)
                 .build();
     }
 

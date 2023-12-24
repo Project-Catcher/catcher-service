@@ -73,8 +73,6 @@ public class AdminUserController {
         return CommonResponse.success(adminUserService.searchUserDetail(userId));
     }
 
-
-
     @PostMapping("/blacklist")
     @AuthorizationRequired(UserRole.ADMIN)
     public CommonResponse<Void> addBlackList(@RequestBody AdminBlackListRequest request) {

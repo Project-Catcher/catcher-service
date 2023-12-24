@@ -29,7 +29,6 @@ public interface UserRepository {
 
     Map<String, Long> countReportedUsersPerDay(LocalDate startDate, LocalDate endDate);
 
-
     Page<User> searchUsersWithFilter(UserSearchFilterType filterType, LocalDate startDate, LocalDate endDate, String query, Pageable pageable);
 
 }

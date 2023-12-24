@@ -54,7 +54,6 @@ public class UserRepositoryImpl implements UserRepository {
         return userJpaRepository.count();
     }
 
-
     /**
      * startDate 부터 endDate 까지의 날짜를 key로 하고 0L을 value로 갖는 Map을 생성한다.
      */

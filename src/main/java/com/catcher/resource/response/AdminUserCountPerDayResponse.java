@@ -15,7 +15,7 @@ public class AdminUserCountPerDayResponse {
 
     private Long numberOfAllNewUsers;
 
-    private Long numberOfAllWithDrawlUsers;
+    private Long numberOfAllWithDrawalUsers;
 
     private Long numberOfAllReports;
 
@@ -30,7 +30,7 @@ public class AdminUserCountPerDayResponse {
                         .map(targetDate -> InnerUserCountResponse.create(LocalDate.parse(targetDate), newUsersDateCountMap, deletedUsersDateCountMap, reportedUsersDateCountMap))
                         .toList())
                 .numberOfAllNewUsers(newUsersDateCountMap.values().stream().mapToLong(Long::longValue).sum())
-                .numberOfAllWithDrawlUsers(deletedUsersDateCountMap.values().stream().mapToLong(Long::longValue).sum())
+                .numberOfAllWithDrawalUsers(deletedUsersDateCountMap.values().stream().mapToLong(Long::longValue).sum())
                 .numberOfAllReports(reportedUsersDateCountMap.values().stream().mapToLong(Long::longValue).sum())
                 .build();
     }
