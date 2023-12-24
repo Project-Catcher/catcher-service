@@ -28,6 +28,7 @@ public class Comment extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private CommentStatus status;
 
