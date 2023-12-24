@@ -1,5 +1,6 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.UserStatus;
 import com.catcher.core.domain.entity.enums.UserGender;
 import com.catcher.core.domain.entity.enums.UserProvider;
 import com.catcher.core.domain.entity.enums.UserRole;
@@ -7,7 +8,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -50,6 +53,10 @@ public class User extends BaseTimeEntity {
     @Enumerated(value = EnumType.STRING)
     private UserRole userRole;
 
+    @Enumerated(value = EnumType.STRING)
+    @Builder.Default
+    private UserStatus status = UserStatus.NORMAL;
+
     private ZonedDateTime phoneAuthentication;
 
     @Column(nullable = false)
@@ -66,4 +73,12 @@ public class User extends BaseTimeEntity {
     private ZonedDateTime phoneMarketingTerm; // 핸드폰 선택약관
 
     private ZonedDateTime deletedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserStatusChangeHistory> userStatusChangeHistories = new ArrayList<>();
+
+    public void changeUserStatus(UserStatus userStatus) {
+        this.status = userStatus;
+    }
+
 }
