@@ -22,6 +22,9 @@ public enum BaseResponseStatus {
     FULL_PARTICIPATE_LIMIT(2006, "참여 제한 인원을 초과하였습니다."),
     REJECTED_PARTICIPATE(2007, "참여가 거절된 일정입니다."),
     INVALID_SCHEDULE_PARTICIPANT_TIME(2008, "참가 일정이 유효하지 않은 신청입니다."),
+    INVALID_DATE_INPUT(2030, "입력하신 일자를 확인해 주세요."),
+    THREE_MONTHS_DATE_RANGE_EXCEPTION(2031, "최대 조회 가능 기간은 3개월 입니다."),
+    TAG_NOT_FOUND(2032, "태그가 존재하지 않습니다."),
 
     /**
      * 3000 : Response 오류
