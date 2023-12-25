@@ -15,9 +15,14 @@ public class Like extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(name = "target_id", nullable = false)
     private Long targetId;
 
-    @Column(name = "type", nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private LikeType type;
 }
