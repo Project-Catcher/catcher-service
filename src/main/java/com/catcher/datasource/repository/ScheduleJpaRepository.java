@@ -34,4 +34,16 @@ public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long>, Jp
     int updateScheduleToDeleted(@Param("userId") Long userId, @Param("id") Long id);
 
     Optional<Schedule> findByIdAndScheduleStatus(Long scheduleId, ScheduleStatus scheduleStatus);
+
+    @Query("SELECT s FROM Schedule s " +
+            "JOIN FETCH s.user " +
+            "WHERE s.user.id = :userId " +
+            "AND CURRENT_TIMESTAMP BETWEEN s.participateStartAt AND s.participateEndAt " +
+            "AND s.scheduleStatus = :scheduleStatus " +
+            "AND CURRENT_TIMESTAMP <= s.startAt " +
+            "ORDER BY s.startAt ASC")
+    List<Schedule> findSchedulesByUserIdAndTodayBetweenParticipateDatesAndStatus(
+            @Param("userId") Long userId,
+            @Param("scheduleStatus") ScheduleStatus scheduleStatus
+    );
 }

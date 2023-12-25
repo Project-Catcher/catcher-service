@@ -78,7 +78,8 @@ public class ScheduleRepositoryImplTest {
                         user,
                         statusValues[random.nextInt(statusValues.length)],
                         LocalDateTime.now().plus(5, ChronoUnit.DAYS),
-                        LocalDateTime.now().plus(7, ChronoUnit.DAYS)
+                        LocalDateTime.now().plus(7, ChronoUnit.DAYS),
+                        null
                 );
 
                 scheduleList.add(schedule);
@@ -135,7 +136,8 @@ public class ScheduleRepositoryImplTest {
                     userList.get(0),
                     ScheduleStatus.DRAFT,
                     LocalDateTime.now(),
-                    LocalDateTime.now()
+                    LocalDateTime.now(),
+                    null
             );
             draftScheduleList.add(schedule);
         }
@@ -143,7 +145,8 @@ public class ScheduleRepositoryImplTest {
                 userList.get(0),
                 ScheduleStatus.DRAFT,
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
         );
         draftScheduleList.add(currentSchedule);
         scheduleRepository.saveAll(draftScheduleList);
@@ -183,7 +186,8 @@ public class ScheduleRepositoryImplTest {
                     userList.get(0),
                     ScheduleStatus.NORMAL,
                     LocalDateTime.now(),
-                    LocalDateTime.now()
+                    LocalDateTime.now(),
+                    null
             );
             normalScheduleList.add(schedule);
         }
@@ -215,7 +219,8 @@ public class ScheduleRepositoryImplTest {
                     userList.get(0),
                     ScheduleStatus.NORMAL,
                     LocalDateTime.now().minusDays(1L),
-                    LocalDateTime.now().plusDays(1L)
+                    LocalDateTime.now().plusDays(1L),
+                    null
             );
             normalScheduleList.add(schedule);
         }
@@ -253,7 +258,8 @@ public class ScheduleRepositoryImplTest {
                 userList.get(0),
                 ScheduleStatus.NORMAL,
                 LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(1L)
+                LocalDateTime.now().plusDays(1L),
+                null
         );
         scheduleRepository.save(normalSchedule);
 
@@ -282,7 +288,8 @@ public class ScheduleRepositoryImplTest {
                 userList.get(0),
                 ScheduleStatus.NORMAL,
                 LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(1L)
+                LocalDateTime.now().plusDays(1L),
+                null
         );
         scheduleRepository.save(normalSchedule);
 
@@ -337,7 +344,8 @@ public class ScheduleRepositoryImplTest {
                     userList.get(0),
                     ScheduleStatus.NORMAL,
                     LocalDateTime.now(),
-                    LocalDateTime.now()
+                    LocalDateTime.now(),
+                    null
             );
             normalScheduleList.add(schedule);
         }
@@ -383,7 +391,8 @@ public class ScheduleRepositoryImplTest {
                 userList.get(0),
                 ScheduleStatus.DRAFT,
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
         );
         scheduleRepository.save(draftSchedule);
 
@@ -408,7 +417,8 @@ public class ScheduleRepositoryImplTest {
                 userList.get(0),
                 ScheduleStatus.DRAFT,
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
         );
         scheduleRepository.save(draftSchedule);
         flushAndClearPersistence();
@@ -419,6 +429,60 @@ public class ScheduleRepositoryImplTest {
         assertThrows(BaseException.class, () ->
                 scheduleRepository.deleteDraftSchedule(userId + 1L, draftSchedule.getId())
         );
+    }
+
+    @DisplayName("모집중인 내 일정이 없는 경우, 빈 리스트를 반환한다")
+    @Test
+    void return_empty_list_if_no_schedule_created_by_user(){
+        //given
+        setShouldSkipSetup(true);
+
+        //when
+        List<Schedule> myOpenedList = scheduleRepository.myOpenScheduleList(userList.get(0).getId());
+
+        //then
+        assertThat(myOpenedList).isEmpty();
+    }
+
+    @DisplayName("정상 모집중인 내 일정이 여러개인 경우, 최대 7개만 반환한다")
+    @Test
+    void return_less_than_8_schedule_if_user_created_more_than_7_schedules_having_normal_state(){
+        //given
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        List<Schedule> newScheduleList = new ArrayList<>();
+        for(int i=0;i<10;i++){
+            Schedule schedule = generateSchedule(
+                    userList.get(0),
+                    ScheduleStatus.NORMAL,
+                    LocalDateTime.now().plusDays(5),
+                    LocalDateTime.now().plusDays(7),
+                    LocalDateTime.now().minusDays(5)
+            );
+            newScheduleList.add(schedule);
+        }
+        Schedule earlySchedule = generateSchedule(
+                userList.get(0),
+                ScheduleStatus.NORMAL,
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(7),
+                LocalDateTime.now().minusDays(5)
+        );
+        newScheduleList.add(earlySchedule);
+        scheduleRepository.saveAll(newScheduleList);
+        flushAndClearPersistence();
+
+        //when
+        List<Schedule> myOpenedList = scheduleRepository.myOpenScheduleList(userList.get(0).getId());
+
+        //then
+        assertThat(myOpenedList).doesNotContain(earlySchedule);
+        assertThat(myOpenedList.size()).isLessThanOrEqualTo(7);
+
+        for(Schedule s : myOpenedList){
+            assertThat(s.getScheduleStatus()).isEqualTo(ScheduleStatus.NORMAL);
+            assertThat(s.getParticipateStartAt()).isBeforeOrEqualTo(currentDateTime);
+            assertThat(s.getParticipateEndAt()).isAfterOrEqualTo(currentDateTime);
+        }
     }
 
     private void setShouldSkipSetup(boolean shouldSkipSetup) {
@@ -433,7 +497,9 @@ public class ScheduleRepositoryImplTest {
                 .build();
     }
 
-    private Schedule generateSchedule(User user, ScheduleStatus scheduleStatus, LocalDateTime startAt, LocalDateTime endAt) {
+    private Schedule generateSchedule(User user, ScheduleStatus scheduleStatus, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime participateStartAt) {
+        participateStartAt = participateStartAt == null ? startAt : participateStartAt;
+
         return Schedule.builder()
                 .user(user)
                 .location(location)
@@ -444,7 +510,7 @@ public class ScheduleRepositoryImplTest {
                 .startAt(startAt)
                 .endAt(endAt)
                 .viewCount(1L)
-                .participateStartAt(startAt)
+                .participateStartAt(participateStartAt)
                 .participateEndAt(endAt)
                 .thumbnailUrl("https://thumbnail-img-s3.s3.ap-northeast-2.amazonaws.com/dog.jpg")
                 .build();
