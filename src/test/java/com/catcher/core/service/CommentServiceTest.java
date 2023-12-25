@@ -114,7 +114,6 @@ class CommentServiceTest {
 
         Comment comment = commentList.get(0);
         for (User user : userList) {
-
             CommentReply commentReply = createCommentReply(user, comment);
             commentReplyList.add(commentReply);
         }
