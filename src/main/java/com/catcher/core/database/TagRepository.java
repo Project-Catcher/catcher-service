@@ -8,7 +8,9 @@ import java.util.List;
 public interface TagRepository {
     List<Tag> findAll();
 
-    void save(Tag tag);
+    Tag save(Tag tag);
 
     List<Tag> findByRecommendedStatus(RecommendedStatus recommendedStatus);
+
+    List<Tag> findByNames(List<String> tags);
 }

@@ -76,5 +76,24 @@ public class Schedule extends BaseTimeEntity {
         this.publicStatus = publicStatus;
         this.participateStartAt = participateStartAt;
         this.participateEndAt = participateEndAt;
+        this.scheduleStatus = ScheduleStatus.DRAFT;
+    }
+
+    public void saveSchedule(
+            String title, String thumbnailUrl, LocalDateTime startAt, LocalDateTime endAt, Location location,
+            Long participantLimit, Long budget, PublicStatus publicStatus,
+            LocalDateTime participateStartAt, LocalDateTime participateEndAt
+    ) {
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.location = location;
+        this.participantLimit = participantLimit;
+        this.budget = budget;
+        this.publicStatus = publicStatus;
+        this.participateStartAt = participateStartAt;
+        this.participateEndAt = participateEndAt;
+        this.scheduleStatus = ScheduleStatus.NORMAL;
     }
 }

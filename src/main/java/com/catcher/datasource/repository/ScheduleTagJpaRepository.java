@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ScheduleTagJpaRepository extends JpaRepository<ScheduleTag, Long> {
     List<ScheduleTag> findBySchedule(Schedule schedule);
+
+    void deleteBySchedule(Schedule schedule);
 }

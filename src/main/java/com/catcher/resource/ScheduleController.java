@@ -36,7 +36,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 저장")
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/detail/{scheduleId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<SaveScheduleDetailResponse> saveScheduleDetail(
             @CurrentUser User user,
@@ -131,7 +131,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 수정")
-    @PatchMapping("/{scheduleDetailId}")
+    @PatchMapping("/detail/{scheduleDetailId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> updateScheduleDetail(
             @CurrentUser User user,
@@ -143,7 +143,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "세부 일정 삭제")
-    @DeleteMapping("/{scheduleDetailId}")
+    @DeleteMapping("/detail/{scheduleDetailId}")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> deleteScheduleDetail(
             @CurrentUser User user,
@@ -155,7 +155,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 참여 신청")
-    @PostMapping("/{scheduleId}")
+    @PostMapping("/{scheduleId}/participants")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> participateSchedule(
             @CurrentUser User user,
@@ -174,7 +174,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 참여 신청 취소")
-    @PatchMapping("/{scheduleId}")
+    @PatchMapping("/{scheduleId}/participants")
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<Object> cancelParticipateSchedule(
             @CurrentUser User user,
@@ -182,6 +182,18 @@ public class ScheduleController {
     ) {
         scheduleService.cancelParticipateSchedule(user, scheduleId);
 
+        return CommonResponse.success();
+    }
+
+    @Operation(summary = "일정 저장")
+    @PostMapping("/{scheduleId}")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<Object> saveSchedule(
+            @CurrentUser User user,
+            @PathVariable Long scheduleId,
+            @RequestBody SaveScheduleRequest request
+    ) {
+        scheduleService.saveSchedule(user, scheduleId, request);
         return CommonResponse.success();
     }
 }

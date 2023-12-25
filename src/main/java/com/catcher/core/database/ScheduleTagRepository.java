@@ -11,4 +11,6 @@ public interface ScheduleTagRepository {
     void saveAll(List<ScheduleTag> scheduleTagList);
 
     List<ScheduleTag> findBySchedule(Schedule schedule);
+
+    void deleteBySchedule(Schedule schedule);
 }
