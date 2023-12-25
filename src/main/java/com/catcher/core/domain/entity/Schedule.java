@@ -1,16 +1,18 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.core.domain.entity.enums.PublicStatus;
 import com.catcher.core.domain.entity.enums.ScheduleStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Table(name = "schedule")
 public class Schedule extends BaseTimeEntity {
     @Id
@@ -27,16 +29,13 @@ public class Schedule extends BaseTimeEntity {
 
     private Long participantLimit;
 
-    private String locationDetail;
-
     @Column(nullable = false)
     private String title;
 
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "upload_file_id", nullable = false)
-    private UploadFile uploadFile;
+    @Column(nullable = false)
+    private String thumbnailUrl;
 
     @Column(nullable = false)
     private Long viewCount;
@@ -44,17 +43,57 @@ public class Schedule extends BaseTimeEntity {
     private Long budget;
 
     @Enumerated(value = EnumType.STRING)
-    private ScheduleStatus status;
+    @ColumnDefault("'NORMAL'")
+    private ScheduleStatus scheduleStatus;
+
+    @Enumerated(value = EnumType.STRING)
+    private PublicStatus publicStatus;
 
     @Column(name = "start_at", nullable = false)
-    private ZonedDateTime startAt; // 일정 시작
+    private LocalDateTime startAt; // 일정 시작
 
     @Column(name = "end_at", nullable = false)
-    private ZonedDateTime endAt; // 일정 종료
+    private LocalDateTime endAt; // 일정 종료
 
     @Column(name = "participate_start_at")
-    private ZonedDateTime participateStartAt; // 모집 시작
+    private LocalDateTime participateStartAt; // 모집 시작
 
     @Column(name = "participate_end_at")
-    private ZonedDateTime participateEndAt; // 모집 종료
+    private LocalDateTime participateEndAt; // 모집 종료
+
+    public void draftSchedule(
+            String title, String thumbnailUrl, LocalDateTime startAt, LocalDateTime endAt, Location location,
+            Long participantLimit, Long budget, PublicStatus publicStatus,
+            LocalDateTime participateStartAt, LocalDateTime participateEndAt
+    ) {
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.location = location;
+        this.participantLimit = participantLimit;
+        this.budget = budget;
+        this.publicStatus = publicStatus;
+        this.participateStartAt = participateStartAt;
+        this.participateEndAt = participateEndAt;
+        this.scheduleStatus = ScheduleStatus.DRAFT;
+    }
+
+    public void saveSchedule(
+            String title, String thumbnailUrl, LocalDateTime startAt, LocalDateTime endAt, Location location,
+            Long participantLimit, Long budget, PublicStatus publicStatus,
+            LocalDateTime participateStartAt, LocalDateTime participateEndAt
+    ) {
+        this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.location = location;
+        this.participantLimit = participantLimit;
+        this.budget = budget;
+        this.publicStatus = publicStatus;
+        this.participateStartAt = participateStartAt;
+        this.participateEndAt = participateEndAt;
+        this.scheduleStatus = ScheduleStatus.NORMAL;
+    }
 }

@@ -1,4 +1,4 @@
-package com.catcher.infrastructure.jpa.repository;
+package com.catcher.datasource.repository;
 
 import com.catcher.core.domain.entity.CatcherItem;
 import com.catcher.core.domain.entity.Category;

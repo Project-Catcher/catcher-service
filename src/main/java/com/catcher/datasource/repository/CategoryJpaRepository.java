@@ -1,4 +1,4 @@
-package com.catcher.infrastructure.jpa.repository;
+package com.catcher.datasource.repository;
 
 import com.catcher.core.domain.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
