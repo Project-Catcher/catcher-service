@@ -9,7 +9,6 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
   OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
   DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
@@ -68,7 +67,6 @@ jobs:
         git status
         git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
 
-    # 수정된 파일 commit & push
     - name: Commit manifest files
       if: steps.git-check.outputs.changes_exist == 'true'
       run: |

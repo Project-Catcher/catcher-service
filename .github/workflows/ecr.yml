@@ -5,12 +5,13 @@ on:
     branches: [ "main", "dev" ]
 
 env:
-  ECR_URL: ${{ secrets.ECR_REPO_DEV }}
+  AWS_DEV_CATCHER_ECR: ${{ secrets.AWS_DEV_CATCHER_ECR }}
+  AWS_PRD_CATCHER_ECR: ${{ secrets.AWS_PRD_CATCHER_ECR }}
   ROLE_ARN: ${{ secrets.OIDC_ROLE }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   WEBHOOK_URL: ${{ secrets.WEBHOOK }}
-  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }} # Temp
-  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }} # Temp
+  GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+  DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
 
 permissions:
   id-token: write
@@ -56,8 +57,13 @@ jobs:
 
       - name: Publish Image to ECR(CATCHER-SERVICE)
         run: |
-          docker tag catcher-service:latest ${{ env.ECR_URL }}:${{ github.sha }}
-          docker push ${{ env.ECR_URL }}:${{ github.sha }}
+          if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
+            docker tag catcher-service:latest ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
+            docker push ${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}
+          else
+            docker tag catcher-service:latest ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
+            docker push ${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}
+          fi
 
       - name: Send Notification
         if: ${{ always() }}
@@ -69,7 +75,6 @@ jobs:
           fi
           curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
 
-# Temp  
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
 
@@ -84,15 +89,17 @@ jobs:
       - name: Update Kustomize image
         run: |
           if [ "${{ env.DEPLOY_ENV }}" == "PROD" ]; then
-            KUSTOMIZE_PATH="catcher-service-kusto/overlays/production"
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/production" && cd $KUSTOMIZE_PATH
+            kustomize edit set image app-catcher-img="${{ env.AWS_PRD_CATCHER_ECR }}:${{ github.sha }}"
           else
-            KUSTOMIZE_PATH="catcher-service-kusto/overlays/development"
+            KUSTOMIZE_PATH="catcher-service-kusto/overlays/development" && cd $KUSTOMIZE_PATH
+            kustomize edit set image app-catcher-img="${{ env.AWS_DEV_CATCHER_ECR }}:${{ github.sha }}"
           fi
-  
-          # Docker 이미지 URL 설정
-          cd $KUSTOMIZE_PATH
-          kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
-          cat kustomization.yaml
+
+          kustomize build .
+
+          # kustomize edit set image catcher-service="${{ steps.login-ecr.outputs.registry }}/catcher-dev-ecr-back-catcher:${{ github.sha }}"
+          # cat kustomization.yaml
   
       - name: Check for changes
         id: git-check
@@ -101,7 +108,6 @@ jobs:
           git status
           git diff-index --quiet HEAD || echo "::set-output name=changes_exist::true"
   
-      # 수정된 파일 commit & push
       - name: Commit manifest files
         if: steps.git-check.outputs.changes_exist == 'true'
         run: |
