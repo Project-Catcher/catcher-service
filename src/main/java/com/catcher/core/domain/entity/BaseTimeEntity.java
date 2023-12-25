@@ -5,6 +5,8 @@ import lombok.Getter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
@@ -16,6 +18,12 @@ public class BaseTimeEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 
     @PreUpdate
     private void preUpdate() {
