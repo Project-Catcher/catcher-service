@@ -4,29 +4,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @Getter
 public class BaseTimeEntity {
-    protected static ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
     @Column(name = "created_at")
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private ZonedDateTime updatedAt;
-
-    @PrePersist
-    private void prePersist() {
-        this.createdAt = ZonedDateTime.now(ZONE);
-        this.updatedAt = ZonedDateTime.now(ZONE);
-    }
+    private LocalDateTime updatedAt;
 
     @PreUpdate
     private void preUpdate() {
-        this.updatedAt = ZonedDateTime.now(ZONE);
+        this.updatedAt = LocalDateTime.now();
     }
 }
