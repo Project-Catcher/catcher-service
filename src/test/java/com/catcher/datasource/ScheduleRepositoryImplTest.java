@@ -421,6 +421,19 @@ public class ScheduleRepositoryImplTest {
         );
     }
 
+    @DisplayName("모집중인 내 일정이 없는 경우, 빈 리스트를 반환한다")
+    @Test
+    void return_empty_list_if_no_schedule_created_by_user(){
+        //given
+        setShouldSkipSetup(true);
+
+        //when
+        List<Schedule> myOpenedList = scheduleRepository.myOpenScheduleList(userList.get(0).getId());
+
+        //then
+        assertThat(myOpenedList).isEmpty();
+    }
+
     private void setShouldSkipSetup(boolean shouldSkipSetup) {
         this.shouldSkipSetup = shouldSkipSetup;
     }

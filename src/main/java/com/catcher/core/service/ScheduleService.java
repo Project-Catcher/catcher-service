@@ -214,7 +214,7 @@ public class ScheduleService {
         return new MyListResponse(
                 scheduleRepository.upcomingScheduleList(userId),    //다가오는 일정
                 scheduleRepository.draftScheduleList(userId),       //작성중인 일정
-                scheduleRepository.openScheduleList(),              //모집 중
+                scheduleRepository.myOpenScheduleList(userId),      //모집 중
                 scheduleRepository.appliedScheduleList(userId)      //참여 신청
         );
     }
