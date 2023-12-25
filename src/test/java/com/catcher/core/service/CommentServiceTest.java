@@ -111,7 +111,6 @@ class CommentServiceTest {
         }
         commentRepository.saveAll(commentList);
 
-
         Comment comment = commentList.get(0);
         for (User user : userList) {
             CommentReply commentReply = createCommentReply(user, comment);
