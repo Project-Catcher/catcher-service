@@ -75,7 +75,6 @@ jobs:
           fi
           curl -X POST -H "Content-Type: application/json" --data "{\"text\":\"${MESSAGE}\"}" ${{ env.WEBHOOK_URL }}
 
-# Temp  
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
 
