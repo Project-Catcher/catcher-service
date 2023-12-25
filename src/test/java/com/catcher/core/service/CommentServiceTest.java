@@ -147,7 +147,7 @@ class CommentServiceTest {
                 .build();
 
         //when
-        CommentListResponse commentListResponse = commentService.saveCommentOrCommentReply(user, saveCommentRequest);
+        CommentListResponse commentListResponse = commentService.saveComment(user, saveCommentRequest);
         flushAndClearPersistence();
 
         //then
@@ -170,13 +170,12 @@ class CommentServiceTest {
 
         SaveCommentRequest saveCommentRequest = SaveCommentRequest.builder()
                 .scheduleId(schedule.getId())
-                .commentId(comment.getId())
                 .content(createRandomUUID())
                 .isSecret(false)
                 .build();
 
         //when
-        CommentListResponse commentListResponse = commentService.saveCommentOrCommentReply(user, saveCommentRequest);
+        CommentListResponse commentListResponse = commentService.saveCommentReply(user, saveCommentRequest, comment.getId());
         flushAndClearPersistence();
 
         //then

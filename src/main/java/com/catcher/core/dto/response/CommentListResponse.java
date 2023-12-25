@@ -4,6 +4,7 @@ import com.catcher.core.domain.entity.Comment;
 import com.catcher.core.domain.entity.CommentReply;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -21,6 +22,7 @@ public class CommentListResponse {
         private final String nickname;
         private final String profileImageUrl;
         private final String content;
+        private final LocalDateTime deletedAt;
         private final Long likeCount;
         private final Boolean likeStatus;
         private final List<CommentReplyDto> commentReplyList;
@@ -31,6 +33,7 @@ public class CommentListResponse {
             this.nickname = comment.getUser().getNickname();
             this.profileImageUrl = comment.getUser().getProfileImageUrl();
             this.content = comment.getContent();
+            this.deletedAt = getDeletedAt();
             this.likeCount = likeCount;
             this.likeStatus = likeStatus;
             this.commentReplyList = commentReplyDto;
@@ -46,6 +49,7 @@ public class CommentListResponse {
         private final String content;
         private final Long likeCount;
         private final Boolean likeStatus;
+        private final LocalDateTime deletedAt;
 
         public CommentReplyDto(CommentReply commentReply, Long likeCount, Boolean likeStatus) {
             this.id = commentReply.getId();
@@ -53,6 +57,7 @@ public class CommentListResponse {
             this.nickname = commentReply.getUser().getNickname();
             this.profileImageUrl = commentReply.getUser().getProfileImageUrl();
             this.content = commentReply.getContent();
+            this.deletedAt = commentReply.getDeletedAt();
             this.likeCount = likeCount;
             this.likeStatus = likeStatus;
         }

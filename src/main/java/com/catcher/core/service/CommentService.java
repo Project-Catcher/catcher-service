@@ -30,11 +30,15 @@ public class CommentService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional
-    public CommentListResponse saveCommentOrCommentReply(User user, SaveCommentRequest saveCommentRequest) {
-        if (saveCommentRequest.getCommentId() != null) {
-            saveCommentReply(user, saveCommentRequest.getCommentId(), saveCommentRequest.getContent());
-        } else
-            saveComment(user, saveCommentRequest.getScheduleId(), saveCommentRequest.getContent());
+    public CommentListResponse saveComment(User user, SaveCommentRequest saveCommentRequest) {
+        saveComment(user, saveCommentRequest.getScheduleId(), saveCommentRequest.getContent());
+
+        return getCommentListResponseByScheduleIdAndUserId(saveCommentRequest.getScheduleId(), user.getId());
+    }
+
+    @Transactional
+    public CommentListResponse saveCommentReply(User user, SaveCommentRequest saveCommentRequest, Long commentId) {
+            saveCommentReply(user, commentId, saveCommentRequest.getContent());
 
         return getCommentListResponseByScheduleIdAndUserId(saveCommentRequest.getScheduleId(), user.getId());
     }

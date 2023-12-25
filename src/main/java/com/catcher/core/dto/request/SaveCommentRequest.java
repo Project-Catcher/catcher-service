@@ -16,7 +16,4 @@ public class SaveCommentRequest {
 
     @NotBlank(message = "비밀 댓글 여부는 필수입니다.")
     private Boolean isSecret;
-
-    private Long commentId;
-
 }

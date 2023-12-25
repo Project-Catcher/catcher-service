@@ -18,14 +18,26 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     private final CommentService commentService;
 
-    @Operation(summary = "댓글(대댓글) 등록")
+    @Operation(summary = "댓글 등록")
     @PostMapping()
     @AuthorizationRequired(value = UserRole.USER)
     public CommonResponse<CommentListResponse> saveComment(
             @RequestBody SaveCommentRequest saveCommentRequest,
             @CurrentUser User user
     ) {
-        CommentListResponse response = commentService.saveCommentOrCommentReply(user, saveCommentRequest);
+        CommentListResponse response = commentService.saveComment(user, saveCommentRequest);
+        return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "대댓글 등록")
+    @PostMapping("/{commentId}/replys")
+    @AuthorizationRequired(value = UserRole.USER)
+    public CommonResponse<CommentListResponse> saveCommentReply(
+            @RequestBody SaveCommentRequest saveCommentRequest,
+            @CurrentUser User user,
+            @PathVariable Long commentId
+    ) {
+        CommentListResponse response = commentService.saveCommentReply(user, saveCommentRequest, commentId);
         return CommonResponse.success(response);
     }
 }
