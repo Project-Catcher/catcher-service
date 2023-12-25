@@ -142,7 +142,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     public List<Schedule> myOpenScheduleList(Long userId) {
-        return scheduleJpaRepository.findSchedulesByUserIdAndTodayBetweenParticipateDates(userId)
+        return scheduleJpaRepository.findSchedulesByUserIdAndTodayBetweenParticipateDatesAndStatus(userId, ScheduleStatus.NORMAL)
                 .stream()
                 .limit(7)
                 .collect(Collectors.toList());

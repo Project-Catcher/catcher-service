@@ -39,8 +39,11 @@ public interface ScheduleJpaRepository extends JpaRepository<Schedule, Long>, Jp
             "JOIN FETCH s.user " +
             "WHERE s.user.id = :userId " +
             "AND CURRENT_TIMESTAMP BETWEEN s.participateStartAt AND s.participateEndAt " +
+            "AND s.scheduleStatus = :scheduleStatus " +
+            "AND CURRENT_TIMESTAMP <= s.startAt " +
             "ORDER BY s.startAt ASC")
-    List<Schedule> findSchedulesByUserIdAndTodayBetweenParticipateDates(
-            @Param("userId") Long userId
+    List<Schedule> findSchedulesByUserIdAndTodayBetweenParticipateDatesAndStatus(
+            @Param("userId") Long userId,
+            @Param("scheduleStatus") ScheduleStatus scheduleStatus
     );
 }
