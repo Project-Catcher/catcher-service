@@ -43,7 +43,7 @@ public class AdminUserController {
                                                                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
         if (startDate == null) {
-            startDate = LocalDate.now().minusDays(20);
+            startDate = LocalDate.now().minusDays(10);
         }
 
         if (endDate == null) {
