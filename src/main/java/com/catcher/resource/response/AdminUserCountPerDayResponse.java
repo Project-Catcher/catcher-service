@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
 public class AdminUserCountPerDayResponse {

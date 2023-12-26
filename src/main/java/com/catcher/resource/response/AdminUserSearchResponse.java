@@ -23,7 +23,6 @@ public class AdminUserSearchResponse {
 
     private String status;
 
-
     public static AdminUserSearchResponse create(User user) {
         return AdminUserSearchResponse.builder()
                 .id(user.getUsername())
