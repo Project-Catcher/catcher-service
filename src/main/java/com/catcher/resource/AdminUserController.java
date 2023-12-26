@@ -3,6 +3,7 @@ package com.catcher.resource;
 import com.catcher.common.response.CommonResponse;
 import com.catcher.core.domain.UserSearchFilterType;
 import com.catcher.core.domain.UserStatus;
+import com.catcher.core.domain.entity.User;
 import com.catcher.core.domain.entity.enums.UserRole;
 import com.catcher.core.service.AdminUserService;
 import com.catcher.resource.request.AdminBlackListRequest;
@@ -10,15 +11,14 @@ import com.catcher.resource.response.AdminUserCountPerDayResponse;
 import com.catcher.resource.response.AdminUserDetailResponse;
 import com.catcher.resource.response.AdminUserSearchResponse;
 import com.catcher.resource.response.AdminUserTotalCountResponse;
-import com.catcher.security.CatcherUser;
 import com.catcher.security.annotation.AuthorizationRequired;
+import com.catcher.security.annotation.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -75,10 +75,10 @@ public class AdminUserController {
 
     @PostMapping("/blacklist")
     @AuthorizationRequired(UserRole.ADMIN)
-    public CommonResponse<Void> addBlackList(@RequestBody AdminBlackListRequest request) {
+    public CommonResponse<Void> addBlackList(@CurrentUser User user,
+                                             @RequestBody AdminBlackListRequest request) {
 
-        CatcherUser catcherUser = (CatcherUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final var adminUserId = catcherUser.getUser().getId();
+        final var adminUserId = user.getId();
 
         adminUserService.changeUserStatus(request.getUserId(), adminUserId, UserStatus.BLACKLISTED, request.getReason());
         return CommonResponse.success();
@@ -86,10 +86,10 @@ public class AdminUserController {
 
     @PostMapping("/blacklist/cancel/{userId}")
     @AuthorizationRequired(UserRole.ADMIN)
-    public CommonResponse<Void> cancelBlackList(@RequestBody AdminBlackListRequest request) {
+    public CommonResponse<Void> cancelBlackList(@CurrentUser User user,
+                                                @RequestBody AdminBlackListRequest request) {
 
-        CatcherUser catcherUser = (CatcherUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final var adminUserId = catcherUser.getUser().getId();
+        final var adminUserId = user.getId();
 
         adminUserService.changeUserStatus(request.getUserId(), adminUserId, UserStatus.NORMAL, request.getReason());
         return CommonResponse.success();
