@@ -21,15 +21,10 @@ public class UserStatusChangeHistory extends BaseTimeEntity {
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private UserStatusChangeHistory parent;
-
-    @OneToOne(mappedBy = "parent", fetch = FetchType.LAZY)
+    @JoinColumn(name = "child_id")
     private UserStatusChangeHistory child;
 
-    private UserStatus beforeStatus;
-
-    private UserStatus afterStatus;
+    private UserStatus action;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "changed_user_id", nullable = false)
@@ -37,16 +32,19 @@ public class UserStatusChangeHistory extends BaseTimeEntity {
 
     private String reason;
 
-    private int currentStateCount = 0;
+    private boolean affected;
 
-    public static UserStatusChangeHistory create(User user, User changedUser, UserStatusChangeHistory parent, UserStatus beforeStatus, UserStatus afterStatus, String reason) {
+    public static UserStatusChangeHistory create(User user,
+                                                 User changedUser,
+                                                 UserStatus action,
+                                                 String reason,
+                                                 boolean affected) {
         return UserStatusChangeHistory.builder()
                 .user(user)
                 .changedUser(changedUser)
-                .parent(parent)
-                .beforeStatus(beforeStatus)
-                .afterStatus(afterStatus)
+                .action(action)
                 .reason(reason)
+                .affected(affected)
                 .build();
     }
 

@@ -71,15 +71,15 @@ public class AdminUserService {
         final User adminUser = userRepository.findById(adminUserId).orElseThrow(() -> new BaseException(BaseResponseStatus.DATA_NOT_FOUND));
 
         final UserStatus beforeStatus = user.getStatus();
+        final boolean affected = user.changeUserStatus(afterStatus);
 
-        var parent = userStatusChangeHistoryRepository.findFirstByUserAndAfterStatusOrderByIdDesc(user, beforeStatus).orElse(null);
+        var parent = userStatusChangeHistoryRepository.findFirstByUserAndActionAndAffectedOrderByIdDesc(user, beforeStatus, true).orElse(null);
 
-        UserStatusChangeHistory history = UserStatusChangeHistory.create(user, adminUser, parent, beforeStatus, afterStatus, reason);
+        UserStatusChangeHistory history = UserStatusChangeHistory.create(user, adminUser, afterStatus, reason, affected);
         history = userStatusChangeHistoryRepository.save(history);
         if (parent != null) {
             parent.setChild(history);
         }
-        user.changeUserStatus(afterStatus);
     }
 
     public void validateUserCountDateInput(final LocalDate startDate, final LocalDate endDate) {

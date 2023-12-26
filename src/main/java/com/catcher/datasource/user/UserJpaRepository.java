@@ -37,7 +37,7 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
             "FROM UserStatusChangeHistory ush " +
             "JOIN ush.user u " +
             "WHERE ush.createdAt BETWEEN :startDate AND :endDate " +
-            "AND ush.afterStatus = com.catcher.core.domain.UserStatus.REPORTED " +
+            "AND ush.action = com.catcher.core.domain.UserStatus.REPORTED " +
             "GROUP BY date(ush.createdAt)")
     List<Map<String, Object>> countReportedUsersPerDay(@Param("startDate") ZonedDateTime startDate, @Param("endDate") ZonedDateTime endDate);
 

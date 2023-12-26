@@ -133,14 +133,12 @@ class AdminUserServiceTest {
         // when
         adminUserService.changeUserStatus(user.getId(), adminUser.getId(), UserStatus.BLACKLISTED, "테스트 블랙리스트 설정");
         adminUserService.changeUserStatus(user.getId(), adminUser.getId(), UserStatus.NORMAL, "테스트 블랙리스트 해제");
-        Optional<UserStatusChangeHistory> childUserStatusChangeHistoryOptional = userStatusChangeHistoryRepository.findFirstByUserAndAfterStatusOrderByIdDesc(user, UserStatus.NORMAL);
-        Optional<UserStatusChangeHistory> parentUserStatusChangeHistoryOptional = userStatusChangeHistoryRepository.findFirstByUserAndAfterStatusOrderByIdDesc(user, UserStatus.BLACKLISTED);
+        Optional<UserStatusChangeHistory> childUserStatusChangeHistoryOptional = userStatusChangeHistoryRepository.findFirstByUserAndActionAndAffectedOrderByIdDesc(user, UserStatus.NORMAL, true);
+        Optional<UserStatusChangeHistory> parentUserStatusChangeHistoryOptional = userStatusChangeHistoryRepository.findFirstByUserAndActionAndAffectedOrderByIdDesc(user, UserStatus.BLACKLISTED, true);
 
         // then
         assertSame(user.getStatus(), UserStatus.NORMAL);
 
-        assertEquals(childUserStatusChangeHistoryOptional.get().getParent(), parentUserStatusChangeHistoryOptional.get());
-        assertNotEquals(childUserStatusChangeHistoryOptional.get().getParent(), childUserStatusChangeHistoryOptional.get());
         assertEquals(parentUserStatusChangeHistoryOptional.get().getChild(), childUserStatusChangeHistoryOptional.get());
         assertNotEquals(parentUserStatusChangeHistoryOptional.get().getChild(), parentUserStatusChangeHistoryOptional.get());
     }

@@ -11,7 +11,7 @@ public interface UserStatusChangeHistoryRepository {
 
     UserStatusChangeHistory save(UserStatusChangeHistory userStatusChangeHistory);
 
-    Optional<UserStatusChangeHistory> findFirstByUserAndAfterStatusOrderByIdDesc(User user, UserStatus userStatus);
+    Optional<UserStatusChangeHistory> findFirstByUserAndActionAndAffectedOrderByIdDesc(User user, UserStatus userStatus, boolean affected);
 
     List<UserStatusChangeHistory> findAllByUserId(Long id);
 

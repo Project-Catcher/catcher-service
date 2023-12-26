@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface UserStatusChangeHistoryJpaRepository extends JpaRepository<UserStatusChangeHistory, Long> {
 
-    Optional<UserStatusChangeHistory> findFirstByUserAndAfterStatusOrderByIdDesc(User user, UserStatus userStatus);
+    Optional<UserStatusChangeHistory> findFirstByUserAndActionAndAffectedOrderByIdDesc(User user, UserStatus userStatus, boolean affected);
 
     List<UserStatusChangeHistory> findByUserId(Long userId);
 

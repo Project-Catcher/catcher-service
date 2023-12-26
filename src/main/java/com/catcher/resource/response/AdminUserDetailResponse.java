@@ -31,7 +31,7 @@ public class AdminUserDetailResponse {
     public static AdminUserDetailResponse create(User user) {
         final var blackListHistoryList = user.getUserStatusChangeHistories()
                 .stream()
-                .filter(history -> history.getAfterStatus() == UserStatus.BLACKLISTED)
+                .filter(history -> history.getAction() == UserStatus.BLACKLISTED)
                 .toList();
 
         return AdminUserDetailResponse.builder()

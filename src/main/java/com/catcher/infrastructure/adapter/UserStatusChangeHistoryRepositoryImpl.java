@@ -23,8 +23,8 @@ public class UserStatusChangeHistoryRepositoryImpl implements UserStatusChangeHi
     }
 
     @Override
-    public Optional<UserStatusChangeHistory> findFirstByUserAndAfterStatusOrderByIdDesc(final User user, final UserStatus userStatus) {
-        return userStatusChangeHistoryJpaRepository.findFirstByUserAndAfterStatusOrderByIdDesc(user, userStatus);
+    public Optional<UserStatusChangeHistory> findFirstByUserAndActionAndAffectedOrderByIdDesc(final User user, final UserStatus userStatus, final boolean affected) {
+        return userStatusChangeHistoryJpaRepository.findFirstByUserAndActionAndAffectedOrderByIdDesc(user, userStatus, affected);
     }
 
     @Override

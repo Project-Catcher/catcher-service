@@ -25,6 +25,7 @@ public enum BaseResponseStatus {
     INVALID_DATE_INPUT(2030, "입력하신 일자를 확인해 주세요."),
     THREE_MONTHS_DATE_RANGE_EXCEPTION(2031, "최대 조회 가능 기간은 3개월 입니다."),
     TAG_NOT_FOUND(2032, "태그가 존재하지 않습니다."),
+    ALREAD_BLACKLISTED(2033, "이미 블랙리스트에 등록된 유저입니다."),
 
     /**
      * 3000 : Response 오류

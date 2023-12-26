@@ -1,5 +1,7 @@
 package com.catcher.core.domain.entity;
 
+import com.catcher.common.exception.BaseException;
+import com.catcher.common.exception.BaseResponseStatus;
 import com.catcher.core.domain.UserStatus;
 import com.catcher.core.domain.entity.enums.UserGender;
 import com.catcher.core.domain.entity.enums.UserProvider;
@@ -77,12 +79,21 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserStatusChangeHistory> userStatusChangeHistories = new ArrayList<>();
 
-    public void changeUserStatus(UserStatus userStatus) {
+    public boolean changeUserStatus(UserStatus userStatus) {
+        if (this.status == userStatus && this.status == UserStatus.BLACKLISTED) {
+            throw new BaseException(BaseResponseStatus.ALREAD_BLACKLISTED);
+        }
+
+        if (this.status == userStatus) {
+            return false; // 같은 상태로 변경하려고 하면 변경되지 않음
+        }
+
         if (this.status == UserStatus.BLACKLISTED && userStatus == UserStatus.REPORTED) {
-            return; // 블랙리스트 상태에서 신고해도 신고 상태로 변경되지 않음
+            return false; // 블랙리스트 상태에서 신고해도 신고 상태로 변경되지 않음
         }
 
         this.status = userStatus;
+        return true;
     }
 
 }
