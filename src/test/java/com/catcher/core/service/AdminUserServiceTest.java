@@ -55,6 +55,48 @@ class AdminUserServiceTest {
     }
 
     @Test
+    @Transactional
+    @DisplayName("블랙리스트 설정 후 다시 신고 시 블랙리스트 상태에 머무른다.")
+    void changeUserStatusToBlackListAndReport() {
+        // given
+        User user = getUserFixture(UserRole.USER);
+        User adminUser = getUserFixture(UserRole.ADMIN);
+
+        // when
+        adminUserService.changeUserStatus(user.getId(), adminUser.getId(), UserStatus.BLACKLISTED, "테스트 블랙리스트 설정");
+        adminUserService.changeUserStatus(user.getId(), adminUser.getId(), UserStatus.REPORTED, "테스트 신고");
+
+        // then
+        assertSame(user.getStatus(), UserStatus.BLACKLISTED);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("유저를 여러 번 신고하고 이에 대한 신고 횟수를 확인한다.")
+    void countReportedUsersPerDay() {
+        // given
+
+        User user1 = getUserFixture(UserRole.USER);
+        User user2 = getUserFixture(UserRole.USER);
+
+        // when
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.REPORTED, "신고 테스트1");
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.REPORTED, "신고 테스트2");
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.BLACKLISTED, "테스트 블랙리스트 설정");
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.REPORTED, "신고 테스트3");
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.NORMAL, "테스트 블랙리스트 해제");
+        adminUserService.changeUserStatus(user1.getId(), user1.getId(), UserStatus.REPORTED, "신고 테스트4");
+        adminUserService.changeUserStatus(user2.getId(), user2.getId(), UserStatus.REPORTED, "유저2 신고테스트");
+
+        final var response = adminUserService.getUserCountPerDay(LocalDate.now(), LocalDate.now());
+        final var userResponse = response.getUserListData().stream()
+                .filter(p -> p.getDate().equals(LocalDate.now()))
+                .findFirst().get();
+        // then
+        assertEquals(userResponse.getNumberOfReport(), 2);
+    }
+
+    @Test
     @DisplayName("블랙리스트 설정을 수행한다")
     @Transactional
     void changeUserStatusToBlackList() {
@@ -75,7 +117,7 @@ class AdminUserServiceTest {
      * 다음과 같은 식으로 수행된다.
      * 1. 블랙리스트 설정
      * 2. 블랙리스트 해제
-     *
+     * <p>
      * userStatusChangeHistory는 다음과 같이 생성되어야 한다.
      * 1. (1, before: NORMAL, after: BLACKLISTED, parent: null, child: 2)
      * 2. (2, before: BLACKLISTED, after: NORMAL, parent: 1, child: null)
