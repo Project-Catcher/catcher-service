@@ -78,6 +78,10 @@ public class User extends BaseTimeEntity {
     private List<UserStatusChangeHistory> userStatusChangeHistories = new ArrayList<>();
 
     public void changeUserStatus(UserStatus userStatus) {
+        if (this.status == UserStatus.BLACKLISTED && userStatus == UserStatus.REPORTED) {
+            return; // 블랙리스트 상태에서 신고해도 신고 상태로 변경되지 않음
+        }
+
         this.status = userStatus;
     }
 
