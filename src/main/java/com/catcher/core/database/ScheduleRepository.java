@@ -21,6 +21,8 @@ public interface ScheduleRepository {
 
     List<Schedule> openScheduleList();
 
+    List<Schedule> myOpenScheduleList(Long userId);    // 내 일정 -> 모집중
+
     List<Schedule> appliedScheduleList(Long userId);
 
     void saveAll(List<Schedule> scheduleList);

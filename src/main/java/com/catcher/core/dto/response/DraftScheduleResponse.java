@@ -3,7 +3,7 @@ package com.catcher.core.dto.response;
 import com.catcher.core.domain.entity.Schedule;
 import lombok.Getter;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,7 +20,7 @@ public class DraftScheduleResponse {
         private final String title;
         private final String thumbnailUrl;
         private final String location;
-        private final ZonedDateTime createdAt;
+        private final LocalDateTime createdAt;
 
         public ScheduleDTO(Schedule schedule) {
             this.id = schedule.getId();

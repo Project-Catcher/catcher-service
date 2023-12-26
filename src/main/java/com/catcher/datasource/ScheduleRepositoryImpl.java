@@ -109,6 +109,9 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 남은 일정중 모집중인 일정에 대한 조회 -> 현재 사용중 X
+     */
     @Override
     public List<Schedule> openScheduleList() {
         List<Schedule> scheduleList = scheduleJpaRepository.findByScheduleStatusAndParticipationPeriod(ScheduleStatus.NORMAL, LocalDateTime.now());
@@ -136,6 +139,15 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 .limit(7)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Schedule> myOpenScheduleList(Long userId) {
+        return scheduleJpaRepository.findSchedulesByUserIdAndTodayBetweenParticipateDatesAndStatus(userId, ScheduleStatus.NORMAL)
+                .stream()
+                .limit(7)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<Schedule> appliedScheduleList(Long userId) {
