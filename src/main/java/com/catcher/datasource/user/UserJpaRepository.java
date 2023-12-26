@@ -33,10 +33,12 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
             "GROUP BY date(u.createdAt)")
     List<Map<String, Object>> countDeletedUsersPerDay(@Param("startDate") ZonedDateTime startDate, @Param("endDate") ZonedDateTime endDate);
 
-    @Query("SELECT new map(date(u.createdAt) as date, COUNT(u) as count) " +
-            "FROM User u " +
-            "WHERE u.createdAt BETWEEN :startDate AND :endDate " +
-            "GROUP BY date(u.createdAt)")
+    @Query("SELECT new map(date(ush.createdAt) as date, COUNT(DISTINCT u) as count) " +
+            "FROM UserStatusChangeHistory ush " +
+            "JOIN ush.user u " +
+            "WHERE ush.createdAt BETWEEN :startDate AND :endDate " +
+            "AND ush.afterStatus = com.catcher.core.domain.UserStatus.REPORTED " +
+            "GROUP BY date(ush.createdAt)")
     List<Map<String, Object>> countReportedUsersPerDay(@Param("startDate") ZonedDateTime startDate, @Param("endDate") ZonedDateTime endDate);
 
 }
