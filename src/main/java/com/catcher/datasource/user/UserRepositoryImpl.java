@@ -10,10 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +69,7 @@ public class UserRepositoryImpl implements UserRepository {
      */
     private Map<String, Long> returnMap(final LocalDate startDate, final LocalDate endDate, GroupedByDateQueryFunction groupedByDateQueryFunction) {
         final var resultMap = initMap(startDate, endDate);
-        final List<Map<String, Object>> queryResults = groupedByDateQueryFunction.apply(startDate.atStartOfDay(ZoneId.systemDefault()), endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()));
+        final List<Map<String, Object>> queryResults = groupedByDateQueryFunction.apply(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
 
         queryResults.forEach(result -> {
             resultMap.put(result.get("date").toString(), (Long) result.get("count"));
@@ -83,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @FunctionalInterface
     public interface GroupedByDateQueryFunction {
-        List<Map<String, Object>> apply(ZonedDateTime start, ZonedDateTime end);
+        List<Map<String, Object>> apply(LocalDateTime start, LocalDateTime end);
     }
 
     @Override

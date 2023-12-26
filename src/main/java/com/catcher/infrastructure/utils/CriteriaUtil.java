@@ -6,7 +6,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +24,9 @@ public class CriteriaUtil {
             if (startDate != null && endDate != null) {
                 predicates.add(criteriaBuilder.between(
                         root.get(DEFAULT_SEARCH_DATE_COLUMN),
-                        startDate.atStartOfDay(ZoneId.systemDefault()),
-                        endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault())
-                ));
+                        startDate.atStartOfDay(),
+                        endDate.atTime(LocalTime.MAX))
+                );
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
