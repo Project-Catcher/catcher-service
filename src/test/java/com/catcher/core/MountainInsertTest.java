@@ -7,6 +7,7 @@ import com.catcher.core.port.AddressPort;
 import com.catcher.core.port.CatcherItemPort;
 import com.catcher.core.port.CategoryPort;
 import com.catcher.core.port.LocationPort;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class MountainInsertTest {
     public static final String CATEGORY_NAME = "mountain";
 
 
+    @Disabled
     @ParameterizedTest
     @CsvFileSource(resources = "/MNT_CODE.csv", numLinesToSkip = 1, encoding = "EUC-KR")
     public void 산_정보_최초_insert(Long order, String mountainName, String locationDescription, String mountainCode) {
